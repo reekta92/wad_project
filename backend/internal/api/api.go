@@ -83,6 +83,7 @@ func New(cfg config.Config, databases *store.Databases) *fiber.App {
 	})
 	verify := authenticate(databases, auth.NewVerifier(cfg.Issuer))
 	app.Get("/api/v1/me", verify, profile)
+	workflowRoutes(app, databases, verify)
 	businessRoutes(app, databases, verify)
 	app.Use("/api", func(c *fiber.Ctx) error { return fiber.NewError(404, "API resource not found.") })
 	app.Static("/", cfg.StaticDir)

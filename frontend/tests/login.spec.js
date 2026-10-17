@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { verifyBusinessAPI, verifyMemberAPI, verifyBusinessUI, verifyOwnedRequestUI } from './business.js';
+import { verifyWorkflowAPI, verifyWorkflowPermissions } from './workflows.js';
 
 const root = resolve('..');
 const accounts = JSON.parse(readFileSync(resolve(root, '.local/demo-accounts.json'))).accounts;
@@ -100,6 +101,7 @@ for (const [name, label, role, personnel] of [
     expect(profile.personnel_id).toBe(personnel);
     expect(profile.permissions).toEqual(personnel ? ['invigilator'] : []);
     await verifyMemberAPI(request, access.token, Boolean(personnel));
+    await verifyWorkflowPermissions(request, access.token, Boolean(personnel));
     if (personnel) await verifyOwnedRequestUI(page);
     expect(response.headers()['cache-control']).toBe('no-store');
     const persisted = await page.evaluate(() => [...Object.values(localStorage), ...Object.values(sessionStorage)]);
@@ -127,6 +129,7 @@ test('administrator requires TOTP, refreshes, rejects disabled accounts, and end
   await assertProfile(page, account, 'Administrator');
   await verifyBusinessAPI(request, access.token);
   await verifyBusinessUI(page, request, access.token);
+  await verifyWorkflowAPI(request, access.token);
   const claims = JSON.parse(Buffer.from(access.token.split('.')[1], 'base64url'));
   expect(claims.amr).toEqual(expect.arrayContaining(['pwd', 'otp']));
 

@@ -65,6 +65,8 @@ func resourceQuery(resource string, f ResourceFilter) (string, []any, error) {
             AND ($2 = '' OR a.entity = $2) AND ($3 = '' OR a.action = $3)
             AND ($4::date IS NULL OR a.created_at >= ($4::date::timestamp AT TIME ZONE 'UTC'))
             AND ($5::date IS NULL OR a.created_at < (($5::date + 1)::timestamp AT TIME ZONE 'UTC'))`, []any{f.ActorID, f.Entity, f.Action, nullableDate(f.DateFrom), nullableDate(f.DateTo)}, nil
+	case "schedule/publication":
+		return `SELECT * FROM schedule_state WHERE id = 1`, nil, nil
 	}
 	return "", nil, fmt.Errorf("unknown internal resource")
 }

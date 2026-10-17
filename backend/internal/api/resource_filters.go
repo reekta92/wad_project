@@ -21,6 +21,14 @@ var resourceFilters = map[string][]string{
 	"invigilator-assignments": {"personnel_id", "exam_id", "session_id"},
 }
 
+var reportFilters = map[string][]string{
+	"audit-logs":           {"actor_user_id", "entity", "action", "date_from", "date_to"},
+	"reports/workload":     {"department_id", "personnel_id", "date_from", "date_to"},
+	"reports/availability": {"department_id", "personnel_id", "session_id", "date_from", "date_to"},
+	"me/duties":            {"course_id", "q", "date_from", "date_to"},
+	"me/workload":          {"date_from", "date_to"},
+}
+
 func positiveID(value string) (int64, error) {
 	n, err := strconv.ParseInt(value, 10, 64)
 	if err != nil || n < 1 {
@@ -37,6 +45,9 @@ func resourceFilter(resource, raw string) (store.ResourceFilter, error) {
 	}
 	allowed := map[string]bool{"page": true, "page_size": true}
 	for _, key := range resourceFilters[resource] {
+		allowed[key] = true
+	}
+	for _, key := range reportFilters[resource] {
 		allowed[key] = true
 	}
 	for key, entries := range values {
@@ -56,7 +67,7 @@ func resourceFilter(resource, raw string) (store.ResourceFilter, error) {
 	if f.PageSize > 100 || f.Term > 8 {
 		return f, fmt.Errorf("page_size must not exceed 100; term must be between 1 and 8.")
 	}
-	for name, target := range map[string]*int64{"department_id": &f.DepartmentID, "course_id": &f.CourseID, "session_id": &f.SessionID, "personnel_id": &f.PersonnelID, "exam_id": &f.ExamID} {
+	for name, target := range map[string]*int64{"department_id": &f.DepartmentID, "course_id": &f.CourseID, "session_id": &f.SessionID, "personnel_id": &f.PersonnelID, "exam_id": &f.ExamID, "actor_user_id": &f.ActorID} {
 		if value := values.Get(name); value != "" {
 			*target, err = positiveID(value)
 			if err != nil {
@@ -91,7 +102,8 @@ func resourceFilter(resource, raw string) (store.ResourceFilter, error) {
 		return f, fmt.Errorf("date_from must not follow date_to.")
 	}
 	f.Query, f.Name = strings.TrimSpace(values.Get("q")), strings.TrimSpace(values.Get("name"))
-	if !validSearchText(f.Query) || !validSearchText(f.Name) {
+	f.Entity, f.Action = strings.TrimSpace(values.Get("entity")), strings.TrimSpace(values.Get("action"))
+	if !validSearchText(f.Query) || !validSearchText(f.Name) || !validSearchText(f.Entity) || !validSearchText(f.Action) {
 		return f, fmt.Errorf("Search filters must contain valid UTF-8 text of at most 100 bytes, without NUL characters.")
 	}
 	f.Kind, f.Status, f.Type = values.Get("kind"), values.Get("status"), values.Get("type")
