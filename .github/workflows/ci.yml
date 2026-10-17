@@ -113,17 +113,6 @@ jobs:
           name: public-layout-previews
           path: frontend/test-results/**/guest-*.jpg
           retention-days: 7
-      - name: Inspect public layout previews
-        if: success()
-        run: |
-          python3 - <<'PY'
-          import base64
-          from pathlib import Path
-          for path in sorted(Path('frontend/test-results').glob('**/guest-*.jpg')):
-              encoded = base64.b64encode(path.read_bytes()).decode()
-              for index in range(0, len(encoded), 12000):
-                  print(f'UI_PREVIEW:{path.name}:{index // 12000}:{encoded[index:index + 12000]}')
-          PY
       - name: Stop browser test services
         if: always() && hashFiles('.env') != ''
         run: docker compose down
