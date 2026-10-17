@@ -1,5 +1,7 @@
 # Exam Management System
 
+Class project for WAD.
+
 Rewrite of the legacy faculty exam scheduler using Go/Fiber, PostgreSQL, React/Vite/Tailwind, and Keycloak.
 
 Implementation follows [REWRITE_PLAN.md](REWRITE_PLAN.md). The revised project description is [MD_exam_management_system_REPORT.docx](MD_exam_management_system_REPORT.docx).
