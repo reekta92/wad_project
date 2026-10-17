@@ -165,6 +165,12 @@ test('administrator enrolls and signs in with a user-verified passkey', async ({
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await page.locator('#username').fill(account.username);
   await page.locator('#kc-login').click();
+  await expect(page.locator('#authenticateWebAuthnButton').or(page.locator('#password'))).toBeVisible();
+  if (await page.locator('#password').isVisible()) {
+    await page.getByRole('link', { name: 'Try another way', exact: true }).click();
+    await page.getByRole('button', { name: /passkey|security key|webauthn/i }).click();
+  }
+  await expect(page.locator('#authenticateWebAuthnButton')).toBeVisible();
   await page.locator('#authenticateWebAuthnButton').click();
   await assertProfile(page, account, 'Administrator');
   const claims = JSON.parse(Buffer.from(access.token.split('.')[1], 'base64url'));

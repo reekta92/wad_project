@@ -49,7 +49,7 @@ Provisioning creates three fictional accounts with distinct generated credential
 | `admin.demo` | Administrator; requires a verified passkey or password plus TOTP |
 | Guest | Public schedule without an account |
 
-Open the private `.local/demo-accounts.json` locally to find each password and `totp_secret`. Add the secret to an authenticator app using TOTP, SHA-1, 6 digits, and a 30-second period. All demo password logins require the authenticator code; codes cannot be reused in the same period. After signing in, choose **Register a passkey** to enroll a supported device with user verification. Sign out and sign in again to use that passkey.
+Open the private `.local/demo-accounts.json` locally to find each password and `totp_secret`. Add the secret to an authenticator app using TOTP, SHA-1, 6 digits, and a 30-second period. All demo password logins require the authenticator code; codes cannot be reused in the same period. After signing in, choose **Register a passkey** to enroll a supported device with user verification. Sign out and sign in again to use that passkey. If the provider offers your password first, choose **Try another way**, then your passkey.
 
 The credential directory/file use modes 0700/0600 and are Git-ignored. Provisioning can upgrade the existing development realm without deleting it. Repeat runs preserve accounts, edited passwords, roles, local active status, and personnel links; conflicting identities/mappings cause an error instead of being overwritten. Keep the credential file if you keep the database volume. Replacing it will not reset existing account passwords. This demo command refuses production and non-local identity realms.
 
