@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,14 +24,7 @@ func New(cfg config.Config, databases *store.Databases) *fiber.App {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true, BodyLimit: 1024 * 1024,
 		ReadTimeout: 10 * time.Second, WriteTimeout: 15 * time.Second,
-		ErrorHandler: func(c *fiber.Ctx, err error) error {
-			code, message := 500, "An internal error occurred."
-			var expected *fiber.Error
-			if errors.As(err, &expected) {
-				code, message = expected.Code, expected.Message
-			}
-			return c.Status(code).JSON(fiber.Map{"error": fiber.Map{"code": http.StatusText(code), "message": message, "request_id": c.GetRespHeader("X-Request-ID")}})
-		},
+		ErrorHandler: respondError,
 	})
 	app.Use(recover.New(), requestid.New())
 	issuer, _ := url.Parse(cfg.Issuer)
@@ -69,8 +61,8 @@ func New(cfg config.Config, databases *store.Databases) *fiber.App {
 		if err != nil {
 			return fiber.NewError(400, err.Error())
 		}
-		if c.Accepts("json") == "" {
-			return fiber.NewError(406, "This endpoint currently supports application/json.")
+		if err := requireJSON(c); err != nil {
+			return err
 		}
 		ctx, cancel := context.WithTimeout(c.UserContext(), 5*time.Second)
 		defer cancel()
@@ -91,6 +83,7 @@ func New(cfg config.Config, databases *store.Databases) *fiber.App {
 	})
 	verify := authenticate(databases, auth.NewVerifier(cfg.Issuer))
 	app.Get("/api/v1/me", verify, profile)
+	businessRoutes(app, databases, verify)
 	app.Use("/api", func(c *fiber.Ctx) error { return fiber.NewError(404, "API resource not found.") })
 	app.Static("/", cfg.StaticDir)
 	app.Get("*", func(c *fiber.Ctx) error {

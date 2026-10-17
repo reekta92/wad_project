@@ -60,10 +60,7 @@ func (s Scheduler) mutate(ctx context.Context, actorID int64, apply func(pgx.Tx)
 		return err
 	}
 	defer tx.Rollback(context.WithoutCancel(ctx))
-	var active bool
-	if err := tx.QueryRow(ctx, `SELECT active FROM app_users WHERE id = $1`, actorID).Scan(&active); errors.Is(err, pgx.ErrNoRows) || (err == nil && !active) {
-		return ErrInactiveActor
-	} else if err != nil {
+	if err := activeActor(ctx, tx, actorID, nil); err != nil {
 		return err
 	}
 	value, err := apply(tx)
@@ -82,10 +79,24 @@ func (s Scheduler) mutate(ctx context.Context, actorID int64, apply func(pgx.Tx)
 			return err
 		}
 	}
-	if _, err := tx.Exec(ctx, `INSERT INTO audit_logs (actor_user_id, action, entity, entity_id, old_value, new_value) VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb)`, actorID, value.Action, value.Entity, value.ID, value.Old, value.New); err != nil {
+	if err := appendAudit(ctx, tx, actorID, value); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
+}
+
+func activeActor(ctx context.Context, tx pgx.Tx, actorID int64, personnelID *int64) error {
+	var active bool
+	err := tx.QueryRow(ctx, `SELECT coalesce(active AND ($2::bigint IS NULL OR personnel_id = $2), false) FROM app_users WHERE id = $1`, actorID, personnelID).Scan(&active)
+	if errors.Is(err, pgx.ErrNoRows) || (err == nil && !active) {
+		return ErrInactiveActor
+	}
+	return err
+}
+
+func appendAudit(ctx context.Context, tx pgx.Tx, actorID int64, value change) error {
+	_, err := tx.Exec(ctx, `INSERT INTO audit_logs (actor_user_id, action, entity, entity_id, old_value, new_value) VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb)`, actorID, value.Action, value.Entity, value.ID, value.Old, value.New)
+	return err
 }
 
 func document(ctx context.Context, tx pgx.Tx, entity string, id int64) (json.RawMessage, error) {
@@ -96,7 +107,7 @@ func document(ctx context.Context, tx pgx.Tx, entity string, id int64) (json.Raw
             'rooms', (SELECT coalesce(jsonb_agg(to_jsonb(r) ORDER BY r.id), '[]'::jsonb) FROM exam_rooms r WHERE r.exam_id = e.id),
             'assignments', (SELECT coalesce(jsonb_agg(to_jsonb(a) ORDER BY a.id), '[]'::jsonb) FROM invigilator_assignments a JOIN exam_rooms r ON r.id = a.id WHERE r.exam_id = e.id))
             FROM exams e WHERE e.id = $1`
-	case "courses", "sessions", "classrooms", "personnel", "unavailability_requests", "invigilator_assignments", "schedule_state":
+	case "departments", "courses", "sessions", "classrooms", "personnel", "unavailability_requests", "invigilator_assignments", "schedule_state":
 		query = `SELECT to_jsonb(t) FROM ` + entity + ` t WHERE id = $1`
 	default:
 		return nil, fmt.Errorf("unknown internal audit entity")
