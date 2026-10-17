@@ -14,7 +14,7 @@ services:
       - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql
-      - ./development/postgres-init.sh:/docker-entrypoint-initdb.d/10-exams.sh:ro
+      - ./infrastructure/postgres-init.sh:/docker-entrypoint-initdb.d/10-exams.sh:ro
     healthcheck:
       test: [CMD-SHELL, "pg_isready -h 127.0.0.1 -U postgres -d postgres"]
       interval: 5s
@@ -36,7 +36,7 @@ services:
     ports:
       - "127.0.0.1:${KEYCLOAK_PORT:-8081}:8080"
     volumes:
-      - ./development/exams-realm.json:/opt/keycloak/data/import/exams-realm.json:ro
+      - ./infrastructure/exams-realm.json:/opt/keycloak/data/import/exams-realm.json:ro
     depends_on:
       postgres:
         condition: service_healthy
