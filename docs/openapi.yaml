@@ -249,53 +249,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -324,47 +292,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       parameters:
       - name: page
         in: query
@@ -417,47 +357,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
     put:
       operationId: replaceDepartment
       summary: Replace departments
@@ -480,53 +392,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -551,41 +431,17 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
   /courses:
     post:
       operationId: createCourse
@@ -613,53 +469,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -688,47 +512,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       parameters:
       - name: page
         in: query
@@ -800,47 +596,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
     put:
       operationId: replaceCourse
       summary: Replace courses
@@ -863,53 +631,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -934,41 +670,17 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
   /classrooms:
     post:
       operationId: createClassroom
@@ -996,53 +708,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -1071,47 +751,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       parameters:
       - name: page
         in: query
@@ -1174,47 +826,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
     put:
       operationId: replaceClassroom
       summary: Replace classrooms
@@ -1237,53 +861,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -1308,41 +900,17 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
   /sessions:
     post:
       operationId: createSession
@@ -1370,53 +938,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -1445,47 +981,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       parameters:
       - name: page
         in: query
@@ -1542,47 +1050,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
     put:
       operationId: replaceSession
       summary: Replace sessions
@@ -1605,53 +1085,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -1676,41 +1124,17 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
   /personnel:
     post:
       operationId: createPersonnel
@@ -1738,53 +1162,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -1813,47 +1205,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       parameters:
       - name: page
         in: query
@@ -1912,47 +1276,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
     put:
       operationId: replacePersonnel
       summary: Replace personnel
@@ -1975,53 +1311,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -2046,41 +1350,17 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
   /unavailability-requests:
     post:
       operationId: createUnavailabilityRequest
@@ -2109,53 +1389,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -2185,47 +1433,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       parameters:
       - name: page
         in: query
@@ -2305,47 +1525,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
     put:
       operationId: replaceUnavailabilityRequest
       summary: Replace unavailability-requests
@@ -2369,53 +1561,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -2441,41 +1601,17 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
   /exams:
     post:
       operationId: createExam
@@ -2503,53 +1639,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -2578,47 +1682,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       parameters:
       - name: page
         in: query
@@ -2699,47 +1775,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
     put:
       operationId: replaceExam
       summary: Replace exams
@@ -2762,53 +1810,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -2833,41 +1849,17 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
   /invigilator-assignments:
     post:
       operationId: createInvigilatorAssignment
@@ -2895,53 +1887,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -2970,47 +1930,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       parameters:
       - name: page
         in: query
@@ -3075,47 +2007,19 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
     put:
       operationId: replaceInvigilatorAssignment
       summary: Replace invigilator-assignments
@@ -3138,53 +2042,21 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
         '415':
-          description: Only UTF-8 application/json input is supported.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/UnsupportedMediaType'
         '406':
-          description: The requested representation excludes JSON; negotiation happens before a write.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotAcceptable'
       requestBody:
         required: true
         content:
@@ -3209,41 +2081,17 @@ paths:
                 type: string
                 const: no-store
         '400':
-          description: Invalid query, JSON, field type, required field, or value.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid bearer access token.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          description: Role, local identity, ownership mutation, or MFA is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          description: Resource missing or concealed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/NotFound'
         '409':
-          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/Conflict'
         '500':
-          description: Unexpected sanitized error with a request ID.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+          $ref: '#/components/responses/InternalError'
 components:
   securitySchemes:
     OAuth2:
@@ -3258,7 +2106,49 @@ components:
             openid: Authenticate with the configured identity provider.
   responses:
     BadRequest:
-      description: Invalid filters or pagination.
+      description: Invalid query, JSON, field type, required field, or value.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or invalid bearer access token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Role, local identity, ownership mutation, or MFA is forbidden.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource missing or concealed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Unexpected sanitized error with a request ID.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotAcceptable:
+      description: The requested representation excludes JSON; negotiation happens before a write.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnsupportedMediaType:
+      description: Only UTF-8 application/json input is supported.
       content:
         application/json:
           schema:

@@ -338,16 +338,6 @@
               "name": "POST departments",
               "request": {
                 "method": "POST",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -397,16 +387,6 @@
               "name": "POST courses",
               "request": {
                 "method": "POST",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -447,16 +427,6 @@
               "name": "POST classrooms",
               "request": {
                 "method": "POST",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -497,16 +467,6 @@
               "name": "POST sessions",
               "request": {
                 "method": "POST",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -547,16 +507,6 @@
               "name": "POST personnel",
               "request": {
                 "method": "POST",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -597,16 +547,6 @@
               "name": "POST unavailability-requests",
               "request": {
                 "method": "POST",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -647,16 +587,6 @@
               "name": "POST exams",
               "request": {
                 "method": "POST",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -698,16 +628,6 @@
               "name": "POST invigilator-assignments",
               "request": {
                 "method": "POST",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -753,16 +673,6 @@
               "name": "GET departments",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -788,16 +698,6 @@
               "name": "PUT departments",
               "request": {
                 "method": "PUT",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -836,16 +736,6 @@
               "name": "GET departments list",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -872,16 +762,6 @@
               "name": "GET courses",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -907,16 +787,6 @@
               "name": "PUT courses",
               "request": {
                 "method": "PUT",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -955,16 +825,6 @@
               "name": "GET courses list",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -991,16 +851,6 @@
               "name": "GET classrooms",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1026,16 +876,6 @@
               "name": "PUT classrooms",
               "request": {
                 "method": "PUT",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1074,16 +914,6 @@
               "name": "GET classrooms list",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1110,16 +940,6 @@
               "name": "GET sessions",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1145,16 +965,6 @@
               "name": "PUT sessions",
               "request": {
                 "method": "PUT",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1193,16 +1003,6 @@
               "name": "GET sessions list",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1229,16 +1029,6 @@
               "name": "GET personnel",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1264,16 +1054,6 @@
               "name": "PUT personnel",
               "request": {
                 "method": "PUT",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1312,16 +1092,6 @@
               "name": "GET personnel list",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1348,16 +1118,6 @@
               "name": "GET unavailability-requests",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1383,16 +1143,6 @@
               "name": "PUT unavailability-requests",
               "request": {
                 "method": "PUT",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1431,16 +1181,6 @@
               "name": "GET unavailability-requests list",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1467,16 +1207,6 @@
               "name": "GET exams",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1502,16 +1232,6 @@
               "name": "PUT exams",
               "request": {
                 "method": "PUT",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1550,16 +1270,6 @@
               "name": "GET exams list",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1586,16 +1296,6 @@
               "name": "GET invigilator-assignments",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1621,16 +1321,6 @@
               "name": "PUT invigilator-assignments",
               "request": {
                 "method": "PUT",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1669,16 +1359,6 @@
               "name": "GET invigilator-assignments list",
               "request": {
                 "method": "GET",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1710,16 +1390,6 @@
               "name": "DELETE invigilator-assignments",
               "request": {
                 "method": "DELETE",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1745,16 +1415,6 @@
               "name": "DELETE exams",
               "request": {
                 "method": "DELETE",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1780,16 +1440,6 @@
               "name": "DELETE unavailability-requests",
               "request": {
                 "method": "DELETE",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1815,16 +1465,6 @@
               "name": "DELETE personnel",
               "request": {
                 "method": "DELETE",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1850,16 +1490,6 @@
               "name": "DELETE sessions",
               "request": {
                 "method": "DELETE",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1885,16 +1515,6 @@
               "name": "DELETE classrooms",
               "request": {
                 "method": "DELETE",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1920,16 +1540,6 @@
               "name": "DELETE courses",
               "request": {
                 "method": "DELETE",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1955,16 +1565,6 @@
               "name": "DELETE departments",
               "request": {
                 "method": "DELETE",
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{access_token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
                 "header": [
                   {
                     "key": "Accept",
@@ -1988,7 +1588,17 @@
             }
           ]
         }
-      ]
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      }
     }
   ]
 }
