@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.1'
+          cache: false
+      - name: Resolve module checksums
+        working-directory: backend
+        run: go mod tidy
+      - name: Check formatting and Go diagnostics
+        working-directory: backend
+        run: |
+          test -z "$(gofmt -l .)"
+          go vet ./...
+      - name: Check environment setup
+        run: |
+          python3 -m unittest discover -s scripts -p 'test_*.py'
+          python3 scripts/setup.py
+          docker compose config --quiet
+      - name: Start isolated PostgreSQL and identity provider
+        run: docker compose up -d --wait --wait-timeout 240
+      - name: Run unit and database integration tests
+        env:
+          RUN_DATABASE_TESTS: '1'
+        run: python3 scripts/run.py test
+      - name: Build server and database commands
+        working-directory: backend
+        run: go build ./cmd/...
+      - name: Preserve generated dependency metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-dependency-metadata
+          path: |
+            backend/go.mod
+            backend/go.sum
+      - name: Stop test services
+        if: always()
+        run: docker compose down
+
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.21.0'
+      - name: Install pinned dependencies
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+      - name: Test API client and build application
+        working-directory: frontend
+        run: |
+          npm test
+          npm run build
+      - name: Preserve generated dependency lock
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dependency-metadata
+          path: frontend/package-lock.json

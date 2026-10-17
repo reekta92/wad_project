@@ -98,3 +98,28 @@ func TestReadinessReportsUnavailableDependenciesWithoutCredentials(t *testing.T)
 		t.Fatalf("unsafe readiness response: %d %s", resp.StatusCode, body)
 	}
 }
+
+func TestDevelopmentReadiness(t *testing.T) {
+	if os.Getenv("RUN_DATABASE_TESTS") != "1" {
+		t.Skip("requires the isolated PostgreSQL and Keycloak services")
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	pool, err := pgxpool.New(context.Background(), cfg.ReaderURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer pool.Close()
+	app := New(cfg, pool)
+	resp, err := app.Test(httptest.NewRequest("GET", "/api/v1/health/ready", nil), 10000)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("development services are not ready: %d %s", resp.StatusCode, body)
+	}
+}
