@@ -1,0 +1,15 @@
+.git-store/
+.agents/
+.codex/
+.aws/
+.env
+.env.*
+!.env.example
+node_modules/
+frontend/dist/
+backend/bin/
+coverage/
+*.log
+*.dump
+graphify-out/
+legacy/
