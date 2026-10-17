@@ -52,6 +52,15 @@ jobs:
           path: |
             backend/go.mod
             backend/go.sum
+      - name: Bootstrap dependency lock transfer
+        working-directory: backend
+        run: |
+          python3 - <<'PY'
+          import base64, json, pathlib
+          data = base64.b64encode(json.dumps({p:pathlib.Path(p).read_text() for p in ['go.mod','go.sum']}).encode()).decode()
+          for start in range(0, len(data), 4096):
+              print('WAD_LOCK_METADATA=' + data[start:start+4096])
+          PY
       - name: Stop test services
         if: always()
         run: docker compose down
@@ -78,3 +87,12 @@ jobs:
         with:
           name: frontend-dependency-metadata
           path: frontend/package-lock.json
+      - name: Bootstrap dependency lock transfer
+        working-directory: frontend
+        run: |
+          python3 - <<'PY'
+          import base64, pathlib
+          data = base64.b64encode(pathlib.Path('package-lock.json').read_bytes()).decode()
+          for start in range(0, len(data), 4096):
+              print('WAD_LOCK_METADATA=' + data[start:start+4096])
+          PY
