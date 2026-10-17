@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { fetchSchedule } from './api.js';
+import { AccountPanel, useAccount } from './account.jsx';
 import './style.css';
 
 function CalendarIcon() {
@@ -39,6 +40,7 @@ function Calendar({ exams }) {
 }
 
 function App() {
+  const account = useAccount();
   const initial = new URLSearchParams(window.location.search);
   const [query, setQuery] = useState(window.location.search.slice(1));
   const [search, setSearch] = useState(initial.get('q') || '');
@@ -97,11 +99,14 @@ function App() {
         <nav id="main-navigation" className={menuOpen ? 'navigation open' : 'navigation'} aria-label="Main navigation">
           <a href="#schedule" onClick={() => setMenuOpen(false)}>Exam schedule</a>
           <button onClick={() => { setMenuOpen(false); dialog.current.showModal(); }}>Schedule information</button>
+          <a href="#account" onClick={() => setMenuOpen(false)}>My account</a>
+          {account.authenticated && <button disabled={account.busy} onClick={account.signOut}>Sign out</button>}
         </nav>
       </div>
     </header>
 
     <main className="mx-auto max-w-6xl">
+      <AccountPanel account={account} />
       <section className="hero" aria-labelledby="page-title">
         <div><p className="eyebrow">Faculty exam timetable</p><h1 id="page-title">Your exams.<br /><span>Clearly planned.</span></h1><p className="hero-copy">Find your course, check the time, and know where to be. Browse the published schedule below.</p><a className="button primary" href="#schedule">Find an exam <span aria-hidden="true">↗</span></a></div>
         <img src="/campus.svg" alt="Illustration of a faculty building beside an exam calendar" width="520" height="300" />

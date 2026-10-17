@@ -1,6 +1,6 @@
 import { afterEach, mock, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchSchedule } from './api.js';
+import { fetchProfile, fetchSchedule } from './api.js';
 
 afterEach(() => mock.restoreAll());
 
@@ -30,4 +30,23 @@ test('rejects HTML fallback and malformed pagination', async () => {
 test('rejects incomplete exam data before rendering', async () => {
   mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ data: [{ id: 1, rooms: null }], total: 1, page: 1, page_size: 20 })));
   await assert.rejects(fetchSchedule(''), /incomplete information/);
+});
+
+test('profile uses a bearer token and the verified server identity', async () => {
+  const profile = { id: 1, username: 'member.demo', role: 'member', permissions: [], personnel_id: null };
+  mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(url, '/api/v1/me');
+    assert.equal(options.headers.Authorization, 'Bearer test-token');
+    assert.equal(options.cache, 'no-store');
+    return new Response(JSON.stringify(profile));
+  });
+  assert.deepEqual(await fetchProfile('test-token'), profile);
+});
+
+test('profile preserves denied-session status and rejects malformed permissions', async () => {
+  mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ error: { message: 'Account disabled.' } }), { status: 403 }));
+  await assert.rejects(fetchProfile('test-token'), (error) => error.status === 403 && error.message === 'Account disabled.');
+  mock.restoreAll();
+  mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ id: 1, username: 'demo', role: 'administrator', permissions: ['invented'], personnel_id: null })));
+  await assert.rejects(fetchProfile('test-token'), /incomplete/);
 });

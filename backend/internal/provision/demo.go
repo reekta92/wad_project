@@ -114,9 +114,9 @@ func saveState(path string, state demoState) error {
 }
 
 type providerUser struct {
-	ID         string              `json:"id"`
-	Username   string              `json:"username"`
-	Attributes map[string][]string `json:"attributes"`
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }
 
 func (p *provider) account(ctx context.Context, account Account, index int, complete bool) (string, error) {
@@ -140,7 +140,6 @@ func (p *provider) account(ctx context.Context, account Account, index int, comp
 		body := map[string]any{
 			"username": account.Username, "enabled": true, "emailVerified": true,
 			"email": account.Username + "." + account.Tag + "@example.test", "firstName": "Demo", "lastName": account.Username,
-			"attributes": map[string][]string{"exams-demo-id": {account.Tag}},
 			"credentials": []map[string]any{
 				{"type": "password", "value": account.Password, "temporary": false},
 				{"type": "otp", "userLabel": "Local demo authenticator", "credentialData": string(credentialData), "secretData": string(secretData)},
@@ -153,7 +152,9 @@ func (p *provider) account(ctx context.Context, account Account, index int, comp
 			return "", err
 		}
 	}
-	if len(users) != 1 || users[0].Username != account.Username || !reflect.DeepEqual(users[0].Attributes["exams-demo-id"], []string{account.Tag}) || (account.Subject != "" && account.Subject != users[0].ID) {
+	if len(users) != 1 || users[0].Username != account.Username || users[0].ID == "" ||
+		(account.Subject == "" && users[0].Email != account.Username+"."+account.Tag+"@example.test") ||
+		(account.Subject != "" && account.Subject != users[0].ID) {
 		return "", fmt.Errorf("demo username %s belongs to a different identity; no credentials or roles were changed", account.Username)
 	}
 	id := users[0].ID

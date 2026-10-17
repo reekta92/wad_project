@@ -28,3 +28,27 @@ function validExam(exam) {
     && Number.isInteger(exam.term) && exam.term >= 1 && exam.term <= 8
     && Array.isArray(exam.rooms) && exam.rooms.every((room) => room && typeof room.name === 'string');
 }
+
+export async function fetchProfile(token, signal) {
+  const response = await fetch('/api/v1/me', {
+    headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+    signal,
+  });
+  let body;
+  try { body = await response.json(); } catch {
+    throw new Error('Your account information could not be read. Please try again.');
+  }
+  if (!response.ok) {
+    const error = new Error(body?.error?.message || 'Your account could not be loaded.');
+    error.status = response.status;
+    throw error;
+  }
+  if (!body || !Number.isSafeInteger(body.id) || body.id < 1 || typeof body.username !== 'string'
+    || !['member', 'administrator'].includes(body.role) || !Array.isArray(body.permissions)
+    || !body.permissions.every((value) => value === 'invigilator')
+    || !(body.personnel_id === null || (Number.isSafeInteger(body.personnel_id) && body.personnel_id > 0))) {
+    throw new Error('Your account information is incomplete. Please try again.');
+  }
+  return body;
+}

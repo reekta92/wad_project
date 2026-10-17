@@ -20,6 +20,7 @@ type actor struct {
 
 func authenticate(databases *store.Databases, verifier *auth.Verifier) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		c.Set("Cache-Control", "no-store")
 		parts := strings.Fields(c.Get("Authorization"))
 		if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
 			c.Set("WWW-Authenticate", "Bearer")
