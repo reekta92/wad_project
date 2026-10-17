@@ -167,7 +167,7 @@ test('administrator enrolls and signs in with a user-verified passkey', async ({
   await page.locator('#kc-login').click();
   await expect(page.locator('#authenticateWebAuthnButton').or(page.locator('#password'))).toBeVisible();
   if (await page.locator('#password').isVisible()) {
-    await page.getByRole('link', { name: 'Try another way', exact: true }).click();
+    await page.getByRole('link', { name: /try another way/i }).click();
     await page.getByRole('button', { name: /passkey|security key|webauthn/i }).click();
   }
   await expect(page.locator('#authenticateWebAuthnButton')).toBeVisible();
