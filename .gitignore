@@ -9,6 +9,8 @@ node_modules/
 frontend/dist/
 backend/bin/
 coverage/
+__pycache__/
+*.pyc
 *.log
 *.dump
 graphify-out/
