@@ -47,7 +47,7 @@ jobs:
         working-directory: backend
         run: go build ./cmd/...
       - name: Stop test services
-        if: always()
+        if: always() && hashFiles('.env') != ''
         run: docker compose down
 
   frontend:
