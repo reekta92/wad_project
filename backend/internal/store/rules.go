@@ -190,11 +190,7 @@ func (s scheduleState) validate(requireStaff bool) error {
 			}
 		}
 	}
-	type personDay struct {
-		person int64
-		date   string
-	}
-	duties, assigned := map[personDay][]int{}, map[int64]bool{}
+	assigned := map[int64]bool{}
 	for _, assignment := range s.Assignments {
 		allocation, exists := allocations[assignment.ID]
 		if !exists || !personnel[assignment.PersonnelID] {
@@ -204,32 +200,8 @@ func (s scheduleState) validate(requireStaff bool) error {
 			return conflict("allocation_staffed", "Allocation %d already has an invigilator.", assignment.ID)
 		}
 		assigned[assignment.ID] = true
-		session := sessions[exams[allocation.ExamID].SessionID]
-		for _, request := range s.Requests {
-			if request.Status == "approved" && request.PersonnelID == assignment.PersonnelID && request.Date == session.Date && (request.SessionID == nil || *request.SessionID == session.ID) {
-				return conflict("personnel_unavailable", "Personnel %d has approved unavailability for session %d.", assignment.PersonnelID, session.ID)
-			}
-		}
-		key := personDay{assignment.PersonnelID, session.Date}
-		for _, position := range duties[key] {
-			if position == positions[session.ID] {
-				return conflict("personnel_conflict", "Personnel %d already has a duty in session %d.", assignment.PersonnelID, session.ID)
-			}
-		}
-		duties[key] = append(duties[key], positions[session.ID])
-		if len(duties[key]) > 4 {
-			return conflict("personnel_daily_limit", "Personnel %d exceeds four duties on %s.", assignment.PersonnelID, session.Date)
-		}
-	}
-	for _, assignment := range s.Assignments {
-		allocation := allocations[assignment.ID]
-		session := sessions[exams[allocation.ExamID].SessionID]
-		day := duties[personDay{assignment.PersonnelID, session.Date}]
-		sort.Ints(day)
-		for i := 3; i < len(day); i++ {
-			if day[i]-day[i-3] == 3 {
-				return conflict("personnel_consecutive_limit", "Personnel %d cannot cover four consecutive sessions on %s.", assignment.PersonnelID, session.Date)
-			}
+		if err := s.personAvailable(assignment.PersonnelID, exams[allocation.ExamID].SessionID, assignment.ID); err != nil {
+			return err
 		}
 	}
 	if requireStaff {
@@ -240,6 +212,96 @@ func (s scheduleState) validate(requireStaff bool) error {
 		}
 	}
 	return nil
+}
+
+// ignoreAllocation excludes the duty being validated; reports use zero for an additional duty.
+func (s scheduleState) personAvailable(personnelID, sessionID, ignoreAllocation int64) error {
+	sessions, positions, err := s.sessionOrder()
+	if err != nil {
+		return err
+	}
+	session, exists := sessions[sessionID]
+	if !exists {
+		return conflict("session_missing", "Session %d does not exist.", sessionID)
+	}
+	for _, request := range s.Requests {
+		if request.Status == "approved" && request.PersonnelID == personnelID && request.Date == session.Date && (request.SessionID == nil || *request.SessionID == sessionID) {
+			return conflict("personnel_unavailable", "Personnel %d has approved unavailability for session %d.", personnelID, sessionID)
+		}
+	}
+	exams := map[int64]int64{}
+	for _, exam := range s.Exams {
+		exams[exam.ID] = exam.SessionID
+	}
+	allocations := map[int64]int64{}
+	for _, allocation := range s.Allocations {
+		allocations[allocation.ID] = exams[allocation.ExamID]
+	}
+	day := []int{positions[sessionID]}
+	for _, assignment := range s.Assignments {
+		if assignment.PersonnelID != personnelID || assignment.ID == ignoreAllocation {
+			continue
+		}
+		other, exists := sessions[allocations[assignment.ID]]
+		if !exists {
+			return conflict("assignment_reference", "Assignment %d refers to a missing session.", assignment.ID)
+		}
+		if other.Date != session.Date {
+			continue
+		}
+		if other.ID == sessionID {
+			return conflict("personnel_conflict", "Personnel %d already has a duty in session %d.", personnelID, sessionID)
+		}
+		day = append(day, positions[other.ID])
+	}
+	if len(day) > 4 {
+		return conflict("personnel_daily_limit", "Personnel %d exceeds four duties on %s.", personnelID, session.Date)
+	}
+	sort.Ints(day)
+	for i := 3; i < len(day); i++ {
+		if day[i]-day[i-3] == 3 {
+			return conflict("personnel_consecutive_limit", "Personnel %d cannot cover four consecutive sessions on %s.", personnelID, session.Date)
+		}
+	}
+	return nil
+}
+
+func (s scheduleState) roomsFor(courseID, sessionID, exceptExam int64) ([]int64, error) {
+	enrollment := 0
+	for _, course := range s.Courses {
+		if course.ID == courseID {
+			enrollment = course.Enrollment
+		}
+	}
+	busy := map[int64]bool{}
+	for _, allocation := range s.Allocations {
+		for _, exam := range s.Exams {
+			if allocation.ExamID == exam.ID && exam.ID != exceptExam && exam.SessionID == sessionID {
+				busy[allocation.ClassroomID] = true
+			}
+		}
+	}
+	var available []roomState
+	for _, room := range s.Rooms {
+		if !busy[room.ID] {
+			available = append(available, room)
+		}
+	}
+	return chooseRooms(enrollment, available)
+}
+
+func (s scheduleState) placement(courseID, sessionID int64) ([]int64, error) {
+	rooms, err := s.roomsFor(courseID, sessionID, 0)
+	if err != nil {
+		return nil, err
+	}
+	candidate := s
+	candidate.Exams = append(append([]examState(nil), s.Exams...), examState{ID: -1, CourseID: courseID, SessionID: sessionID})
+	candidate.Allocations = append([]allocationState(nil), s.Allocations...)
+	for index, room := range rooms {
+		candidate.Allocations = append(candidate.Allocations, allocationState{ID: -int64(index + 1), ExamID: -1, ClassroomID: room})
+	}
+	return rooms, candidate.validate(false)
 }
 
 // chooseRooms minimizes count first, then chooses the lowest numbered feasible single floor.

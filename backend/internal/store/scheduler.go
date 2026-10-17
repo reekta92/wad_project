@@ -52,30 +52,14 @@ func allocateRooms(ctx context.Context, tx pgx.Tx, id, courseID, sessionID int64
 	if err != nil {
 		return err
 	}
-	enrollment := 0
-	for _, course := range state.Courses {
-		if course.ID == courseID {
-			enrollment = course.Enrollment
-		}
-	}
-	busy := map[int64]bool{}
-	for _, allocation := range state.Allocations {
-		for _, exam := range state.Exams {
-			if allocation.ExamID == exam.ID && exam.ID != id && exam.SessionID == sessionID {
-				busy[allocation.ClassroomID] = true
-			}
-		}
-	}
-	var available []roomState
-	for _, room := range state.Rooms {
-		if !busy[room.ID] {
-			available = append(available, room)
-		}
-	}
-	rooms, err := chooseRooms(enrollment, available)
+	rooms, err := state.roomsFor(courseID, sessionID, id)
 	if err != nil {
 		return err
 	}
+	return replaceRooms(ctx, tx, id, rooms)
+}
+
+func replaceRooms(ctx context.Context, tx pgx.Tx, id int64, rooms []int64) error {
 	// Keep unchanged allocations and their duties; removed rooms cascade only their own assignments.
 	if _, err := tx.Exec(ctx, `DELETE FROM exam_rooms WHERE exam_id = $1 AND NOT (classroom_id = ANY($2::bigint[]))`, id, rooms); err != nil {
 		return err

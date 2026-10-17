@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"strconv"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -24,34 +23,14 @@ type RequestInput struct {
 	Reason      string `json:"reason"`
 }
 
-func (r Requests) identify(ctx context.Context, tx pgx.Tx) error {
-	if r.PersonnelID == nil {
-		return nil
-	}
-	_, err := tx.Exec(ctx, `SELECT set_config('app.personnel_id', $1, true)`, strconv.FormatInt(*r.PersonnelID, 10))
-	return err
-}
-
-func (r Requests) read(ctx context.Context, get func(pgx.Tx) (json.RawMessage, error)) (json.RawMessage, error) {
-	tx, err := r.Pool.BeginTx(ctx, pgx.TxOptions{AccessMode: pgx.ReadOnly})
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback(context.WithoutCancel(ctx))
-	if err := r.identify(ctx, tx); err != nil {
-		return nil, err
-	}
-	return get(tx)
-}
-
 func (r Requests) List(ctx context.Context, filter ResourceFilter) (json.RawMessage, error) {
-	return r.read(ctx, func(tx pgx.Tx) (json.RawMessage, error) {
+	return readWithPersonnel(ctx, r.Pool, r.PersonnelID, func(tx pgx.Tx) (json.RawMessage, error) {
 		return ListResources(ctx, tx, "unavailability-requests", filter)
 	})
 }
 
 func (r Requests) Get(ctx context.Context, id int64) (json.RawMessage, error) {
-	return r.read(ctx, func(tx pgx.Tx) (json.RawMessage, error) { return GetResource(ctx, tx, "unavailability-requests", id) })
+	return readWithPersonnel(ctx, r.Pool, r.PersonnelID, func(tx pgx.Tx) (json.RawMessage, error) { return GetResource(ctx, tx, "unavailability-requests", id) })
 }
 
 func (r Requests) mutate(ctx context.Context, actorID int64, apply func(pgx.Tx) (change, error)) error {
@@ -63,7 +42,7 @@ func (r Requests) mutate(ctx context.Context, actorID int64, apply func(pgx.Tx) 
 		return err
 	}
 	defer tx.Rollback(context.WithoutCancel(ctx))
-	if err := r.identify(ctx, tx); err != nil {
+	if err := setPersonnel(ctx, tx, r.PersonnelID); err != nil {
 		return err
 	}
 	if err := activeActor(ctx, tx, actorID, r.PersonnelID); err != nil {

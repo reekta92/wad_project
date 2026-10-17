@@ -12,7 +12,9 @@ import (
 type ResourceFilter struct {
 	Page, PageSize, Term, MinCapacity                      int
 	DepartmentID, CourseID, SessionID, PersonnelID, ExamID int64
+	ActorID                                                int64
 	Name, Query, DateFrom, DateTo, Kind, Status, Type      string
+	Entity, Action                                         string
 	Active                                                 *bool
 	Floor                                                  *int
 }
@@ -58,6 +60,11 @@ func resourceQuery(resource string, f ResourceFilter) (string, []any, error) {
             JOIN exams e ON e.id = r.exam_id JOIN courses co ON co.id = e.course_id
             JOIN personnel p ON p.id = a.personnel_id JOIN sessions s ON s.id = e.session_id
             WHERE ($1::bigint = 0 OR a.personnel_id = $1) AND ($2::bigint = 0 OR r.exam_id = $2) AND ($3::bigint = 0 OR e.session_id = $3)`, []any{f.PersonnelID, f.ExamID, f.SessionID}, nil
+	case "audit-logs":
+		return `SELECT a.* FROM audit_logs a WHERE ($1::bigint = 0 OR a.actor_user_id = $1)
+            AND ($2 = '' OR a.entity = $2) AND ($3 = '' OR a.action = $3)
+            AND ($4::date IS NULL OR a.created_at >= ($4::date::timestamp AT TIME ZONE 'UTC'))
+            AND ($5::date IS NULL OR a.created_at < (($5::date + 1)::timestamp AT TIME ZONE 'UTC'))`, []any{f.ActorID, f.Entity, f.Action, nullableDate(f.DateFrom), nullableDate(f.DateTo)}, nil
 	}
 	return "", nil, fmt.Errorf("unknown internal resource")
 }
@@ -67,14 +74,19 @@ func ListResources(ctx context.Context, db rowQuerier, resource string, f Resour
 	if err != nil {
 		return nil, err
 	}
+	return pageQuery(ctx, db, query, args, f, "id")
+}
+
+// order is an internal SQL expression; every caller supplies a fixed literal.
+func pageQuery(ctx context.Context, db rowQuerier, query string, args []any, f ResourceFilter, order string) (json.RawMessage, error) {
 	n := len(args)
 	query = fmt.Sprintf(`WITH matching AS MATERIALIZED (%s)
-        SELECT jsonb_build_object('data', coalesce((SELECT jsonb_agg(to_jsonb(p) ORDER BY p.id)
-        FROM (SELECT * FROM matching ORDER BY id LIMIT $%d OFFSET $%d) p), '[]'::jsonb),
-        'total', (SELECT count(*) FROM matching), 'page', $%d::integer, 'page_size', $%d::integer)`, query, n+1, n+2, n+3, n+1)
+        SELECT jsonb_build_object('data', coalesce((SELECT jsonb_agg(to_jsonb(p) ORDER BY %s)
+        FROM (SELECT * FROM matching ORDER BY %s LIMIT $%d OFFSET $%d) p), '[]'::jsonb),
+        'total', (SELECT count(*) FROM matching), 'page', $%d::integer, 'page_size', $%d::integer)`, query, order, order, n+1, n+2, n+3, n+1)
 	args = append(args, f.PageSize, int64(f.Page-1)*int64(f.PageSize), f.Page)
 	var body json.RawMessage
-	err = db.QueryRow(ctx, query, args...).Scan(&body)
+	err := db.QueryRow(ctx, query, args...).Scan(&body)
 	return body, err
 }
 

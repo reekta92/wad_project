@@ -95,7 +95,11 @@ func activeActor(ctx context.Context, tx pgx.Tx, actorID int64, personnelID *int
 }
 
 func appendAudit(ctx context.Context, tx pgx.Tx, actorID int64, value change) error {
-	_, err := tx.Exec(ctx, `INSERT INTO audit_logs (actor_user_id, action, entity, entity_id, old_value, new_value) VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb)`, actorID, value.Action, value.Entity, value.ID, value.Old, value.New)
+	var entityID any
+	if value.ID > 0 {
+		entityID = value.ID
+	}
+	_, err := tx.Exec(ctx, `INSERT INTO audit_logs (actor_user_id, action, entity, entity_id, old_value, new_value) VALUES ($1, $2, $3, $4, $5::jsonb, $6::jsonb)`, actorID, value.Action, value.Entity, entityID, value.Old, value.New)
 	return err
 }
 
