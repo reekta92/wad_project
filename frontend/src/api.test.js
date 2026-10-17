@@ -1,6 +1,6 @@
 import { afterEach, mock, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchProfile, fetchSchedule } from './api.js';
+import { fetchProfile, fetchSchedule, requestResource } from './api.js';
 
 afterEach(() => mock.restoreAll());
 
@@ -49,4 +49,29 @@ test('profile preserves denied-session status and rejects malformed permissions'
   mock.restoreAll();
   mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ id: 1, username: 'demo', role: 'administrator', permissions: ['invented'], personnel_id: null })));
   await assert.rejects(fetchProfile('test-token'), /incomplete/);
+});
+
+test('resource writes send authenticated JSON and support empty 204 responses', async () => {
+  mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(url, '/api/v1/departments/7');
+    assert.equal(options.headers.Authorization, 'Bearer transient-token');
+    assert.equal(options.cache, 'no-store');
+    if (options.method === 'PUT') {
+      assert.equal(options.headers['Content-Type'], 'application/json');
+      assert.deepEqual(JSON.parse(options.body), { name: 'Updated' });
+      return new Response(JSON.stringify({ id: 7, name: 'Updated' }));
+    }
+    assert.equal(options.body, undefined);
+    return new Response(null, { status: 204 });
+  });
+  assert.deepEqual(await requestResource('departments/7', 'transient-token', { method: 'PUT', body: { name: 'Updated' } }), { id: 7, name: 'Updated' });
+  assert.equal(await requestResource('departments/7', 'transient-token', { method: 'DELETE' }), null);
+});
+
+test('resource validation errors retain field details and malformed lists fail visibly', async () => {
+  mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ error: { message: 'Check fields.', fields: { name: 'Required.' } } }), { status: 400 }));
+  await assert.rejects(requestResource('departments', 'token'), (error) => error.status === 400 && error.fields.name === 'Required.');
+  mock.restoreAll();
+  mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ data: [{ id: 1 }], page: 1, page_size: 0, total: 1 })));
+  await assert.rejects(requestResource('departments', 'token'), /incomplete resource/);
 });

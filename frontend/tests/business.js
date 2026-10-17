@@ -89,3 +89,135 @@ export async function verifyMemberAPI(request, token, invigilator) {
     expect((await request.delete(`/api/v1/unavailability-requests/${item.id}`, { headers })).status()).toBe(204);
   }
 }
+
+async function navigate(page, label) {
+  const menu = page.getByRole('button', { name: 'Open menu', exact: true });
+  if (await menu.isVisible()) await menu.click();
+  await page.getByRole('navigation', { name: 'Main navigation', exact: true }).getByRole('button', { name: label, exact: true }).click();
+  await expect(page.locator('.management .results-toolbar')).toContainText('records found');
+}
+
+async function save(page, resource, method) {
+  const response = page.waitForResponse((value) => new URL(value.url()).pathname.startsWith(`/api/v1/${resource}`) && value.request().method() === method);
+  await page.getByRole('dialog').getByRole('button', { name: 'Save changes', exact: true }).click();
+  const result = await response;
+  expect(result.status(), await result.text()).toBe(method === 'POST' ? 201 : 200);
+  await expect(page.getByRole('dialog')).toBeHidden();
+  await expect(page.locator('.management .results-toolbar')).toContainText('records found');
+  return result.json();
+}
+
+export async function verifyBusinessUI(page, request, token) {
+  const fixtures = [];
+  const headers = { Authorization: `Bearer ${token}` };
+  const field = (name) => page.getByRole('dialog').locator(`#record-${name}`);
+  const add = async (resource, label, singular, fill) => {
+    await navigate(page, label);
+    await page.getByRole('button', { name: `Add ${singular}`, exact: true }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await fill();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    const record = await save(page, resource, 'POST');
+    fixtures.push({ resource, label, singular, record });
+    return record;
+  };
+  await page.setViewportSize({ width: 390, height: 844 });
+  try {
+    const department = await add('departments', 'Departments', 'department', async () => {
+      await field('name').fill('Computer Engineering');
+      const failure = page.waitForResponse((value) => value.request().method() === 'POST' && new URL(value.url()).pathname === '/api/v1/departments');
+      await page.getByRole('dialog').getByRole('button', { name: 'Save changes' }).click();
+      expect((await failure).status()).toBe(409);
+      await expect(page.getByRole('dialog').getByRole('alert')).toContainText('already exists');
+      await expect(field('name')).toHaveValue('Computer Engineering');
+      await field('name').fill('UI temporary department');
+    });
+    const course = await add('courses', 'Courses', 'course', async () => {
+      await field('code').fill('UI101'); await field('name').fill('UI course'); await field('kind').selectOption('elective');
+      await field('enrollment').fill('30'); await field('term').fill('1'); await field('department_id').selectOption(String(department.id));
+    });
+    await add('classrooms', 'Classrooms', 'classroom', async () => {
+      await field('name').fill('UI temporary room'); await field('capacity').fill('20'); await field('type').fill('classroom');
+      await field('floor').fill('0'); await field('active').uncheck();
+    });
+    const session = await add('sessions', 'Sessions', 'session', async () => {
+      await field('date').fill('2026-11-06'); await field('start_time').fill('09:00'); await field('end_time').fill('10:00');
+      await field('description').fill('UI temporary session');
+    });
+    const personnel = await add('personnel', 'Personnel', 'personnel record', async () => {
+      await field('title').fill('Dr.'); await field('first_name').fill('UI'); await field('last_name').fill('Temporary'); await field('department_id').selectOption(String(department.id));
+    });
+    await add('unavailability-requests', 'Requests', 'request', async () => {
+      await field('personnel_id').selectOption(String(personnel.id)); await field('date').fill('2026-11-07');
+      await field('type').selectOption('leave'); await field('reason').fill('UI temporary request');
+    });
+    const exam = await add('exams', 'Exams', 'exam', async () => {
+      await field('course_id').selectOption(String(course.id)); await field('session_id').selectOption(String(session.id));
+    });
+    await add('invigilator-assignments', 'Assignments', 'assignment', async () => {
+      await field('id').selectOption(String(exam.rooms[0].id)); await field('personnel_id').selectOption(String(personnel.id));
+    });
+    for (const { resource, label, record } of fixtures) {
+      await navigate(page, label);
+      const card = page.locator('.record-card').filter({ has: page.getByText(`#${record.id}`, { exact: true }) });
+      await card.getByRole('button', { name: 'Details', exact: true }).click();
+      await expect(page.getByRole('dialog').getByRole('heading', { name: 'Record details', exact: true })).toBeVisible();
+      await page.getByRole('dialog').getByRole('button', { name: 'Edit', exact: true }).click();
+      if (resource === 'departments') await field('name').fill('UI revised department');
+      if (resource === 'courses') await field('enrollment').fill('40');
+      if (resource === 'classrooms') { await field('capacity').fill('25'); await field('active').check(); }
+      if (resource === 'sessions') await field('description').fill('UI revised session');
+      if (resource === 'personnel') await field('last_name').fill('Revised');
+      if (resource === 'unavailability-requests') { await expect(field('personnel_id')).toBeDisabled(); await field('reason').fill('UI revised request'); }
+      if (resource === 'invigilator-assignments') { await expect(field('id')).toHaveCount(0); await field('personnel_id').selectOption('1'); }
+      await save(page, resource, 'PUT');
+      for (const width of [320, 768, 1440]) {
+        await page.setViewportSize({ width, height: 844 });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      }
+      await page.setViewportSize({ width: 390, height: 844 });
+    }
+    await navigate(page, 'Departments');
+    await page.locator('.resource-filters').getByLabel('Department name', { exact: true }).fill('UI revised');
+    await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+    await expect(page.locator('.record-card')).toHaveCount(1);
+    for (const fixture of [...fixtures].reverse()) {
+      await navigate(page, fixture.label);
+      await page.getByRole('button', { name: `Delete ${fixture.singular} #${fixture.record.id}`, exact: true }).click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+      const removed = page.waitForResponse((value) => value.request().method() === 'DELETE' && new URL(value.url()).pathname === `/api/v1/${fixture.resource}/${fixture.record.id}`);
+      await dialog.getByRole('button', { name: 'Delete record', exact: true }).click();
+      expect((await removed).status()).toBe(204);
+      await expect(dialog).toBeHidden();
+      await expect(page.getByRole('button', { name: `Add ${fixture.singular}`, exact: true })).toBeFocused();
+    }
+    fixtures.length = 0;
+  } finally {
+    for (const { resource, record } of fixtures.reverse()) await request.delete(`/api/v1/${resource}/${record.id}`, { headers });
+    await page.setViewportSize({ width: 1280, height: 720 });
+  }
+}
+
+export async function verifyOwnedRequestUI(page) {
+  await expect(page.getByRole('button', { name: 'Departments', exact: true })).toHaveCount(0);
+  await navigate(page, 'My requests');
+  await page.getByRole('button', { name: 'Add request', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.locator('#record-personnel_id')).toHaveCount(0);
+  await dialog.locator('#record-date').fill('2026-11-08');
+  await dialog.locator('#record-type').selectOption('medical');
+  await dialog.locator('#record-reason').fill('Own request from the browser');
+  const value = await save(page, 'unavailability-requests', 'POST');
+  expect(value.personnel_id).toBe(1);
+  const card = page.locator('.record-card').filter({ has: page.getByText(`#${value.id}`, { exact: true }) });
+  await card.getByRole('button', { name: 'Edit', exact: true }).click();
+  await dialog.locator('#record-reason').fill('Updated own request');
+  await save(page, 'unavailability-requests', 'PUT');
+  await page.getByRole('button', { name: `Delete request #${value.id}`, exact: true }).click();
+  const removed = page.waitForResponse((response) => response.request().method() === 'DELETE');
+  await dialog.getByRole('button', { name: 'Delete record', exact: true }).click();
+  expect((await removed).status()).toBe(204);
+  await expect(dialog).toBeHidden();
+}

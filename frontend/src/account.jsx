@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { authentication } from './auth.js';
-import { fetchProfile } from './api.js';
+import { fetchProfile, requestResource } from './api.js';
 import { Icon } from './icons.jsx';
 
 export function useAccount() {
@@ -71,9 +71,21 @@ export function useAccount() {
     } finally { setBusy(false); }
   }
 
+  const request = useCallback(async (path, options) => {
+    if (!client?.authenticated) throw new Error('Sign in again to continue.');
+    await client.updateToken(30);
+    try { return await requestResource(path, client.token, options); } catch (failure) {
+      if (failure.status === 401) {
+        client.clearToken();
+        setError('Your session ended. Sign in again to continue.');
+      }
+      throw failure;
+    }
+  }, [client]);
+
   const redirectUri = `${window.location.origin}/`;
   return {
-    profile, busy, error, available: Boolean(client), authenticated: Boolean(client?.authenticated),
+    profile, busy, error, request, available: Boolean(client), authenticated: Boolean(client?.authenticated),
     retry: () => setAttempt((value) => value + 1),
     signIn: () => act(() => client.login({ redirectUri, prompt: 'login' })),
     registerPasskey: () => act(() => client.login({ redirectUri, prompt: 'login', action: 'webauthn-register-passwordless' })),

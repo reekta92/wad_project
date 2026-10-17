@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { fetchSchedule } from './api.js';
 import { AccountPanel, useAccount } from './account.jsx';
 import { Icon } from './icons.jsx';
+import { Management } from './management.jsx';
+import { resources } from './resources.js';
 import './style.css';
 
 const clock = (value) => value.slice(0, 5);
@@ -46,6 +48,7 @@ function App() {
   const [pageSize, setPageSize] = useState(initial.get('page_size') || '20');
   const [view, setView] = useState('list');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [resource, setResource] = useState(null);
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'system');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
@@ -53,6 +56,20 @@ function App() {
   const [retry, setRetry] = useState(0);
   const dialog = useRef(null);
   const menuButton = useRef(null);
+  const permitted = account.profile?.role === 'administrator' ? Object.keys(resources) : account.profile?.permissions.includes('invigilator') ? ['unavailability-requests'] : [];
+  const activeResource = permitted.includes(resource) ? resource : null;
+
+  function showResource(value) {
+    setResource(value);
+    setMenuOpen(false);
+  }
+
+  useEffect(() => {
+    if (activeResource) {
+      document.getElementById('page-title')?.focus();
+      window.scrollTo({ top: 0 });
+    }
+  }, [activeResource]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -74,6 +91,7 @@ function App() {
   }
 
   useEffect(() => {
+    if (activeResource) return;
     const controller = new AbortController();
     setLoading(true);
     setError('');
@@ -85,7 +103,7 @@ function App() {
       if (!controller.signal.aborted) setLoading(false);
     });
     return () => controller.abort();
-  }, [query, retry]);
+  }, [query, retry, activeResource]);
 
   function navigate(params) {
     const value = params.toString();
@@ -109,7 +127,7 @@ function App() {
   }
 
   return <>
-    <a className="skip-link" href="#schedule">Skip to schedule</a>
+    <a className="skip-link" href="#main-content">Skip to content</a>
     <header className="site-header">
       <div className="header-inner">
         <div className="header-brand">
@@ -126,23 +144,24 @@ function App() {
 
     <div className="workspace">
       <nav id="main-navigation" className={menuOpen ? 'navigation open' : 'navigation'} aria-label="Main navigation">
-        <a className="button compose-button" href="#course-search" onClick={() => setMenuOpen(false)}><Icon name="search" />Find an exam</a>
+        <a className="button compose-button" href="#course-search" onClick={() => showResource(null)}><Icon name="search" />Find an exam</a>
         <div className="nav-links">
-          <a className="nav-link selected" href="#schedule" onClick={() => setMenuOpen(false)}><Icon name="calendar" />Exam schedule</a>
+          <a className={activeResource ? 'nav-link' : 'nav-link selected'} href="#schedule" onClick={() => showResource(null)}><Icon name="calendar" />Exam schedule</a>
           <a className="nav-link" href="#account" onClick={() => setMenuOpen(false)}><Icon name="account" />My account</a>
           <button className="nav-link" onClick={() => { setMenuOpen(false); dialog.current.showModal(); }}><Icon name="help" />Schedule information</button>
         </div>
+        {permitted.length > 0 && <div className="nav-links business-navigation"><p className="nav-section-label">{account.profile.role === 'administrator' ? 'Administration' : 'My workspace'}</p>{permitted.map((key) => <button key={key} className={activeResource === key ? 'nav-link selected' : 'nav-link'} aria-current={activeResource === key ? 'page' : undefined} onClick={() => showResource(key)}><Icon name={resources[key].icon} />{key === 'unavailability-requests' ? account.profile.role === 'administrator' ? 'Requests' : 'My requests' : key === 'invigilator-assignments' ? 'Assignments' : resources[key].title}</button>)}</div>}
         <div className="sidebar-note"><Icon name="clock" /><p>One timetable.<br />A little less to remember.</p><span>Europe/Istanbul</span></div>
       </nav>
 
-      <main className="content-surface">
+      <main id="main-content" className="content-surface" tabIndex="-1">
         <section className="page-intro" aria-labelledby="page-title">
-          <div><p className="eyebrow">Faculty / Examinations</p><h1 id="page-title">A clearer exam day.</h1><p className="intro-copy">Find your course. Check the time. You’re all set.</p></div>
-          <span className="publication-chip"><span className="status-dot" />Published timetable</span>
+          <div><p className="eyebrow">Faculty / {activeResource ? 'Workspace' : 'Examinations'}</p><h1 id="page-title" tabIndex="-1">{activeResource ? resources[activeResource].title : 'A clearer exam day.'}</h1><p className="intro-copy">{activeResource ? resources[activeResource].description : 'Find your course. Check the time. You’re all set.'}</p></div>
+          {!activeResource && <span className="publication-chip"><span className="status-dot" />Published timetable</span>}
         </section>
         <AccountPanel account={account} />
 
-      <section id="schedule" className="schedule-section" aria-labelledby="schedule-title">
+      {activeResource ? <Management key={activeResource} resource={activeResource} account={account} /> : <section id="schedule" className="schedule-section" aria-labelledby="schedule-title">
         <div className="section-heading"><h2 id="schedule-title">Published schedule</h2><p className="timezone"><Icon name="clock" />Europe/Istanbul</p></div>
         <form className="filter-form" onSubmit={filter}>
           <div className="search-field"><label htmlFor="course-search">Course name or code</label><div className="search-input"><Icon name="search" /><input id="course-search" type="search" maxLength="100" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search your courses" /></div></div>
@@ -157,11 +176,11 @@ function App() {
         {!loading && !error && result?.data.length === 0 && <div className="message"><img src="/campus.svg" alt="" width="160" height="120" /><h3>No published exams match these filters</h3><p>Try a different course or date range.</p></div>}
         {!loading && !error && result?.data.length > 0 && (view === 'calendar' ? <Calendar exams={result.data} /> : <div className="exam-grid">{result.data.map((exam) => <Exam key={exam.id} exam={exam} />)}</div>)}
         {!loading && !error && result && <nav className="pagination" aria-label="Schedule results pages"><button className="button" aria-label="Previous page" disabled={result.page <= 1} onClick={() => page(result.page - 1)}><Icon name="previous" /><span className="page-label">Previous</span></button><span>Page {result.page} of {Math.max(1, Math.ceil(result.total / result.page_size))}</span><button className="button" aria-label="Next page" disabled={result.page >= Math.ceil(result.total / result.page_size)} onClick={() => page(result.page + 1)}><span className="page-label">Next</span><Icon name="next" /></button></nav>}
-      </section>
+      </section>}
       </main>
     </div>
 
-    <footer className="site-footer"><div className="footer-inner"><div><a className="brand" href="/"><Icon name="calendar" /><span>Faculty Exams</span></a><p>A little more clarity for exam season.</p></div><div><h2>Schedule</h2><a href="#schedule">Browse published exams</a><button onClick={() => dialog.current.showModal()}>Using this schedule</button></div><div><h2>Project</h2><a href="https://github.com/reekta92/wad_project">Source repository <Icon name="arrow" /></a><p>All times: Europe/Istanbul.</p></div></div></footer>
+    <footer className="site-footer"><div className="footer-inner"><div><a className="brand" href="/"><Icon name="calendar" /><span>Faculty Exams</span></a><p>A little more clarity for exam season.</p></div><div><h2>Schedule</h2><a href="#schedule" onClick={() => showResource(null)}>Browse published exams</a><button onClick={() => dialog.current.showModal()}>Using this schedule</button></div><div><h2>Project</h2><a href="https://github.com/reekta92/wad_project">Source repository <Icon name="arrow" /></a><p>All times: Europe/Istanbul.</p></div></div></footer>
 
     <dialog ref={dialog} aria-labelledby="information-title"><div className="dialog-content"><p className="eyebrow">Before your exam</p><h2 id="information-title">Using the published schedule</h2><p>Search by course name or code, then narrow the date range. Switch between list and calendar views; each view shows the current page of results.</p><p>Times use the faculty timezone, Europe/Istanbul. Only published exams appear here. Check the schedule again before your exam in case dates or rooms change.</p><button className="button primary" autoFocus onClick={() => dialog.current.close()}>Got it</button></div></dialog>
   </>;

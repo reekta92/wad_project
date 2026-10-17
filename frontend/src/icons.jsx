@@ -13,6 +13,14 @@ export function Icon({ name, ...props }) {
     next: <path d="m10 6 6 6-6 6" />,
     arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
     check: <path d="m5 12 4 4L19 6" />,
+    add: <path d="M12 5v14M5 12h14" />,
+    edit: <><path d="m15 4 5 5M4 20l5-1L21 7a2 2 0 0 0-5-5L4 14Z" /></>,
+    delete: <><path d="M3 6h18M9 6V3h6v3m-10 0 1 15h12l1-15M10 10v7m4-7v7" /></>,
+    refresh: <><path d="M20 7v5h-5M4 17v-5h5M20 12a8 8 0 0 0-14-5M4 12a8 8 0 0 0 14 5" /></>,
+    department: <><path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h1m4 0h1m-6 4h1m4 0h1m-4 7v-3h2v3" /></>,
+    book: <><path d="M4 4h7a4 4 0 0 1 4 4v13a4 4 0 0 0-4-4H4Zm11 4a4 4 0 0 1 4-4h1v13h-1a4 4 0 0 0-4 4" /></>,
+    room: <><rect x="4" y="3" width="16" height="18" rx="3" /><path d="M8 21V7h8v14m-3-7h.01" /></>,
+    leave: <><rect x="4" y="4" width="16" height="17" rx="3" /><path d="M9 3h6v3H9ZM8 11h8m-8 5h5" /></>,
   };
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>{paths[name]}</svg>;
 }

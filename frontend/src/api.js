@@ -52,3 +52,27 @@ export async function fetchProfile(token, signal) {
   }
   return body;
 }
+
+export async function requestResource(path, token, { method = 'GET', body, signal } = {}) {
+  const response = await fetch(`/api/v1/${path}`, {
+    method, signal, cache: 'no-store',
+    headers: { Accept: 'application/json', Authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
+  if (response.ok && response.status === 204) return null;
+  let value;
+  try { value = await response.json(); } catch {
+    throw new Error('The service returned an unreadable response. Please try again.');
+  }
+  if (!response.ok) {
+    const error = new Error(value?.error?.message || `This action could not be completed (${response.status}).`);
+    error.status = response.status;
+    error.fields = value?.error?.fields || {};
+    throw error;
+  }
+  const record = (entry) => entry && Number.isSafeInteger(entry.id) && entry.id > 0;
+  if (!value || (Array.isArray(value.data)
+    ? !value.data.every(record) || !Number.isSafeInteger(value.total) || value.total < 0 || !Number.isSafeInteger(value.page) || value.page < 1 || !Number.isSafeInteger(value.page_size) || value.page_size < 1 || value.page_size > 100
+    : !record(value))) throw new Error('The service returned incomplete resource information. Please try again.');
+  return value;
+}
