@@ -106,6 +106,7 @@ for (const [name, label, role, personnel] of [
 }
 
 test('administrator requires TOTP, refreshes, rejects disabled accounts, and ends the provider session', async ({ page, request }) => {
+  await page.clock.install();
   const account = byName('admin.demo');
   const access = captureAccess(page);
   await startLogin(page, account);
@@ -124,7 +125,6 @@ test('administrator requires TOTP, refreshes, rejects disabled accounts, and end
   const claims = JSON.parse(Buffer.from(access.token.split('.')[1], 'base64url'));
   expect(claims.amr).toEqual(expect.arrayContaining(['pwd', 'otp']));
 
-  await page.clock.install();
   const refresh = page.waitForResponse((response) => response.url().endsWith('/protocol/openid-connect/token') && response.request().postData()?.includes('grant_type=refresh_token'));
   await page.clock.fastForward(310000);
   const refreshed = await refresh;
