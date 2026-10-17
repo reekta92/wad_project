@@ -49,6 +49,13 @@ func Seed(ctx context.Context, databaseURL string) (bool, error) {
 	if _, err = tx.Exec(ctx, string(body)); err != nil {
 		return false, err
 	}
+	state, err := loadSchedule(ctx, tx)
+	if err != nil {
+		return false, err
+	}
+	if err := state.validate(true); err != nil {
+		return false, err
+	}
 	if _, err = tx.Exec(ctx, `INSERT INTO seed_runs (name) VALUES ('demo-v1')`); err != nil {
 		return false, err
 	}
