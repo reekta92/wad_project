@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/reekta92/wad_project/backend/internal/store"
@@ -153,7 +154,7 @@ func (p *provider) account(ctx context.Context, account Account, index int, comp
 		}
 	}
 	if len(users) != 1 || users[0].Username != account.Username || users[0].ID == "" ||
-		(account.Subject == "" && users[0].Email != account.Username+"."+account.Tag+"@example.test") ||
+		(account.Subject == "" && !strings.EqualFold(users[0].Email, account.Username+"."+account.Tag+"@example.test")) ||
 		(account.Subject != "" && account.Subject != users[0].ID) {
 		return "", fmt.Errorf("demo username %s belongs to a different identity; no credentials or roles were changed", account.Username)
 	}

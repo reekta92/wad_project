@@ -89,7 +89,7 @@ func isolatedScheduler(t *testing.T) schedulerFixture {
 		}
 	}
 	// Production migrations target public; these grants mirror them in this disposable schema.
-	if _, err := tx.Exec(ctx, `GRANT USAGE ON SCHEMA `+quoted+` TO exam_admin; GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA `+quoted+` TO exam_admin`); err != nil {
+	if _, err := tx.Exec(ctx, `GRANT USAGE ON SCHEMA `+quoted+` TO exam_admin, exam_invigilator, exam_reader; GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA `+quoted+` TO exam_admin; GRANT USAGE ON SEQUENCE `+quoted+`.unavailability_requests_id_seq TO exam_invigilator`); err != nil {
 		t.Fatal(err)
 	}
 	body, err := seeds.Files.ReadFile("demo.sql")
@@ -121,6 +121,82 @@ func isolatedScheduler(t *testing.T) schedulerFixture {
 	}
 	t.Cleanup(admin.Close)
 	return schedulerFixture{ctx: ctx, owner: owner, scheduler: Scheduler{Pool: admin}, actor: actor}
+}
+
+func TestInvigilatorDatabaseOwnershipAndPoolIsolation(t *testing.T) {
+	f := isolatedScheduler(t)
+	f.exec(t, `INSERT INTO unavailability_requests (personnel_id, date, type, reason) VALUES (1, '2026-11-03', 'leave', 'Own pending'), (2, '2026-11-03', 'leave', 'Another person')`)
+	invigilatorURL, err := config.DatabaseURL("exam_invigilator", "EXAM_INVIGILATOR_PASSWORD")
+	if err != nil {
+		t.Fatal(err)
+	}
+	settings, err := pgxpool.ParseConfig(invigilatorURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	settings.MaxConns = 1
+	settings.ConnConfig.RuntimeParams["search_path"] = f.owner.Config().ConnConfig.RuntimeParams["search_path"]
+	pool, err := pgxpool.NewWithConfig(f.ctx, settings)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer pool.Close()
+	tx, err := beginWrite(f.ctx, pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback(f.ctx)
+	if _, err := tx.Exec(f.ctx, `SELECT set_config('app.personnel_id', '1', true)`); err != nil {
+		t.Fatal(err)
+	}
+	var count int
+	if err := tx.QueryRow(f.ctx, `SELECT count(*) FROM unavailability_requests`).Scan(&count); err != nil || count != 1 {
+		t.Fatalf("another owner's request was visible: count=%d %v", count, err)
+	}
+	if result, err := tx.Exec(f.ctx, `UPDATE unavailability_requests SET reason = 'Changed another person' WHERE personnel_id = 2`); err != nil || result.RowsAffected() != 0 {
+		t.Fatalf("cross-owner update succeeded: %v", err)
+	}
+	for _, query := range []string{
+		`INSERT INTO unavailability_requests (personnel_id, date, type, reason) VALUES (2, '2026-11-04', 'leave', 'Impersonation')`,
+		`UPDATE unavailability_requests SET status = 'approved', decided_by = 1, decided_at = now() WHERE personnel_id = 1`,
+		`UPDATE unavailability_requests SET personnel_id = 2 WHERE personnel_id = 1`,
+	} {
+		savepoint, err := tx.Begin(f.ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, denied := savepoint.Exec(f.ctx, query)
+		if err := savepoint.Rollback(f.ctx); err != nil {
+			t.Fatal(err)
+		}
+		var failure *pgconn.PgError
+		if !errors.As(denied, &failure) || failure.Code != "42501" {
+			t.Fatalf("ownership or decision write was not denied: %v", denied)
+		}
+	}
+	if result, err := tx.Exec(f.ctx, `UPDATE unavailability_requests SET reason = 'Own allowed edit' WHERE personnel_id = 1`); err != nil || result.RowsAffected() != 1 {
+		t.Fatalf("own pending edit failed: %v", err)
+	}
+	if err := tx.Commit(f.ctx); err != nil {
+		t.Fatal(err)
+	}
+	if err := pool.QueryRow(f.ctx, `SELECT count(*) FROM unavailability_requests`).Scan(&count); err != nil || count != 0 {
+		t.Fatalf("pooled connection retained the previous user's identity: count=%d %v", count, err)
+	}
+	f.exec(t, `UPDATE unavailability_requests SET status = 'approved', decided_by = $1, decided_at = now() WHERE personnel_id = 1`, f.actor)
+	tx, err = beginWrite(f.ctx, pool)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback(f.ctx)
+	if _, err := tx.Exec(f.ctx, `SELECT set_config('app.personnel_id', '1', true)`); err != nil {
+		t.Fatal(err)
+	}
+	for _, query := range []string{`UPDATE unavailability_requests SET reason = 'Changed decided request'`, `DELETE FROM unavailability_requests`} {
+		if result, err := tx.Exec(f.ctx, query); err != nil || result.RowsAffected() != 0 {
+			t.Fatalf("decided request changed: %v", err)
+		}
+	}
 }
 
 func (f schedulerFixture) exec(t *testing.T, query string, args ...any) {

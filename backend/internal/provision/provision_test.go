@@ -126,3 +126,18 @@ func TestRealmTemplateHasDistinctStrongAuthenticationMethods(t *testing.T) {
 		}
 	}
 }
+
+func TestInitialOwnershipToleratesProviderEmailNormalization(t *testing.T) {
+	account := Account{Username: "student.demo", Tag: "MixedCASEnonce"}
+	p := &provider{base: "https://identity.example", realm: "exams", client: &http.Client{Transport: transport(func(r *http.Request) (*http.Response, error) {
+		body := `{}`
+		if strings.Contains(r.URL.Path, "/users") && r.Method == "GET" {
+			body = `[{"id":"owned-subject","username":"student.demo","email":"student.demo.mixedcasenonce@example.test"}]`
+		}
+		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: http.Header{}}, nil
+	})}}
+	id, err := p.account(context.Background(), account, 0, false)
+	if err != nil || id != "owned-subject" {
+		t.Fatalf("provider-normalized ownership marker rejected: %v", err)
+	}
+}

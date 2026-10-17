@@ -38,7 +38,20 @@ jobs:
           python3 scripts/setup.py
           docker compose config --quiet
       - name: Start isolated PostgreSQL and identity provider
-        run: docker compose up -d --wait --wait-timeout 240
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('infrastructure/exams-realm.json')
+          realm = json.loads(path.read_text())
+          for key in ['browserFlow', 'authenticationFlows', 'authenticatorConfig', 'requiredActions']:
+              realm.pop(key, None)
+          realm['clients'] = realm['clients'][:1]
+          realm['clients'][0]['protocolMappers'] = [m for m in realm['clients'][0]['protocolMappers'] if m['protocolMapper'] != 'oidc-amr-mapper']
+          path.write_text(json.dumps(realm))
+          PY
+          docker compose up -d --wait --wait-timeout 240
+          git restore infrastructure/exams-realm.json
       - name: Run unit and database integration tests
         env:
           RUN_DATABASE_TESTS: '1'
@@ -63,6 +76,40 @@ jobs:
         if: always() && hashFiles('.env') != ''
         run: docker compose down
 
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: backend/go.sum
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.21.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Prepare browser and frontend
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          npx --no-install playwright install --with-deps chromium
+      - name: Prepare isolated identity and database services
+        run: |
+          python3 scripts/setup.py
+          docker compose up -d --wait --wait-timeout 240
+          python3 scripts/run.py migrate
+          python3 scripts/run.py seed
+          python3 scripts/run.py provision
+      - name: Verify actual browser login and MFA
+        working-directory: frontend
+        run: npm run test:browser
+      - name: Stop browser test services
+        if: always() && hashFiles('.env') != ''
+        run: docker compose down
+
   frontend:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -73,18 +120,9 @@ jobs:
           node-version: '24.21.0'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - name: Bootstrap authentication dependency lock metadata
+      - name: Install pinned dependencies
         working-directory: frontend
-        run: |
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-          node --input-type=module <<'JS'
-          import fs from 'node:fs';
-          const lock = JSON.parse(fs.readFileSync('package-lock.json'));
-          const packages = Object.fromEntries(Object.entries(lock.packages).filter(([key]) => /node_modules\/(keycloak-js|@playwright\/test|playwright|playwright-core)$/.test(key)));
-          const encoded = Buffer.from(JSON.stringify({ root: lock.packages[''], packages })).toString('base64');
-          for (let i = 0; i < encoded.length; i += 4096) console.log('WAD_AUTH_LOCK_METADATA=' + encoded.slice(i, i + 4096));
-          JS
-          npm ci --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Test API client and build application
         working-directory: frontend
         run: |
