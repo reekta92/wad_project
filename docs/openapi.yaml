@@ -1,10 +1,11 @@
 openapi: 3.1.0
 info:
   title: Faculty Exams API
-  version: 0.2.0
-  description: Public schedule and verified identity API. Protected scheduling and CRUD operations are under development.
+  version: 0.3.0
+  description: Published schedule, verified identity, and eight business resources with 40 CRUD operations. Business resources
+    currently use JSON; additional representations and scheduling/report workflows follow in later milestones.
 servers:
-  - url: http://localhost:8080/api/v1
+- url: http://localhost:8080/api/v1
 security: []
 paths:
   /auth/config:
@@ -18,56 +19,94 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [issuer, url, realm, client_id]
+                required:
+                - issuer
+                - url
+                - realm
+                - client_id
                 properties:
-                  issuer: { type: string, format: uri }
-                  url: { type: string, format: uri }
-                  realm: { type: string }
-                  client_id: { const: exam-web }
+                  issuer:
+                    type: string
+                    format: uri
+                  url:
+                    type: string
+                    format: uri
+                  realm:
+                    type: string
+                  client_id:
+                    const: exam-web
   /me:
     get:
       operationId: getCurrentProfile
       summary: Get the active local profile for a verified access token
-      description: Administrator tokens additionally require a signed passkey authentication reference, or both password and OTP references. Local inactive/unlinked accounts are rejected.
+      description: Administrator tokens additionally require a signed passkey authentication reference, or both password and
+        OTP references. Local inactive/unlinked accounts are rejected.
       security:
-        - OAuth2: [openid]
+      - OAuth2:
+        - openid
       responses:
         '200':
           description: The caller's own profile and trusted permissions.
           headers:
             Cache-Control:
-              schema: { type: string, const: no-store }
+              schema:
+                type: string
+                const: no-store
           content:
             application/json:
               schema:
                 type: object
-                required: [id, username, role, permissions, personnel_id]
+                required:
+                - id
+                - username
+                - role
+                - permissions
+                - personnel_id
                 properties:
-                  id: { type: integer, format: int64 }
-                  username: { type: string }
-                  role: { type: string, enum: [member, administrator] }
+                  id:
+                    type: integer
+                    format: int64
+                  username:
+                    type: string
+                  role:
+                    type: string
+                    enum:
+                    - member
+                    - administrator
                   permissions:
                     type: array
-                    items: { type: string, enum: [invigilator] }
-                  personnel_id: { type: [integer, 'null'], format: int64 }
+                    items:
+                      type: string
+                      enum:
+                      - invigilator
+                  personnel_id:
+                    type:
+                    - integer
+                    - 'null'
+                    format: int64
         '401':
           description: Missing, invalid, expired, wrong-audience, or otherwise untrusted access token.
           headers:
             WWW-Authenticate:
-              schema: { type: string }
+              schema:
+                type: string
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Error' }
+              schema:
+                $ref: '#/components/schemas/Error'
         '403':
-          description: Missing application role, local account/personnel mapping, active status, or required administrator MFA proof.
+          description: Missing application role, local account/personnel mapping, active status, or required administrator
+            MFA proof.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Error' }
+              schema:
+                $ref: '#/components/schemas/Error'
         '503':
           description: Local identity data is unavailable.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Error' }
+              schema:
+                $ref: '#/components/schemas/Error'
   /health/live:
     get:
       operationId: getLiveness
@@ -79,9 +118,11 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [status]
+                required:
+                - status
                 properties:
-                  status: { const: ok }
+                  status:
+                    const: ok
   /health/ready:
     get:
       operationId: getReadiness
@@ -91,68 +132,3124 @@ paths:
           description: Both dependencies are ready.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Readiness' }
+              schema:
+                $ref: '#/components/schemas/Readiness'
         '503':
           description: At least one dependency is unavailable. No connection credentials are returned.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Readiness' }
+              schema:
+                $ref: '#/components/schemas/Readiness'
   /schedule:
     get:
       operationId: listPublishedSchedule
       summary: List published exams with their course, department, session, and rooms
-      description: Unknown, empty, malformed, or repeated parameters return 400. Unpublished schedules return an empty page. Only JSON is currently supported.
+      description: Unknown, empty, malformed, or repeated parameters return 400. Unpublished schedules return an empty page.
+        Only JSON is currently supported.
       parameters:
-        - name: page
-          in: query
-          schema: { type: integer, minimum: 1, maximum: 2147483647, default: 1 }
-        - name: page_size
-          in: query
-          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
-        - name: date_from
-          in: query
-          schema: { type: string, format: date }
-        - name: date_to
-          in: query
-          schema: { type: string, format: date }
-        - name: course_id
-          in: query
-          schema: { type: integer, format: int64, minimum: 1 }
-        - name: department_id
-          in: query
-          schema: { type: integer, format: int64, minimum: 1 }
-        - name: term
-          in: query
-          schema: { type: integer, minimum: 1, maximum: 8 }
-        - name: q
-          in: query
-          description: Case-insensitive literal substring of course code/name, up to 100 UTF-8 bytes.
-          schema: { type: string, minLength: 1, maxLength: 100 }
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: date_from
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: date_to
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: course_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: department_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: term
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 8
+      - name: q
+        in: query
+        description: Case-insensitive literal substring of course code/name, up to 100 UTF-8 bytes.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
       responses:
         '200':
           description: Correctly filtered page; ordering is date, start time, then exam ID.
           headers:
             Vary:
-              schema: { type: string, const: Accept }
+              schema:
+                type: string
+                const: Accept
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/SchedulePage' }
-        '400': { $ref: '#/components/responses/BadRequest' }
+              schema:
+                $ref: '#/components/schemas/SchedulePage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '406':
           description: Requested representation is unsupported.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Error' }
+              schema:
+                $ref: '#/components/schemas/Error'
         '503':
           description: Schedule data could not be read; the response does not expose database errors.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Error' }
+              schema:
+                $ref: '#/components/schemas/Error'
+  /departments:
+    post:
+      operationId: createDepartment
+      summary: Create departments
+      description: Administrator with verified MFA.
+      tags:
+      - departments
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '201':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          headers:
+            Location:
+              description: URI of the created resource.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentWrite'
+    get:
+      operationId: listDepartments
+      summary: List departments
+      description: Administrator with verified MFA.
+      tags:
+      - departments
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: A stable ID-ordered page with filtered totals, including on out-of-range pages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentPage'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: name
+        in: query
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+  /departments/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    get:
+      operationId: getDepartment
+      summary: Get departments
+      description: Administrator with verified MFA.
+      tags:
+      - departments
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: replaceDepartment
+      summary: Replace departments
+      description: Administrator with verified MFA.
+      tags:
+      - departments
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentWrite'
+    delete:
+      operationId: deleteDepartment
+      summary: Delete departments
+      description: Administrator with verified MFA.
+      tags:
+      - departments
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '204':
+          description: Deleted; no response body.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /courses:
+    post:
+      operationId: createCourse
+      summary: Create courses
+      description: Administrator with verified MFA.
+      tags:
+      - courses
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '201':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          headers:
+            Location:
+              description: URI of the created resource.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseWrite'
+    get:
+      operationId: listCourses
+      summary: List courses
+      description: Administrator with verified MFA.
+      tags:
+      - courses
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: A stable ID-ordered page with filtered totals, including on out-of-range pages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoursePage'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: department_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: term
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 8
+      - name: kind
+        in: query
+        schema:
+          type: string
+          enum:
+          - mandatory
+          - elective
+      - name: q
+        in: query
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+  /courses/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    get:
+      operationId: getCourse
+      summary: Get courses
+      description: Administrator with verified MFA.
+      tags:
+      - courses
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: replaceCourse
+      summary: Replace courses
+      description: Administrator with verified MFA.
+      tags:
+      - courses
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseWrite'
+    delete:
+      operationId: deleteCourse
+      summary: Delete courses
+      description: Administrator with verified MFA.
+      tags:
+      - courses
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '204':
+          description: Deleted; no response body.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /classrooms:
+    post:
+      operationId: createClassroom
+      summary: Create classrooms
+      description: Administrator with verified MFA.
+      tags:
+      - classrooms
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '201':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Classroom'
+          headers:
+            Location:
+              description: URI of the created resource.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassroomWrite'
+    get:
+      operationId: listClassrooms
+      summary: List classrooms
+      description: Administrator with verified MFA.
+      tags:
+      - classrooms
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: A stable ID-ordered page with filtered totals, including on out-of-range pages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassroomPage'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: active
+        in: query
+        schema:
+          type: boolean
+      - name: floor
+        in: query
+        schema:
+          type: integer
+          minimum: -2147483648
+          maximum: 2147483647
+      - name: min_capacity
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+  /classrooms/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    get:
+      operationId: getClassroom
+      summary: Get classrooms
+      description: Administrator with verified MFA.
+      tags:
+      - classrooms
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Classroom'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: replaceClassroom
+      summary: Replace classrooms
+      description: Administrator with verified MFA.
+      tags:
+      - classrooms
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Classroom'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassroomWrite'
+    delete:
+      operationId: deleteClassroom
+      summary: Delete classrooms
+      description: Administrator with verified MFA.
+      tags:
+      - classrooms
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '204':
+          description: Deleted; no response body.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /sessions:
+    post:
+      operationId: createSession
+      summary: Create sessions
+      description: Administrator with verified MFA.
+      tags:
+      - sessions
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '201':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          headers:
+            Location:
+              description: URI of the created resource.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionWrite'
+    get:
+      operationId: listSessions
+      summary: List sessions
+      description: Administrator with verified MFA.
+      tags:
+      - sessions
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: A stable ID-ordered page with filtered totals, including on out-of-range pages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionPage'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: date_from
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: date_to
+        in: query
+        schema:
+          type: string
+          format: date
+  /sessions/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    get:
+      operationId: getSession
+      summary: Get sessions
+      description: Administrator with verified MFA.
+      tags:
+      - sessions
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: replaceSession
+      summary: Replace sessions
+      description: Administrator with verified MFA.
+      tags:
+      - sessions
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionWrite'
+    delete:
+      operationId: deleteSession
+      summary: Delete sessions
+      description: Administrator with verified MFA.
+      tags:
+      - sessions
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '204':
+          description: Deleted; no response body.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /personnel:
+    post:
+      operationId: createPersonnel
+      summary: Create personnel
+      description: Administrator with verified MFA.
+      tags:
+      - personnel
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '201':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personnel'
+          headers:
+            Location:
+              description: URI of the created resource.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonnelWrite'
+    get:
+      operationId: listPersonnels
+      summary: List personnel
+      description: Administrator with verified MFA.
+      tags:
+      - personnel
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: A stable ID-ordered page with filtered totals, including on out-of-range pages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonnelPage'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: department_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: q
+        in: query
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+  /personnel/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    get:
+      operationId: getPersonnel
+      summary: Get personnel
+      description: Administrator with verified MFA.
+      tags:
+      - personnel
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personnel'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: replacePersonnel
+      summary: Replace personnel
+      description: Administrator with verified MFA.
+      tags:
+      - personnel
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personnel'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonnelWrite'
+    delete:
+      operationId: deletePersonnel
+      summary: Delete personnel
+      description: Administrator with verified MFA.
+      tags:
+      - personnel
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '204':
+          description: Deleted; no response body.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /unavailability-requests:
+    post:
+      operationId: createUnavailabilityRequest
+      summary: Create unavailability-requests
+      description: Administrator with verified MFA, or an invigilator for their own requests only. Other owners are concealed
+        with 404; row policies also restrict reads and pending writes.
+      tags:
+      - unavailability-requests
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '201':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailabilityRequest'
+          headers:
+            Location:
+              description: URI of the created resource.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnavailabilityRequestWrite'
+    get:
+      operationId: listUnavailabilityRequests
+      summary: List unavailability-requests
+      description: Administrator with verified MFA, or an invigilator for their own requests only. Other owners are concealed
+        with 404; row policies also restrict reads and pending writes.
+      tags:
+      - unavailability-requests
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: A stable ID-ordered page with filtered totals, including on out-of-range pages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailabilityRequestPage'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: personnel_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: date_from
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: date_to
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - pending
+          - approved
+          - rejected
+      - name: type
+        in: query
+        schema:
+          type: string
+          enum:
+          - leave
+          - medical
+          - advisory
+  /unavailability-requests/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    get:
+      operationId: getUnavailabilityRequest
+      summary: Get unavailability-requests
+      description: Administrator with verified MFA, or an invigilator for their own requests only. Other owners are concealed
+        with 404; row policies also restrict reads and pending writes.
+      tags:
+      - unavailability-requests
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailabilityRequest'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: replaceUnavailabilityRequest
+      summary: Replace unavailability-requests
+      description: Administrator with verified MFA, or an invigilator for their own requests only. Other owners are concealed
+        with 404; row policies also restrict reads and pending writes.
+      tags:
+      - unavailability-requests
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnavailabilityRequest'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnavailabilityRequestWrite'
+    delete:
+      operationId: deleteUnavailabilityRequest
+      summary: Delete unavailability-requests
+      description: Administrator with verified MFA, or an invigilator for their own requests only. Other owners are concealed
+        with 404; row policies also restrict reads and pending writes.
+      tags:
+      - unavailability-requests
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '204':
+          description: Deleted; no response body.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /exams:
+    post:
+      operationId: createExam
+      summary: Create exams
+      description: Administrator with verified MFA.
+      tags:
+      - exams
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '201':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          headers:
+            Location:
+              description: URI of the created resource.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamWrite'
+    get:
+      operationId: listExams
+      summary: List exams
+      description: Administrator with verified MFA.
+      tags:
+      - exams
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: A stable ID-ordered page with filtered totals, including on out-of-range pages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamPage'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: course_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: department_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: term
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 8
+      - name: session_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: date_from
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: date_to
+        in: query
+        schema:
+          type: string
+          format: date
+  /exams/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    get:
+      operationId: getExam
+      summary: Get exams
+      description: Administrator with verified MFA.
+      tags:
+      - exams
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: replaceExam
+      summary: Replace exams
+      description: Administrator with verified MFA.
+      tags:
+      - exams
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamWrite'
+    delete:
+      operationId: deleteExam
+      summary: Delete exams
+      description: Administrator with verified MFA.
+      tags:
+      - exams
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '204':
+          description: Deleted; no response body.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /invigilator-assignments:
+    post:
+      operationId: createInvigilatorAssignment
+      summary: Create invigilator-assignments
+      description: Administrator with verified MFA.
+      tags:
+      - invigilator-assignments
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '201':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvigilatorAssignment'
+          headers:
+            Location:
+              description: URI of the created resource.
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvigilatorAssignmentWrite'
+    get:
+      operationId: listInvigilatorAssignments
+      summary: List invigilator-assignments
+      description: Administrator with verified MFA.
+      tags:
+      - invigilator-assignments
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: A stable ID-ordered page with filtered totals, including on out-of-range pages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvigilatorAssignmentPage'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+      - name: page_size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: personnel_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: exam_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: session_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+  /invigilator-assignments/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    get:
+      operationId: getInvigilatorAssignment
+      summary: Get invigilator-assignments
+      description: Administrator with verified MFA.
+      tags:
+      - invigilator-assignments
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvigilatorAssignment'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: replaceInvigilatorAssignment
+      summary: Replace invigilator-assignments
+      description: Administrator with verified MFA.
+      tags:
+      - invigilator-assignments
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: The committed resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvigilatorAssignment'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Only UTF-8 application/json input is supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: The requested representation excludes JSON; negotiation happens before a write.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvigilatorAssignmentUpdate'
+    delete:
+      operationId: deleteInvigilatorAssignment
+      summary: Delete invigilator-assignments
+      description: Administrator with verified MFA.
+      tags:
+      - invigilator-assignments
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '204':
+          description: Deleted; no response body.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+        '400':
+          description: Invalid query, JSON, field type, required field, or value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Missing or invalid bearer access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Role, local identity, ownership mutation, or MFA is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Resource missing or concealed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Unique, referenced-delete, lifecycle, or scheduling conflict; no partial writes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Unexpected sanitized error with a request ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     OAuth2:
       type: oauth2
-      description: Authorization Code with PKCE S256 through Keycloak. API permissions come from verified role/method claims and local ownership, not client-supplied roles.
+      description: Authorization Code with PKCE S256 through Keycloak. API permissions come from verified role/method claims
+        and local ownership, not client-supplied roles.
       flows:
         authorizationCode:
           authorizationUrl: http://localhost:8081/realms/exams/protocol/openid-connect/auth
@@ -164,62 +3261,880 @@ components:
       description: Invalid filters or pagination.
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
     Readiness:
       type: object
-      required: [status, checks]
+      required:
+      - status
+      - checks
       properties:
-        status: { type: string, enum: [ok, unavailable] }
+        status:
+          type: string
+          enum:
+          - ok
+          - unavailable
         checks:
           type: object
-          required: [database, identity]
+          required:
+          - database
+          - identity
           properties:
-            database: { type: string, enum: [ok, unavailable] }
-            identity: { type: string, enum: [ok, unavailable] }
+            database:
+              type: string
+              enum:
+              - ok
+              - unavailable
+            identity:
+              type: string
+              enum:
+              - ok
+              - unavailable
     Error:
       type: object
-      required: [error]
+      required:
+      - error
       properties:
         error:
           type: object
-          required: [code, message, request_id]
+          required:
+          - code
+          - message
+          - request_id
           properties:
-            code: { type: string }
-            message: { type: string }
-            request_id: { type: string }
+            code:
+              type: string
+            message:
+              type: string
+            request_id:
+              type: string
+            fields:
+              type: object
+              additionalProperties:
+                type: string
+              description: Optional validation errors keyed by input field name.
     Room:
       type: object
-      required: [id, name, floor]
+      required:
+      - id
+      - name
+      - floor
       properties:
-        id: { type: integer, format: int64 }
-        name: { type: string }
-        floor: { type: integer }
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        floor:
+          type: integer
     ScheduleExam:
       type: object
-      required: [id, course_id, course_code, course_name, term, department_id, department, session_id, date, start_time, end_time, rooms]
+      required:
+      - id
+      - course_id
+      - course_code
+      - course_name
+      - term
+      - department_id
+      - department
+      - session_id
+      - date
+      - start_time
+      - end_time
+      - rooms
       properties:
-        id: { type: integer, format: int64 }
-        course_id: { type: integer, format: int64 }
-        course_code: { type: string }
-        course_name: { type: string }
-        term: { type: integer, minimum: 1, maximum: 8 }
-        department_id: { type: integer, format: int64 }
-        department: { type: string }
-        session_id: { type: integer, format: int64 }
-        date: { type: string, format: date }
-        start_time: { type: string, pattern: '^\d{2}:\d{2}:\d{2}$' }
-        end_time: { type: string, pattern: '^\d{2}:\d{2}:\d{2}$' }
+        id:
+          type: integer
+          format: int64
+        course_id:
+          type: integer
+          format: int64
+        course_code:
+          type: string
+        course_name:
+          type: string
+        term:
+          type: integer
+          minimum: 1
+          maximum: 8
+        department_id:
+          type: integer
+          format: int64
+        department:
+          type: string
+        session_id:
+          type: integer
+          format: int64
+        date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          pattern: ^\d{2}:\d{2}:\d{2}$
+        end_time:
+          type: string
+          pattern: ^\d{2}:\d{2}:\d{2}$
         rooms:
           type: array
-          items: { $ref: '#/components/schemas/Room' }
+          items:
+            $ref: '#/components/schemas/Room'
     SchedulePage:
       type: object
-      required: [data, page, page_size, total]
+      required:
+      - data
+      - page
+      - page_size
+      - total
       properties:
         data:
           type: array
-          items: { $ref: '#/components/schemas/ScheduleExam' }
-        page: { type: integer, minimum: 1 }
-        page_size: { type: integer, minimum: 1, maximum: 100 }
-        total: { type: integer, minimum: 0 }
+          items:
+            $ref: '#/components/schemas/ScheduleExam'
+        page:
+          type: integer
+          minimum: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+    ExamAllocation:
+      type: object
+      required:
+      - id
+      - classroom_id
+      - name
+      - capacity
+      - floor
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        classroom_id:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          maxLength: 50
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        floor:
+          type: integer
+    DepartmentWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+    Department:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+    DepartmentPage:
+      type: object
+      required:
+      - data
+      - page
+      - page_size
+      - total
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Department'
+        page:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        total:
+          type: integer
+          minimum: 0
+    CourseWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - name
+      - kind
+      - enrollment
+      - term
+      - department_id
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 20
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        kind:
+          type: string
+          enum:
+          - mandatory
+          - elective
+        enrollment:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        term:
+          type: integer
+          minimum: 1
+          maximum: 8
+        department_id:
+          type: integer
+          format: int64
+          minimum: 1
+    Course:
+      type: object
+      required:
+      - id
+      - code
+      - name
+      - kind
+      - enrollment
+      - term
+      - department_id
+      - department
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        code:
+          type: string
+          minLength: 1
+          maxLength: 20
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        kind:
+          type: string
+          enum:
+          - mandatory
+          - elective
+        enrollment:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        term:
+          type: integer
+          minimum: 1
+          maximum: 8
+        department_id:
+          type: integer
+          format: int64
+          minimum: 1
+        department:
+          type: string
+    CoursePage:
+      type: object
+      required:
+      - data
+      - page
+      - page_size
+      - total
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+        page:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        total:
+          type: integer
+          minimum: 0
+    ClassroomWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - capacity
+      - type
+      - floor
+      - active
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        type:
+          type: string
+          minLength: 1
+          maxLength: 50
+        floor:
+          type: integer
+          minimum: -2147483648
+          maximum: 2147483647
+        active:
+          type: boolean
+    Classroom:
+      type: object
+      required:
+      - id
+      - name
+      - capacity
+      - type
+      - floor
+      - active
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        type:
+          type: string
+          minLength: 1
+          maxLength: 50
+        floor:
+          type: integer
+          minimum: -2147483648
+          maximum: 2147483647
+        active:
+          type: boolean
+    ClassroomPage:
+      type: object
+      required:
+      - data
+      - page
+      - page_size
+      - total
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Classroom'
+        page:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        total:
+          type: integer
+          minimum: 0
+    SessionWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - date
+      - start_time
+      - end_time
+      - description
+      properties:
+        date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+        end_time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+        description:
+          type: string
+          maxLength: 500
+    Session:
+      type: object
+      required:
+      - id
+      - date
+      - start_time
+      - end_time
+      - description
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+        end_time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+        description:
+          type: string
+          maxLength: 500
+    SessionPage:
+      type: object
+      required:
+      - data
+      - page
+      - page_size
+      - total
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Session'
+        page:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        total:
+          type: integer
+          minimum: 0
+    PersonnelWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - title
+      - first_name
+      - last_name
+      - department_id
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        department_id:
+          type: integer
+          format: int64
+          minimum: 1
+    Personnel:
+      type: object
+      required:
+      - id
+      - title
+      - first_name
+      - last_name
+      - department_id
+      - department
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        title:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        department_id:
+          type: integer
+          format: int64
+          minimum: 1
+        department:
+          type: string
+    PersonnelPage:
+      type: object
+      required:
+      - data
+      - page
+      - page_size
+      - total
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Personnel'
+        page:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        total:
+          type: integer
+          minimum: 0
+    UnavailabilityRequestWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - reason
+      properties:
+        personnel_id:
+          type: integer
+          format: int64
+          minimum: 1
+        date:
+          type: string
+          format: date
+        session_id:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          minimum: 1
+        type:
+          type: string
+          enum:
+          - leave
+          - medical
+          - advisory
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+      description: Administrator supplies personnel_id; invigilator ownership is derived from the verified account. Owner
+        is immutable. Only pending requests can be edited/deleted. If session_id is supplied, date is derived from that session;
+        otherwise date is required. Status/decision fields are server-owned.
+      anyOf:
+      - required:
+        - session_id
+        properties:
+          session_id:
+            type: integer
+            format: int64
+            minimum: 1
+      - required:
+        - date
+    UnavailabilityRequest:
+      type: object
+      required:
+      - id
+      - personnel_id
+      - date
+      - session_id
+      - type
+      - reason
+      - status
+      - decided_by
+      - decided_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        personnel_id:
+          type: integer
+          format: int64
+          minimum: 1
+        date:
+          type: string
+          format: date
+        session_id:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          minimum: 1
+        type:
+          type: string
+          enum:
+          - leave
+          - medical
+          - advisory
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+        status:
+          type: string
+          enum:
+          - pending
+          - approved
+          - rejected
+        decided_by:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          minimum: 1
+        decided_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+    UnavailabilityRequestPage:
+      type: object
+      required:
+      - data
+      - page
+      - page_size
+      - total
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnavailabilityRequest'
+        page:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        total:
+          type: integer
+          minimum: 0
+    ExamWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - course_id
+      - session_id
+      properties:
+        course_id:
+          type: integer
+          format: int64
+          minimum: 1
+        session_id:
+          type: integer
+          format: int64
+          minimum: 1
+    Exam:
+      type: object
+      required:
+      - id
+      - course_id
+      - session_id
+      - course_code
+      - course_name
+      - department_id
+      - term
+      - date
+      - start_time
+      - end_time
+      - rooms
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        course_id:
+          type: integer
+          format: int64
+          minimum: 1
+        session_id:
+          type: integer
+          format: int64
+          minimum: 1
+        course_code:
+          type: string
+          maxLength: 20
+        course_name:
+          type: string
+          maxLength: 100
+        department_id:
+          type: integer
+          format: int64
+          minimum: 1
+        term:
+          type: integer
+          minimum: 1
+          maximum: 8
+        date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+        end_time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+        rooms:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamAllocation'
+    ExamPage:
+      type: object
+      required:
+      - data
+      - page
+      - page_size
+      - total
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exam'
+        page:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        total:
+          type: integer
+          minimum: 0
+    InvigilatorAssignmentWrite:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - personnel_id
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        personnel_id:
+          type: integer
+          format: int64
+          minimum: 1
+    InvigilatorAssignment:
+      type: object
+      required:
+      - id
+      - personnel_id
+      - exam_id
+      - classroom_id
+      - classroom
+      - session_id
+      - course_code
+      - personnel
+      - date
+      - start_time
+      - end_time
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        personnel_id:
+          type: integer
+          format: int64
+          minimum: 1
+        exam_id:
+          type: integer
+          format: int64
+          minimum: 1
+        classroom_id:
+          type: integer
+          format: int64
+          minimum: 1
+        classroom:
+          type: string
+          maxLength: 50
+        session_id:
+          type: integer
+          format: int64
+          minimum: 1
+        course_code:
+          type: string
+          maxLength: 20
+        personnel:
+          type: string
+        date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+        end_time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$
+    InvigilatorAssignmentPage:
+      type: object
+      required:
+      - data
+      - page
+      - page_size
+      - total
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvigilatorAssignment'
+        page:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        total:
+          type: integer
+          minimum: 0
+    InvigilatorAssignmentUpdate:
+      type: object
+      additionalProperties: false
+      required:
+      - personnel_id
+      properties:
+        personnel_id:
+          type: integer
+          format: int64
+          minimum: 1
+      description: The path ID is the exam-room allocation ID and is immutable. Obtain it from the owning exam rooms array.
