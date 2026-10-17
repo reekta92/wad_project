@@ -36,9 +36,11 @@ python3 scripts/run.py web
 
 Open http://localhost:5173. Vite proxies API requests to Go. The demo schedule contains three exams on 2 November 2026; course-name/code search, date filtering, pagination, list view, and calendar view query the PostgreSQL-backed API.
 
+The frontend uses a Google Workspace inspired layout with a desktop sidebar, a compact mobile menu, rounded borderless surfaces, large controls, and Roboto typography. Light and dark themes pair Google-style neutral backgrounds with One Dark blue, green, and purple accents. Choose **Device theme**, **Light**, or **Dark** in the header; the browser remembers the preference independently of authentication. Keyboard focus remains visible, and reduced-motion and high-contrast preferences are respected.
+
 Setup generates distinct local secrets in a private, ignored `.env`. Existing configuration is never overwritten. Migrations are transactional and checksum-checked. Demo seeding runs once, preserves later edits on repeat runs, and refuses to populate an existing non-demo database. None of these commands uses the legacy SQL Server database.
 
-Use **Sign in** in the account panel at http://localhost:5173. Keycloak verifies the account with Authorization Code + PKCE S256; Go verifies JWT signatures, issuer, audience, token lifetime, role, MFA, and the active local identity link. There is no role-selector login.
+Use **Sign in** in the header at http://localhost:5173. Keycloak verifies the account with Authorization Code + PKCE S256; Go verifies JWT signatures, issuer, audience, token lifetime, role, MFA, and the active local identity link. There is no role-selector login.
 
 Provisioning creates three fictional accounts with distinct generated credentials:
 
@@ -91,7 +93,7 @@ npx --no-install playwright install chromium
 npm run test:browser
 ```
 
-Browser tests change a demo account's active status temporarily and enroll a test passkey; use a disposable development database. They require Docker Compose for the operator-side disabled-account check. Traces, videos, and screenshots are disabled so authentication secrets are not retained as test artifacts.
+Browser tests change a demo account's active status temporarily and enroll a test passkey; use a disposable development database. They require Docker Compose for the operator-side disabled-account check. Authentication traces, videos, and screenshots are disabled so account secrets are not retained as test artifacts. Separate public layout checks use fixed schedule fixtures to verify themes, contrast, phone/tablet/desktop widths, keyboard navigation, filtering, paging, calendar scrolling, and the information dialog. Only those guest fixture pages produce layout previews; CI keeps them for seven days.
 
 Database integration tests require a fresh, isolated database with the Compose-created roles:
 

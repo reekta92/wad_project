@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { authentication } from './auth.js';
 import { fetchProfile } from './api.js';
+import { Icon } from './icons.jsx';
 
 export function useAccount() {
   const [client, setClient] = useState(null);
@@ -89,16 +90,16 @@ export function AccountPanel({ account }) {
   const role = profile?.role === 'administrator' ? 'Administrator'
     : profile?.permissions.includes('invigilator') ? 'Invigilator' : 'Student member';
   return <section id="account" className="account-panel" aria-labelledby="account-title" aria-busy={account.busy}>
-    <div><p className="eyebrow">Your faculty account</p><h2 id="account-title">{profile ? role : account.authenticated ? 'Account access' : 'Guest access'}</h2>
+    <span className="account-symbol"><Icon name={profile ? 'check' : 'account'} /></span>
+    <div className="account-copy"><h2 id="account-title">{profile ? role : account.authenticated ? 'Account access' : 'Guest access'}</h2>
       {profile ? <p>Signed in as <strong>{profile.username}</strong>.</p>
-        : <p>Browse the public schedule freely. Sign in with your faculty account to access your profile.</p>}
+        : <p>The timetable is open to everyone. Sign in to access your faculty profile.</p>}
       {account.error && <p className="account-error" role="alert">{account.error}</p>}
     </div>
     <div className="account-actions">
       {!account.available && !account.busy && <button className="button" onClick={account.retry}>Retry sign-in</button>}
       {account.authenticated && <button className="button" disabled={account.busy} onClick={account.registerPasskey}>Register a passkey</button>}
       {account.authenticated && !profile && <button className="button" disabled={account.busy} onClick={account.signIn}>Sign in again</button>}
-      {!account.authenticated && account.available && <button className="button primary" disabled={account.busy} onClick={account.signIn}>Sign in</button>}
     </div>
   </section>;
 }
