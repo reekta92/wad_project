@@ -34,6 +34,9 @@ paths:
       responses:
         '200':
           description: The caller's own profile and trusted permissions.
+          headers:
+            Cache-Control:
+              schema: { type: string, const: no-store }
           content:
             application/json:
               schema:

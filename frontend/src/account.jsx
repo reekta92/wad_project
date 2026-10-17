@@ -43,7 +43,6 @@ export function useAccount() {
       value.onAuthLogout = clear;
       value.onAuthRefreshError = expired;
       value.onAuthRefreshSuccess = loadProfile;
-      value.onTokenExpired = () => value.updateToken(30).catch(expired);
       if (value.authenticated) {
         await value.updateToken(30);
         await loadProfile();
@@ -59,7 +58,6 @@ export function useAccount() {
         adapter.onAuthLogout = undefined;
         adapter.onAuthRefreshError = undefined;
         adapter.onAuthRefreshSuccess = undefined;
-        adapter.onTokenExpired = undefined;
       }
     };
   }, [attempt]);
