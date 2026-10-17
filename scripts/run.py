@@ -12,6 +12,7 @@ COMMANDS = {
     "server": ("backend", ["go", "run", "./cmd/server"]),
     "migrate": ("backend", ["go", "run", "./cmd/migrate"]),
     "seed": ("backend", ["go", "run", "./cmd/seed"]),
+    "provision": ("backend", ["go", "run", "./cmd/provision"]),
     "test": ("backend", ["go", "test", "-race", "-count=1", "./..."]),
     "web": ("frontend", ["npm", "run", "dev", "--", "--host", "localhost"]),
 }

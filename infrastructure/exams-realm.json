@@ -13,9 +13,15 @@
   "refreshTokenMaxReuse": 0,
   "roles": {
     "realm": [
-      { "name": "member" },
-      { "name": "invigilator" },
-      { "name": "administrator" }
+      {
+        "name": "member"
+      },
+      {
+        "name": "invigilator"
+      },
+      {
+        "name": "administrator"
+      }
     ]
   },
   "clients": [
@@ -29,9 +35,18 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
-      "redirectUris": ["http://localhost:5173/", "http://localhost:8080/"],
-      "webOrigins": ["http://localhost:5173", "http://localhost:8080"],
-      "attributes": { "pkce.code.challenge.method": "S256" },
+      "redirectUris": [
+        "http://localhost:5173/",
+        "http://localhost:8080/"
+      ],
+      "webOrigins": [
+        "http://localhost:5173",
+        "http://localhost:8080"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5173/##http://localhost:8080/"
+      },
       "protocolMappers": [
         {
           "name": "exam-api-audience",
@@ -42,8 +57,203 @@
             "access.token.claim": "true",
             "id.token.claim": "false"
           }
+        },
+        {
+          "name": "exam-authentication-methods",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-amr-mapper",
+          "config": {
+            "access.token.claim": "true",
+            "id.token.claim": "true"
+          }
         }
       ]
+    },
+    {
+      "clientId": "exam-postman",
+      "name": "Exam Management Postman client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "https://oauth.pstmn.io/v1/callback"
+      ],
+      "webOrigins": [],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "exam-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "exam-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "exam-authentication-methods",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-amr-mapper",
+          "config": {
+            "access.token.claim": "true",
+            "id.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "browserFlow": "exams-browser",
+  "defaultSignatureAlgorithm": "RS256",
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyDigits": 6,
+  "otpPolicyPeriod": 30,
+  "otpPolicyCodeReusable": false,
+  "webAuthnPolicyPasswordlessRpEntityName": "Faculty Exams",
+  "webAuthnPolicyPasswordlessSignatureAlgorithms": [
+    "ES256",
+    "RS256"
+  ],
+  "webAuthnPolicyPasswordlessUserVerificationRequirement": "required",
+  "webAuthnPolicyPasswordlessResidentKey": "required",
+  "webAuthnPolicyPasswordlessPasskeysEnabled": false,
+  "authenticationFlows": [
+    {
+      "alias": "exams-browser",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "auth-cookie",
+          "requirement": "ALTERNATIVE",
+          "authenticatorConfig": null,
+          "authenticatorFlow": false,
+          "flowAlias": null,
+          "priority": 10
+        },
+        {
+          "authenticator": null,
+          "requirement": "ALTERNATIVE",
+          "authenticatorConfig": null,
+          "authenticatorFlow": true,
+          "flowAlias": "exams-forms",
+          "priority": 20
+        }
+      ]
+    },
+    {
+      "alias": "exams-forms",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "auth-username-form",
+          "requirement": "REQUIRED",
+          "authenticatorConfig": null,
+          "authenticatorFlow": false,
+          "flowAlias": null,
+          "priority": 10
+        },
+        {
+          "authenticator": null,
+          "requirement": "REQUIRED",
+          "authenticatorConfig": null,
+          "authenticatorFlow": true,
+          "flowAlias": "exams-credentials",
+          "priority": 20
+        }
+      ]
+    },
+    {
+      "alias": "exams-credentials",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "webauthn-authenticator-passwordless",
+          "requirement": "ALTERNATIVE",
+          "authenticatorConfig": "exams-amr-passkey",
+          "authenticatorFlow": false,
+          "flowAlias": null,
+          "priority": 10
+        },
+        {
+          "authenticator": null,
+          "requirement": "ALTERNATIVE",
+          "authenticatorConfig": null,
+          "authenticatorFlow": true,
+          "flowAlias": "exams-password-otp",
+          "priority": 20
+        }
+      ]
+    },
+    {
+      "alias": "exams-password-otp",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "auth-password-form",
+          "requirement": "REQUIRED",
+          "authenticatorConfig": "exams-amr-pwd",
+          "authenticatorFlow": false,
+          "flowAlias": null,
+          "priority": 10
+        },
+        {
+          "authenticator": "auth-otp-form",
+          "requirement": "REQUIRED",
+          "authenticatorConfig": "exams-amr-otp",
+          "authenticatorFlow": false,
+          "flowAlias": null,
+          "priority": 20
+        }
+      ]
+    }
+  ],
+  "authenticatorConfig": [
+    {
+      "alias": "exams-amr-passkey",
+      "config": {
+        "default.reference.value": "passkey",
+        "default.reference.maxAge": "28800"
+      }
+    },
+    {
+      "alias": "exams-amr-pwd",
+      "config": {
+        "default.reference.value": "pwd",
+        "default.reference.maxAge": "28800"
+      }
+    },
+    {
+      "alias": "exams-amr-otp",
+      "config": {
+        "default.reference.value": "otp",
+        "default.reference.maxAge": "28800"
+      }
+    }
+  ],
+  "requiredActions": [
+    {
+      "alias": "webauthn-register-passwordless",
+      "name": "Register a passkey",
+      "providerId": "webauthn-register-passwordless",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 30,
+      "config": {}
     }
   ]
 }

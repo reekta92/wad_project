@@ -46,6 +46,19 @@ jobs:
       - name: Build server and database commands
         working-directory: backend
         run: go build ./cmd/...
+      - name: Provision local identities and verify safe repetition
+        run: |
+          python3 scripts/run.py migrate
+          python3 scripts/run.py seed
+          python3 scripts/run.py provision
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          path = Path('.local/demo-accounts.json')
+          original = path.read_bytes()
+          subprocess.run(['python3', 'scripts/run.py', 'provision'], check=True)
+          assert path.read_bytes() == original, 'Repeat provisioning changed private account state'
+          PY
       - name: Stop test services
         if: always() && hashFiles('.env') != ''
         run: docker compose down
