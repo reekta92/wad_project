@@ -50,8 +50,12 @@ Currently implemented:
 - `GET /api/v1/health/live`: process liveness.
 - `GET /api/v1/health/ready`: PostgreSQL and issuer-discovery readiness, returning 503 when a dependency is unavailable.
 - `GET /api/v1/schedule`: public, sanitized, published schedule joining courses, departments, sessions, and classrooms. Lists use stable ordering and database-side filters/pagination. Private personnel and unavailability records are not exposed.
+- `GET /api/v1/auth/config`: public browser sign-in configuration.
+- `GET /api/v1/me`: verified local profile; requires a valid access token, an active linked account, and verified MFA for administrators. Browser login and demo account provisioning remain pending.
 
-The implemented contract is in [docs/openapi.yaml](docs/openapi.yaml). Import [docs/postman/exams.postman_collection.json](docs/postman/exams.postman_collection.json) and its environment into Postman. No authentication is needed for these public methods; protected methods will be documented as they are implemented.
+The implemented contract is in [docs/openapi.yaml](docs/openapi.yaml). Import [docs/postman/exams.postman_collection.json](docs/postman/exams.postman_collection.json) and its environment into Postman. The profile requires Authorization Code + PKCE sign-in; the other listed methods are public.
+
+The scheduling service under `backend/internal/store/` enforces cohort spacing, room capacity/reservations, staff availability and duty limits. Its writes acquire one transaction-scoped advisory lock before rule reads, validate the final state, and commit audit records and publication invalidation atomically. This service is not yet exposed as business CRUD API routes; those follow login in the implementation sequence.
 
 ```sh
 python3 -m unittest discover -s scripts -p 'test_*.py'
@@ -65,7 +69,7 @@ Database integration tests require a fresh, isolated database with the Compose-c
 RUN_DATABASE_TESTS=1 python3 scripts/run.py test
 ```
 
-That integration test edits and unpublishes its demo fixture; never point it at a database you use for demonstrations or real work. CI starts its own isolated PostgreSQL and Keycloak services, verifies migrations/seeds, grants, publication filtering, pagination, and readiness, and builds both applications.
+The lifecycle integration test edits and unpublishes its demo fixture; never point the suite at a database you use for demonstrations or real work. Scheduling integration tests create disposable schemas and verify final-state validation, rollback after cascading changes or audit failure, and actual advisory-lock contention between competing writers. CI starts its own isolated PostgreSQL and Keycloak services, verifies migrations/seeds, grants, publication filtering, pagination, and readiness, and builds both applications.
 
 To serve the production frontend build from Go:
 

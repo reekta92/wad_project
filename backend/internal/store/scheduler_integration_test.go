@@ -173,6 +173,8 @@ func TestSchedulerTransactionsAndFinalState(t *testing.T) {
 		return f.scheduler.UpdateClassroom(f.ctx, f.actor, 1, ClassroomInput{Name: "Lecture Hall", Capacity: 150, Type: "lecture hall", Active: false})
 	})
 	f.expectRollback(t, "cohort_gap", func() error { return f.scheduler.UpdateExam(f.ctx, f.actor, 2, 2, 2) })
+	// Session 1 requires replacing the old room and cascading its duty before final validation fails.
+	f.expectRollback(t, "cohort_gap", func() error { return f.scheduler.UpdateExam(f.ctx, f.actor, 2, 2, 1) })
 	f.expectRollback(t, "personnel_conflict", func() error { return f.scheduler.UpdateAssignment(f.ctx, f.actor, 3, 1) })
 	f.expectRollback(t, "", func() error { _, err := f.scheduler.CreateExam(f.ctx, f.actor, 1, 2); return err })
 	f.exec(t, `INSERT INTO unavailability_requests (personnel_id, date, type, reason) VALUES (1, '2026-11-02', 'leave', 'Fictional request')`)
@@ -238,6 +240,26 @@ func TestSchedulerAuditFailureRollsBackEverything(t *testing.T) {
 			t.Fatalf("disabled actor accepted: %v", err)
 		}
 		return err
+	})
+}
+
+func TestSchedulerBatchFailureRollsBackEarlierWrites(t *testing.T) {
+	f := isolatedScheduler(t)
+	emptyScheduleForRace(t, f)
+	f.expectRollback(t, "room_capacity", func() error {
+		return f.scheduler.mutate(f.ctx, f.actor, func(tx pgx.Tx) (change, error) {
+			value := change{Action: "create_batch", Entity: "exams", Invalidate: true}
+			for _, courseID := range []int64{4, 5} {
+				var id int64
+				if err := tx.QueryRow(f.ctx, `INSERT INTO exams (course_id, session_id) VALUES ($1, 2) RETURNING id`, courseID).Scan(&id); err != nil {
+					return value, err
+				}
+				if err := allocateRooms(f.ctx, tx, id, courseID, 2); err != nil {
+					return value, err
+				}
+			}
+			return value, nil
+		})
 	})
 }
 
