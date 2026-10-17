@@ -21,10 +21,12 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: '1.27.1'
-          cache: false
-      - name: Resolve module checksums
+          cache-dependency-path: backend/go.sum
+      - name: Verify module metadata
         working-directory: backend
-        run: go mod tidy
+        run: |
+          go mod download
+          go mod tidy -diff
       - name: Check formatting and Go diagnostics
         working-directory: backend
         run: |
@@ -44,23 +46,6 @@ jobs:
       - name: Build server and database commands
         working-directory: backend
         run: go build ./cmd/...
-      - name: Preserve generated dependency metadata
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-dependency-metadata
-          path: |
-            backend/go.mod
-            backend/go.sum
-      - name: Bootstrap dependency lock transfer
-        working-directory: backend
-        run: |
-          python3 - <<'PY'
-          import base64, json, pathlib
-          data = base64.b64encode(json.dumps({p:pathlib.Path(p).read_text() for p in ['go.mod','go.sum']}).encode()).decode()
-          for start in range(0, len(data), 4096):
-              print('WAD_LOCK_METADATA=' + data[start:start+4096])
-          PY
       - name: Stop test services
         if: always()
         run: docker compose down
@@ -73,26 +58,13 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24.21.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
       - name: Install pinned dependencies
         working-directory: frontend
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Test API client and build application
         working-directory: frontend
         run: |
           npm test
           npm run build
-      - name: Preserve generated dependency lock
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dependency-metadata
-          path: frontend/package-lock.json
-      - name: Bootstrap dependency lock transfer
-        working-directory: frontend
-        run: |
-          python3 - <<'PY'
-          import base64, pathlib
-          data = base64.b64encode(pathlib.Path('package-lock.json').read_bytes()).decode()
-          for start in range(0, len(data), 4096):
-              print('WAD_LOCK_METADATA=' + data[start:start+4096])
-          PY
