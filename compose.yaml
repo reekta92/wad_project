@@ -1,0 +1,45 @@
+name: wad-exams
+
+services:
+  postgres:
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run python3 scripts/setup.py first}
+      EXAM_OWNER_PASSWORD: ${EXAM_OWNER_PASSWORD:?Missing migration owner password}
+      EXAM_ADMIN_PASSWORD: ${EXAM_ADMIN_PASSWORD:?Missing administrator database password}
+      EXAM_INVIGILATOR_PASSWORD: ${EXAM_INVIGILATOR_PASSWORD:?Missing invigilator database password}
+      EXAM_READER_PASSWORD: ${EXAM_READER_PASSWORD:?Missing reader database password}
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Missing identity database password}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./development/postgres-init.sh:/docker-entrypoint-initdb.d/10-exams.sh:ro
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1
+    command: [start-dev, --import-realm]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak_owner
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Missing identity database password}
+      KC_BOOTSTRAP_ADMIN_USERNAME: local-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Missing provider administrator password}
+      KC_HOSTNAME: http://localhost:${KEYCLOAK_PORT:-8081}
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "127.0.0.1:${KEYCLOAK_PORT:-8081}:8080"
+    volumes:
+      - ./development/exams-realm.json:/opt/keycloak/data/import/exams-realm.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
