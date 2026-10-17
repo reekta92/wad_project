@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --host localhost",
-    "test": "node --test src/api.test.js",
+    "test": "node --test src/*.test.js",
     "test:browser": "playwright test"
   },
   "dependencies": {
