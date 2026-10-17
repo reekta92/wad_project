@@ -193,6 +193,25 @@ dialog::backdrop { background: #10121599; }
 .record-details div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 20px; padding: 10px 0; }
 .record-details dd { max-width: none; white-space: pre-wrap; }
 .success-message { color: var(--green-text); background: var(--green-container); padding: 16px 20px; margin-bottom: 20px; border-radius: 18px; }
+.workflow > .management-note { margin-top: 24px; }
+.publication-panel { display: flex; align-items: center; flex-wrap: wrap; gap: 24px; }
+.publication-panel > div { flex: 1; min-width: min(100%, 240px); }
+.workflow .record-card p { font-size: 14px; line-height: 1.7; }
+.dashboard-totals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+.dashboard-totals div { display: flex; flex-direction: column-reverse; align-items: start; gap: 4px; padding: 20px; border-radius: 24px; background: var(--blue-container); }
+.dashboard-totals dt { text-transform: capitalize; color: var(--blue-text); }
+.dashboard-totals dd { font-size: 28px; color: var(--blue-text); }
+.workflow-controls, .dashboard-previews { margin: 24px 0; }
+.allocation-field { margin-top: 16px; }
+.dashboard-previews ul { padding-left: 20px; margin: 16px 0; overflow-wrap: anywhere; }
+.dashboard-previews li { margin: 8px 0; font-size: 14px; }
+.clear-panel p { margin-bottom: 20px; }
+.report-scroll { overflow-x: auto; margin-top: 24px; border-radius: 24px; background: var(--container); }
+.report-table { width: 100%; min-width: 600px; text-align: left; font-size: 14px; border-collapse: separate; border-spacing: 0 4px; }
+.report-table th, .report-table td { padding: 16px; vertical-align: top; }
+.report-table th { color: var(--muted); font-weight: 500; }
+.report-table td { background: var(--surface); overflow-wrap: anywhere; max-width: 360px; }
+.audit-json { background: var(--container); padding: 16px; border-radius: 18px; max-height: 320px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; margin: 12px 0 24px; font-size: 13px; }
 @keyframes appear { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (min-width: 640px) {
@@ -213,6 +232,7 @@ dialog::backdrop { background: #10121599; }
   .footer-inner { grid-template-columns: 2fr 1fr 1fr; padding: 36px 32px; }
   .dialog-content { padding: 36px; }
   .resource-filters, .resource-grid, .resource-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-totals { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .wide-field { grid-column: 1 / -1; }
 }
 
@@ -244,6 +264,6 @@ dialog::backdrop { background: #10121599; }
 
 @media (forced-colors: active) {
   button, input, select, .button, .exam-card, .account-panel, .view-switch { border: 1px solid CanvasText; }
-  .record-card, .resource-form textarea { border: 1px solid CanvasText; }
+  .report-scroll, .audit-json, .dashboard-totals div, .record-card, .resource-form textarea { border: 1px solid CanvasText; }
   .nav-link.selected, .view-switch button[aria-pressed="true"] { outline: 2px solid Highlight; outline-offset: -4px; }
 }

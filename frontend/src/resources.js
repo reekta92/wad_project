@@ -44,7 +44,7 @@ export const resources = {
     heading: (value) => `${value.title} ${value.first_name} ${value.last_name}`.trim(),
   },
   'unavailability-requests': {
-    title: 'Unavailability requests', singular: 'request', icon: 'leave', description: 'Create, review, edit, or withdraw pending requests. Decisions are handled separately.',
+    title: 'Unavailability requests', singular: 'request', icon: 'leave', description: 'Manage pending leave requests and review their decisions.',
     fields: [
       { ...personnel, adminOnly: true, immutable: true }, { name: 'date', label: 'Date', type: 'date', required: true },
       { ...session, required: false, help: 'Optional. A selected session determines the request date.' },

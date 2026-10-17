@@ -1,6 +1,6 @@
 import { afterEach, mock, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchProfile, fetchSchedule, requestResource } from './api.js';
+import { fetchProfile, fetchSchedule, requestJSON, requestResource } from './api.js';
 
 afterEach(() => mock.restoreAll());
 
@@ -74,4 +74,30 @@ test('resource validation errors retain field details and malformed lists fail v
   mock.restoreAll();
   mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ data: [{ id: 1 }], page: 1, page_size: 0, total: 1 })));
   await assert.rejects(requestResource('departments', 'token'), /incomplete resource/);
+});
+
+
+test('workflow JSON preserves summaries without weakening resource validation', async () => {
+  const value = { count: 0, ids: [] };
+  mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(url, '/api/v1/schedule/automatic-planning');
+    assert.equal(options.headers.Authorization, 'Bearer token');
+    assert.equal(options.cache, 'no-store');
+    assert.deepEqual(JSON.parse(options.body), { season: 'all' });
+    return new Response(JSON.stringify(value));
+  });
+  const options = { method: 'POST', body: { season: 'all' } };
+  assert.deepEqual(await requestJSON('schedule/automatic-planning', 'token', options), value);
+  await assert.rejects(requestResource('schedule/automatic-planning', 'token', options), /incomplete resource/);
+});
+
+test('workflow transport preserves denied-session errors and rejects HTML and null JSON', async () => {
+  mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ error: { message: 'Session ended.' } }), { status: 401 }));
+  await assert.rejects(requestJSON('dashboard', 'token'), (error) => error.status === 401);
+  mock.restoreAll();
+  mock.method(globalThis, 'fetch', async () => new Response('<html>Fallback</html>'));
+  await assert.rejects(requestJSON('dashboard', 'token'), /unreadable response/);
+  mock.restoreAll();
+  mock.method(globalThis, 'fetch', async () => new Response('null'));
+  await assert.rejects(requestJSON('dashboard', 'token'), /incomplete information/);
 });

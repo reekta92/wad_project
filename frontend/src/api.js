@@ -53,7 +53,7 @@ export async function fetchProfile(token, signal) {
   return body;
 }
 
-export async function requestResource(path, token, { method = 'GET', body, signal } = {}) {
+export async function requestJSON(path, token, { method = 'GET', body, signal } = {}) {
   const response = await fetch(`/api/v1/${path}`, {
     method, signal, cache: 'no-store',
     headers: { Accept: 'application/json', Authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
@@ -70,6 +70,13 @@ export async function requestResource(path, token, { method = 'GET', body, signa
     error.fields = value?.error?.fields || {};
     throw error;
   }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('The service returned incomplete information. Please try again.');
+  return value;
+}
+
+export async function requestResource(path, token, options) {
+  const value = await requestJSON(path, token, options);
+  if (value === null) return null;
   const record = (entry) => entry && Number.isSafeInteger(entry.id) && entry.id > 0;
   if (!value || (Array.isArray(value.data)
     ? !value.data.every(record) || !Number.isSafeInteger(value.total) || value.total < 0 || !Number.isSafeInteger(value.page) || value.page < 1 || !Number.isSafeInteger(value.page_size) || value.page_size < 1 || value.page_size > 100

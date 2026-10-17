@@ -5,6 +5,9 @@ import { AccountPanel, useAccount } from './account.jsx';
 import { Icon } from './icons.jsx';
 import { Management } from './management.jsx';
 import { resources } from './resources.js';
+import { Workflow, workflowPages } from './workflows.jsx';
+
+const pages = { ...resources, ...workflowPages };
 import './style.css';
 
 const clock = (value) => value.slice(0, 5);
@@ -56,7 +59,7 @@ function App() {
   const [retry, setRetry] = useState(0);
   const dialog = useRef(null);
   const menuButton = useRef(null);
-  const permitted = account.profile?.role === 'administrator' ? Object.keys(resources) : account.profile?.permissions.includes('invigilator') ? ['unavailability-requests'] : [];
+  const permitted = account.profile?.role === 'administrator' ? ['dashboard', ...Object.keys(resources), 'reports/workload', 'reports/availability', 'audit-logs'] : account.profile?.permissions.includes('invigilator') ? ['me/duties', 'me/workload', 'unavailability-requests'] : [];
   const activeResource = permitted.includes(resource) ? resource : null;
 
   function showResource(value) {
@@ -150,18 +153,18 @@ function App() {
           <a className="nav-link" href="#account" onClick={() => setMenuOpen(false)}><Icon name="account" />My account</a>
           <button className="nav-link" onClick={() => { setMenuOpen(false); dialog.current.showModal(); }}><Icon name="help" />Schedule information</button>
         </div>
-        {permitted.length > 0 && <div className="nav-links business-navigation"><p className="nav-section-label">{account.profile.role === 'administrator' ? 'Administration' : 'My workspace'}</p>{permitted.map((key) => <button key={key} className={activeResource === key ? 'nav-link selected' : 'nav-link'} aria-current={activeResource === key ? 'page' : undefined} onClick={() => showResource(key)}><Icon name={resources[key].icon} />{key === 'unavailability-requests' ? account.profile.role === 'administrator' ? 'Requests' : 'My requests' : key === 'invigilator-assignments' ? 'Assignments' : resources[key].title}</button>)}</div>}
+        {permitted.length > 0 && <div className="nav-links business-navigation"><p className="nav-section-label">{account.profile.role === 'administrator' ? 'Administration' : 'My workspace'}</p>{permitted.map((key) => <button key={key} className={activeResource === key ? 'nav-link selected' : 'nav-link'} aria-current={activeResource === key ? 'page' : undefined} onClick={() => showResource(key)}><Icon name={pages[key].icon} />{key === 'unavailability-requests' ? account.profile.role === 'administrator' ? 'Requests' : 'My requests' : key === 'invigilator-assignments' ? 'Assignments' : pages[key].title}</button>)}</div>}
         <div className="sidebar-note"><Icon name="clock" /><p>One timetable.<br />A little less to remember.</p><span>Europe/Istanbul</span></div>
       </nav>
 
       <main id="main-content" className="content-surface" tabIndex="-1">
         <section className="page-intro" aria-labelledby="page-title">
-          <div><p className="eyebrow">Faculty / {activeResource ? 'Workspace' : 'Examinations'}</p><h1 id="page-title" tabIndex="-1">{activeResource ? resources[activeResource].title : 'A clearer exam day.'}</h1><p className="intro-copy">{activeResource ? resources[activeResource].description : 'Find your course. Check the time. You’re all set.'}</p></div>
+          <div><p className="eyebrow">Faculty / {activeResource ? 'Workspace' : 'Examinations'}</p><h1 id="page-title" tabIndex="-1">{activeResource ? pages[activeResource].title : 'A clearer exam day.'}</h1><p className="intro-copy">{activeResource ? pages[activeResource].description : 'Find your course. Check the time. You’re all set.'}</p></div>
           {!activeResource && <span className="publication-chip"><span className="status-dot" />Published timetable</span>}
         </section>
         <AccountPanel account={account} />
 
-      {activeResource ? <Management key={activeResource} resource={activeResource} account={account} /> : <section id="schedule" className="schedule-section" aria-labelledby="schedule-title">
+      {activeResource ? workflowPages[activeResource] ? <Workflow key={activeResource} page={activeResource} account={account} navigate={showResource} /> : <Management key={activeResource} resource={activeResource} account={account} /> : <section id="schedule" className="schedule-section" aria-labelledby="schedule-title">
         <div className="section-heading"><h2 id="schedule-title">Published schedule</h2><p className="timezone"><Icon name="clock" />Europe/Istanbul</p></div>
         <form className="filter-form" onSubmit={filter}>
           <div className="search-field"><label htmlFor="course-search">Course name or code</label><div className="search-input"><Icon name="search" /><input id="course-search" type="search" maxLength="100" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search your courses" /></div></div>

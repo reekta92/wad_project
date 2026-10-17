@@ -7,7 +7,7 @@ function optionLabel(resource, value) {
   return `${resources[resource].heading(value)} · #${value.id}`;
 }
 
-function ReferenceSelect({ field, request, value, administrator, ...props }) {
+export function ReferenceSelect({ field, request, value, administrator, ...props }) {
   const [page, setPage] = useState(1);
   const [options, setOptions] = useState([]);
   const [total, setTotal] = useState(0);
@@ -139,12 +139,13 @@ export function Management({ resource, account }) {
     setBusy(true);
     setFormError(null);
     try {
+      const decision = editor.mode === 'approve' || editor.mode === 'reject';
       const create = editor.mode === 'create';
-      const path = create ? resource : `${resource}/${editor.record.id}`;
-      const method = editor.mode === 'delete' ? 'DELETE' : create ? 'POST' : 'PUT';
-      await account.request(path, { method, ...(method === 'DELETE' ? {} : { body: resourceBody(fields, values) }) });
+      const path = create ? resource : `${resource}/${editor.record.id}${decision ? '/decision' : ''}`;
+      const method = editor.mode === 'delete' ? 'DELETE' : create || decision ? 'POST' : 'PUT';
+      await account.request(path, { method, ...(method === 'DELETE' ? {} : { body: decision ? { approved: editor.mode === 'approve' } : resourceBody(fields, values) }) });
       close();
-      setNotice(method === 'DELETE' ? 'Record deleted.' : 'Changes saved.');
+      setNotice(decision ? 'Request decision saved.' : method === 'DELETE' ? 'Record deleted.' : 'Changes saved.');
       setRevision((value) => value + 1);
     } catch (failure) { setFormError(failure); } finally { setBusy(false); }
   }
@@ -167,6 +168,7 @@ export function Management({ resource, account }) {
   return <section id="management" className="management" aria-labelledby="management-title">
     <div className="section-heading"><h2 id="management-title">Manage records</h2><button ref={addButton} className="button primary" disabled={busy} onClick={() => open('create')}><Icon name="add" />Add {definition.singular}</button></div>
     {administrator && <p className="management-note">Changes to courses, rooms, sessions, personnel, exams, or assignments can hide the public timetable until it is published again.</p>}
+    {resource === 'unavailability-requests' && <p className="management-note">Reviewed requests cannot be edited or withdrawn. Approval is checked against existing duties.</p>}
     <form className="resource-filters" onSubmit={filter}>
       {definition.filters.filter((field) => administrator || !field.adminOnly).map((field) => <div key={field.name}><label htmlFor={`filter-${field.name}`}>{field.label}</label>{field.options
         ? <select id={`filter-${field.name}`} name={field.name}><option value="">Any</option>{field.options.map((value) => <option key={value} value={value}>{value}</option>)}</select>
@@ -183,17 +185,17 @@ export function Management({ resource, account }) {
       <h3>{definition.heading(record)}</h3>
       <p className="record-meta">{record.department || record.personnel || record.description || record.reason || (record.date ? `${record.date} · session #${record.session_id}` : record.capacity ? `${record.capacity} seats · floor ${record.floor} · ${record.active ? 'available' : 'inactive'}` : '')}</p>
       {record.rooms && <p className="record-meta">{record.rooms.map((room) => room.name).join(', ')}</p>}
-      <div className="record-actions"><button className="button" disabled={busy} onClick={() => open('detail', record)}>Details</button><button className="button tonal" disabled={busy || !mutable(record)} onClick={() => open('edit', record)}><Icon name="edit" />Edit</button><button className="icon-button delete-button" aria-label={`Delete ${definition.singular} #${record.id}`} disabled={busy || !mutable(record)} onClick={() => open('delete', record)}><Icon name="delete" /></button></div>
+      <div className="record-actions">{administrator && resource === 'unavailability-requests' && mutable(record) && <><button className="button primary" disabled={busy} onClick={() => open('approve', record)}>Approve</button><button className="button" disabled={busy} onClick={() => open('reject', record)}>Reject</button></>}<button className="button" disabled={busy} onClick={() => open('detail', record)}>Details</button><button className="button tonal" disabled={busy || !mutable(record)} onClick={() => open('edit', record)}><Icon name="edit" />Edit</button><button className="icon-button delete-button" aria-label={`Delete ${definition.singular} #${record.id}`} disabled={busy || !mutable(record)} onClick={() => open('delete', record)}><Icon name="delete" /></button></div>
     </article>)}</div>}
     {!loading && !error && result && <nav className="pagination" aria-label="Resource results pages"><button className="button" aria-label="Previous page" disabled={result.page <= 1 || busy} onClick={() => page(result.page - 1)}><Icon name="previous" /><span className="page-label">Previous</span></button><span>Page {result.page} of {Math.max(1, Math.ceil(result.total / result.page_size))}</span><button className="button" aria-label="Next page" disabled={result.page >= Math.ceil(result.total / result.page_size) || busy} onClick={() => page(result.page + 1)}><span className="page-label">Next</span><Icon name="next" /></button></nav>}
     <dialog ref={dialog} className="resource-dialog" aria-labelledby="record-dialog-title" onClose={() => setEditor(null)} onCancel={(event) => { if (busy) event.preventDefault(); else setEditor(null); }}>
-      {editor && <div className="dialog-content"><p className="eyebrow">{definition.title}{editor.record ? ` / #${editor.record.id}` : ''}</p><h2 id="record-dialog-title">{editor.mode === 'create' ? `Add ${definition.singular}` : editor.mode === 'edit' ? `Edit ${definition.singular}` : editor.mode === 'delete' ? `Delete ${definition.singular}?` : 'Record details'}</h2>
+      {editor && <div className="dialog-content"><p className="eyebrow">{definition.title}{editor.record ? ` / #${editor.record.id}` : ''}</p><h2 id="record-dialog-title">{editor.mode === 'create' ? `Add ${definition.singular}` : editor.mode === 'edit' ? `Edit ${definition.singular}` : editor.mode === 'delete' ? `Delete ${definition.singular}?` : editor.mode === 'approve' ? 'Approve request?' : editor.mode === 'reject' ? 'Reject request?' : 'Record details'}</h2>
         {editor.mode === 'detail' ? <><RecordDetails record={editor.record} fields={fields} /><div className="dialog-actions"><button className="button" onClick={close}>Close</button>{mutable(editor.record) && <button className="button primary" onClick={() => setEditor({ ...editor, mode: 'edit' })}>Edit</button>}</div></>
           : <form className="resource-form" onSubmit={submit} aria-busy={busy}>
-            {editor.mode === 'delete' ? <p className="wide-field">Delete <strong>{definition.heading(editor.record)}</strong>? Referenced records must be removed from their relationships first. Deleting an exam also removes its room allocations and assignments.</p>
+            {editor.mode === 'approve' || editor.mode === 'reject' ? <div className="wide-field"><p>{editor.mode === 'approve' ? 'Approve' : 'Reject'} this request? This decision is final.</p><RecordDetails record={editor.record} fields={fields} /></div> : editor.mode === 'delete' ? <p className="wide-field">Delete <strong>{definition.heading(editor.record)}</strong>? Referenced records must be removed from their relationships first. Deleting an exam also removes its room allocations and assignments.</p>
               : <><p className="form-help wide-field">Fields marked * are required. All times use Europe/Istanbul.</p>{formFields.map((field) => <Field key={field.name} field={field} id={`record-${field.name}`} value={values[field.name]} error={formError?.fields?.[field.name]} administrator={administrator} editing={editor.mode === 'edit'} request={account.request} onChange={(value) => setValues((previous) => ({ ...previous, [field.name]: value }))} />)}</>}
             {formError && <div className="message error wide-field" role="alert"><p>{formError.message}</p></div>}
-            <div className="dialog-actions wide-field"><button className="button" type="button" disabled={busy} onClick={close}>Cancel</button><button className={editor.mode === 'delete' ? 'button destructive' : 'button primary'} type="submit" disabled={busy}>{busy ? 'Saving…' : editor.mode === 'delete' ? 'Delete record' : 'Save changes'}</button></div>
+            <div className="dialog-actions wide-field"><button className="button" type="button" disabled={busy} onClick={close}>Cancel</button><button className={editor.mode === 'delete' ? 'button destructive' : 'button primary'} type="submit" disabled={busy}>{busy ? 'Saving…' : editor.mode === 'delete' ? 'Delete record' : editor.mode === 'approve' ? 'Approve request' : editor.mode === 'reject' ? 'Reject request' : 'Save changes'}</button></div>
           </form>}
       </div>}
     </dialog>
