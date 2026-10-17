@@ -89,8 +89,8 @@ func decodeInput(c *fiber.Ctx, target any, required ...string) error {
 func checkInput(value any) error {
 	fields := validationError{}
 	text := func(name, value string, max int, required bool) {
-		if (required && strings.TrimSpace(value) == "") || utf8.RuneCountInString(value) > max {
-			fields[name] = "Enter a value within the documented length limit."
+		if (required && strings.TrimSpace(value) == "") || utf8.RuneCountInString(value) > max || strings.IndexByte(value, 0) >= 0 {
+			fields[name] = "Enter valid text within the documented length limit."
 		}
 	}
 	positive := func(name string, value int64) {
@@ -159,6 +159,10 @@ func checkInput(value any) error {
 		return fields
 	}
 	return nil
+}
+
+func validSearchText(value string) bool {
+	return len(value) <= 100 && utf8.ValidString(value) && strings.IndexByte(value, 0) < 0
 }
 
 func parseTime(value string) (time.Time, error) {

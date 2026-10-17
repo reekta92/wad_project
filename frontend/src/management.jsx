@@ -7,7 +7,7 @@ function optionLabel(resource, value) {
   return `${resources[resource].heading(value)} · #${value.id}`;
 }
 
-function ReferenceSelect({ field, request, value, ...props }) {
+function ReferenceSelect({ field, request, value, administrator, ...props }) {
   const [page, setPage] = useState(1);
   const [options, setOptions] = useState([]);
   const [total, setTotal] = useState(0);
@@ -18,16 +18,18 @@ function ReferenceSelect({ field, request, value, ...props }) {
     const controller = new AbortController();
     setLoading(true);
     setError('');
-    const source = field.reference === 'allocations' ? 'exams' : field.reference;
+    const memberSessions = field.reference === 'sessions' && !administrator;
+    const source = memberSessions ? 'schedule' : field.reference === 'allocations' ? 'exams' : field.reference;
     request(`${source}?page=${page}&page_size=100`, { signal: controller.signal }).then((result) => {
       if (controller.signal.aborted) return;
-      const entries = field.reference === 'allocations' ? result.data.flatMap((exam) => exam.rooms.map((room) => ({ id: room.id, name: `${exam.course_code} · ${room.name} · ${exam.date} · #${room.id}` }))) : result.data;
-      setOptions((previous) => page === 1 ? entries : [...previous, ...entries]);
+      const entries = memberSessions ? result.data.map((exam) => ({ id: exam.session_id, date: exam.date, start_time: exam.start_time, end_time: exam.end_time }))
+        : field.reference === 'allocations' ? result.data.flatMap((exam) => exam.rooms.map((room) => ({ id: room.id, name: `${exam.course_code} · ${room.name} · ${exam.date} · #${room.id}` }))) : result.data;
+      setOptions((previous) => [...new Map([...(page === 1 ? [] : previous), ...entries].map((entry) => [entry.id, entry])).values()]);
       setTotal(result.total);
     }).catch((failure) => { if (!controller.signal.aborted) setError(failure.message); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [field.reference, request, page, retry]);
+  }, [field.reference, administrator, request, page, retry]);
   return <>
     <select {...props} value={value ?? ''} disabled={props.disabled || loading}>
       <option value="">{loading ? 'Loading options…' : field.required ? 'Choose a record' : 'None'}</option>
@@ -47,9 +49,8 @@ function Field({ field, value, onChange, id, error, request, administrator, edit
     'aria-describedby': error || field.help ? `${id}-help` : undefined,
     onChange: (event) => onChange(field.type === 'checkbox' ? event.target.checked : event.target.value),
   };
-  const reference = field.reference && (administrator || field.reference !== 'sessions');
   let control;
-  if (reference) control = <ReferenceSelect field={field} request={request} {...props} />;
+  if (field.reference) control = <ReferenceSelect field={field} request={request} administrator={administrator} {...props} />;
   else if (field.type === 'textarea') control = <textarea {...props} maxLength={field.maxLength} rows="3" />;
   else if (field.options) control = <select {...props}><option value="">Choose an option</option>{field.options.map((option) => <option key={option} value={option}>{option}</option>)}</select>;
   else if (field.type === 'checkbox') control = <input {...props} type="checkbox" checked={Boolean(value)} />;

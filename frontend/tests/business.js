@@ -209,11 +209,17 @@ export async function verifyOwnedRequestUI(page) {
   await dialog.locator('#record-date').fill('2026-11-08');
   await dialog.locator('#record-type').selectOption('medical');
   await dialog.locator('#record-reason').fill('Own request from the browser');
+  await dialog.locator('#record-session_id').selectOption('1');
+  await expect(dialog.locator('#record-session_id option[value="1"]')).toHaveCount(1);
   const value = await save(page, 'unavailability-requests', 'POST');
   expect(value.personnel_id).toBe(1);
+  expect(value.session_id).toBe(1);
+  expect(value.date).toBe('2026-11-02');
   const card = page.locator('.record-card').filter({ has: page.getByText(`#${value.id}`, { exact: true }) });
   await card.getByRole('button', { name: 'Edit', exact: true }).click();
   await dialog.locator('#record-reason').fill('Updated own request');
+  await dialog.locator('#record-session_id').selectOption('');
+  await dialog.locator('#record-date').fill('2026-11-08');
   await save(page, 'unavailability-requests', 'PUT');
   await page.getByRole('button', { name: `Delete request #${value.id}`, exact: true }).click();
   const removed = page.waitForResponse((response) => response.request().method() === 'DELETE');

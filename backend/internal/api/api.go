@@ -159,8 +159,8 @@ func scheduleFilter(raw string) (store.ScheduleFilter, error) {
 		return f, fmt.Errorf("date_from must not follow date_to.")
 	}
 	f.Query = strings.TrimSpace(values.Get("q"))
-	if len(f.Query) > 100 {
-		return f, fmt.Errorf("q must not exceed 100 bytes.")
+	if !validSearchText(f.Query) {
+		return f, fmt.Errorf("q must contain valid UTF-8 text of at most 100 bytes, without NUL characters.")
 	}
 	return f, nil
 }

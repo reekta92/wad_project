@@ -22,7 +22,7 @@ import (
 )
 
 func TestScheduleQueryValidation(t *testing.T) {
-	for _, raw := range []string{"page=0", "page_size=101", "page=2147483648", "page=1&page=2", "course_id=-1", "department_id=hello", "term=9", "date_from=2026-02-30", "date_from=2026-11-03&date_to=2026-11-01", "sort=secret", "q="} {
+	for _, raw := range []string{"page=0", "page_size=101", "page=2147483648", "page=1&page=2", "course_id=-1", "department_id=hello", "term=9", "date_from=2026-02-30", "date_from=2026-11-03&date_to=2026-11-01", "sort=secret", "q=", "q=%00", "q=%ff"} {
 		if _, err := scheduleFilter(raw); err == nil {
 			t.Errorf("accepted invalid query %q", raw)
 		}

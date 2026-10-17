@@ -50,6 +50,7 @@ func TestJSONInputRejectsMissingNullUnknownAndWrongTypes(t *testing.T) {
 		{`{"name":"Room","capacity":20,"type":"lecture","floor":0,"active":"false"}`, "application/json", 400},
 		{`{"name":"Room","capacity":20,"type":"lecture","floor":0,"active":false,"role":"administrator"}`, "application/json", 400},
 		{`{"name":" ","capacity":0,"type":"lecture","floor":0,"active":true}`, "application/json", 400},
+		{`{"name":"\u0000","capacity":20,"type":"lecture","floor":0,"active":true}`, "application/json", 400},
 		{`null`, "application/json", 400}, {`[]`, "application/json", 400}, {`{} {}`, "application/json", 400},
 		{`{}`, "text/plain", 415}, {`{}`, "application/json; charset=iso-8859-1", 415},
 	} {
@@ -112,6 +113,8 @@ func TestResourceFilterValidation(t *testing.T) {
 		{"classrooms", "floor=x"}, {"sessions", "date_from=2026-02-30"}, {"sessions", "date_from=2026-11-04&date_to=2026-11-01"},
 		{"personnel", "department_id=-1"}, {"exams", "session_id=0"}, {"invigilator-assignments", "page_size=101"},
 		{"unavailability-requests", "status=unknown"}, {"unavailability-requests", "type=unknown"}, {"departments", "page=1&page=2"},
+		{"departments", "name=%00"},
+		{"personnel", "q=%ff"},
 	} {
 		if _, err := resourceFilter(tc.resource, tc.query); err == nil {
 			t.Errorf("accepted %s?%s", tc.resource, tc.query)

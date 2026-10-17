@@ -91,8 +91,8 @@ func resourceFilter(resource, raw string) (store.ResourceFilter, error) {
 		return f, fmt.Errorf("date_from must not follow date_to.")
 	}
 	f.Query, f.Name = strings.TrimSpace(values.Get("q")), strings.TrimSpace(values.Get("name"))
-	if len(f.Query) > 100 || len(f.Name) > 100 {
-		return f, fmt.Errorf("Search filters must not exceed 100 bytes.")
+	if !validSearchText(f.Query) || !validSearchText(f.Name) {
+		return f, fmt.Errorf("Search filters must contain valid UTF-8 text of at most 100 bytes, without NUL characters.")
 	}
 	f.Kind, f.Status, f.Type = values.Get("kind"), values.Get("status"), values.Get("type")
 	if f.Kind != "" && f.Kind != "mandatory" && f.Kind != "elective" {
