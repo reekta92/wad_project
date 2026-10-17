@@ -2,6 +2,10 @@ package api
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"encoding/base64"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,9 +13,12 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/reekta92/wad_project/backend/internal/config"
+	"github.com/reekta92/wad_project/backend/internal/store"
 )
 
 func TestScheduleQueryValidation(t *testing.T) {
@@ -87,7 +94,7 @@ func TestReadinessReportsUnavailableDependenciesWithoutCredentials(t *testing.T)
 		t.Fatal(err)
 	}
 	defer pool.Close()
-	app := New(config.Config{Issuer: ":invalid", StaticDir: t.TempDir()}, pool)
+	app := New(config.Config{Issuer: ":invalid", StaticDir: t.TempDir()}, &store.Databases{Reader: pool})
 	resp, err := app.Test(httptest.NewRequest("GET", "/api/v1/health/ready", nil), 5000)
 	if err != nil {
 		t.Fatal(err)
@@ -107,12 +114,19 @@ func TestDevelopmentReadiness(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pool, err := pgxpool.New(context.Background(), cfg.ReaderURL)
+	ownerURL, err := config.MigrationURL()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer pool.Close()
-	app := New(cfg, pool)
+	if err := store.Migrate(context.Background(), ownerURL); err != nil {
+		t.Fatal(err)
+	}
+	databases, err := store.Open(context.Background(), cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer databases.Close()
+	app := New(cfg, databases)
 	resp, err := app.Test(httptest.NewRequest("GET", "/api/v1/health/ready", nil), 10000)
 	if err != nil {
 		t.Fatal(err)
@@ -121,5 +135,60 @@ func TestDevelopmentReadiness(t *testing.T) {
 	if resp.StatusCode != 200 {
 		body, _ := io.ReadAll(resp.Body)
 		t.Fatalf("development services are not ready: %d %s", resp.StatusCode, body)
+	}
+}
+
+func TestProfileDoesNotTrustSubmittedRoles(t *testing.T) {
+	app := New(config.Config{Issuer: "https://identity.example/realms/exams", StaticDir: t.TempDir()}, nil)
+	for _, authorization := range []string{"", "Basic arbitrary", "Bearer invalid-token"} {
+		req := httptest.NewRequest("GET", "/api/v1/me?role=administrator&personnel_id=1", nil)
+		req.Header.Set("Authorization", authorization)
+		resp, err := app.Test(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != 401 || resp.Header.Get("WWW-Authenticate") == "" || resp.Header.Get("Location") != "" {
+			t.Fatalf("profile did not reject unverified identity: %d", resp.StatusCode)
+		}
+	}
+}
+
+func TestAdministratorProfileRequiresVerifiedSecondFactor(t *testing.T) {
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatal(err)
+	}
+	previous := http.DefaultTransport
+	t.Cleanup(func() { http.DefaultTransport = previous })
+	http.DefaultTransport = transport(func(req *http.Request) (*http.Response, error) {
+		body := `{"issuer":"https://identity.example/realms/exams","jwks_uri":"https://identity.example/keys"}`
+		if req.URL.Path == "/keys" {
+			encoded, err := json.Marshal(map[string]any{"keys": []map[string]string{{"kid": "test", "kty": "RSA", "n": base64.RawURLEncoding.EncodeToString(key.N.Bytes()), "e": "AQAB"}}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			body = string(encoded)
+		}
+		return &http.Response{StatusCode: 200, Header: http.Header{}, Body: io.NopCloser(strings.NewReader(body))}, nil
+	})
+	claims := jwt.MapClaims{"iss": "https://identity.example/realms/exams", "aud": []string{"exam-api"}, "sub": "administrator", "exp": time.Now().Add(time.Minute).Unix(), "typ": "Bearer", "azp": "exam-web", "realm_access": map[string]any{"roles": []string{"administrator"}}, "amr": []string{"pwd"}}
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	token.Header["kid"] = "test"
+	encoded, err := token.SignedString(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	app := New(config.Config{Issuer: "https://identity.example/realms/exams", StaticDir: t.TempDir()}, nil)
+	req := httptest.NewRequest("GET", "/api/v1/me", nil)
+	req.Header.Set("Authorization", "Bearer "+encoded)
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != 403 || !strings.Contains(string(body), "password plus TOTP") {
+		t.Fatalf("weak administrator authentication was not rejected: %d %s", resp.StatusCode, body)
 	}
 }

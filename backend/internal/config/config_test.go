@@ -24,6 +24,8 @@ func TestDatabaseCredentialsAreEncoded(t *testing.T) {
 
 func TestIssuerAndProductionValidation(t *testing.T) {
 	t.Setenv("DATABASE_READER_URL", "postgres://reader@localhost/exams")
+	t.Setenv("DATABASE_ADMIN_URL", "postgres://admin@localhost/exams")
+	t.Setenv("DATABASE_INVIGILATOR_URL", "postgres://invigilator@localhost/exams")
 	t.Setenv("APP_ENV", "development")
 	t.Setenv("TLS_CERT", "")
 	t.Setenv("TLS_KEY", "")

@@ -16,12 +16,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/reekta92/wad_project/backend/internal/auth"
 	"github.com/reekta92/wad_project/backend/internal/config"
 	"github.com/reekta92/wad_project/backend/internal/store"
 )
 
-func New(cfg config.Config, pool *pgxpool.Pool) *fiber.App {
+func New(cfg config.Config, databases *store.Databases) *fiber.App {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true, BodyLimit: 1024 * 1024,
 		ReadTimeout: 10 * time.Second, WriteTimeout: 15 * time.Second,
@@ -35,10 +35,15 @@ func New(cfg config.Config, pool *pgxpool.Pool) *fiber.App {
 		},
 	})
 	app.Use(recover.New(), requestid.New())
+	issuer, _ := url.Parse(cfg.Issuer)
+	identityOrigin := ""
+	if issuer != nil && issuer.Host != "" {
+		identityOrigin = issuer.Scheme + "://" + issuer.Host
+	}
 	app.Use(func(c *fiber.Ctx) error {
 		c.Set("X-Content-Type-Options", "nosniff")
 		c.Set("Referrer-Policy", "strict-origin-when-cross-origin")
-		c.Set("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
+		c.Set("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; connect-src 'self' "+identityOrigin+"; frame-src 'self' "+identityOrigin+"; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
 		return c.Next()
 	})
 	app.Get("/api/v1/health/live", func(c *fiber.Ctx) error { return c.JSON(fiber.Map{"status": "ok"}) })
@@ -47,7 +52,7 @@ func New(cfg config.Config, pool *pgxpool.Pool) *fiber.App {
 		ctx, cancel := context.WithTimeout(c.UserContext(), 4*time.Second)
 		defer cancel()
 		checks := fiber.Map{"database": "unavailable", "identity": "unavailable"}
-		if pool.Ping(ctx) == nil {
+		if databases.Ready(ctx) == nil {
 			checks["database"] = "ok"
 		}
 		if identityReady(ctx, client, cfg.Issuer) {
@@ -69,7 +74,7 @@ func New(cfg config.Config, pool *pgxpool.Pool) *fiber.App {
 		}
 		ctx, cancel := context.WithTimeout(c.UserContext(), 5*time.Second)
 		defer cancel()
-		body, err := store.Schedule(ctx, pool, filter)
+		body, err := store.Schedule(ctx, databases.Reader, filter)
 		if err != nil {
 			return fiber.NewError(503, "Schedule data is temporarily unavailable.")
 		}
@@ -77,6 +82,15 @@ func New(cfg config.Config, pool *pgxpool.Pool) *fiber.App {
 		c.Type("json")
 		return c.Send(body)
 	})
+	app.Get("/api/v1/auth/config", func(c *fiber.Ctx) error {
+		index := strings.LastIndex(cfg.Issuer, "/realms/")
+		if index < 0 {
+			return fiber.NewError(503, "Sign-in is temporarily unavailable.")
+		}
+		return c.JSON(fiber.Map{"issuer": cfg.Issuer, "url": cfg.Issuer[:index], "realm": cfg.Issuer[index+8:], "client_id": "exam-web"})
+	})
+	verify := authenticate(databases, auth.NewVerifier(cfg.Issuer))
+	app.Get("/api/v1/me", verify, profile)
 	app.Use("/api", func(c *fiber.Ctx) error { return fiber.NewError(404, "API resource not found.") })
 	app.Static("/", cfg.StaticDir)
 	app.Get("*", func(c *fiber.Ctx) error {

@@ -1,12 +1,70 @@
 openapi: 3.1.0
 info:
   title: Faculty Exams API
-  version: 0.1.0
-  description: Implemented public API. Protected scheduling and CRUD operations are under development.
+  version: 0.2.0
+  description: Public schedule and verified identity API. Protected scheduling and CRUD operations are under development.
 servers:
   - url: http://localhost:8080/api/v1
 security: []
 paths:
+  /auth/config:
+    get:
+      operationId: getBrowserAuthenticationConfiguration
+      summary: Get public Keycloak browser-client configuration
+      responses:
+        '200':
+          description: Public issuer, server, realm, and client ID. No credentials or tokens are returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [issuer, url, realm, client_id]
+                properties:
+                  issuer: { type: string, format: uri }
+                  url: { type: string, format: uri }
+                  realm: { type: string }
+                  client_id: { const: exam-web }
+  /me:
+    get:
+      operationId: getCurrentProfile
+      summary: Get the active local profile for a verified access token
+      description: Administrator tokens additionally require a signed passkey authentication reference, or both password and OTP references. Local inactive/unlinked accounts are rejected.
+      security:
+        - OAuth2: [openid]
+      responses:
+        '200':
+          description: The caller's own profile and trusted permissions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, username, role, permissions, personnel_id]
+                properties:
+                  id: { type: integer, format: int64 }
+                  username: { type: string }
+                  role: { type: string, enum: [member, administrator] }
+                  permissions:
+                    type: array
+                    items: { type: string, enum: [invigilator] }
+                  personnel_id: { type: [integer, 'null'], format: int64 }
+        '401':
+          description: Missing, invalid, expired, wrong-audience, or otherwise untrusted access token.
+          headers:
+            WWW-Authenticate:
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Missing application role, local account/personnel mapping, active status, or required administrator MFA proof.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503':
+          description: Local identity data is unavailable.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
   /health/live:
     get:
       operationId: getLiveness
@@ -88,6 +146,16 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
 components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: Authorization Code with PKCE S256 through Keycloak. API permissions come from verified role/method claims and local ownership, not client-supplied roles.
+      flows:
+        authorizationCode:
+          authorizationUrl: http://localhost:8081/realms/exams/protocol/openid-connect/auth
+          tokenUrl: http://localhost:8081/realms/exams/protocol/openid-connect/token
+          scopes:
+            openid: Authenticate with the configured identity provider.
   responses:
     BadRequest:
       description: Invalid filters or pagination.
