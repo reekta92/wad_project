@@ -74,6 +74,7 @@ export async function verifyWorkflowAPI(request, token) {
   const approved = await call(`unavailability-requests/${allowed.id}/decision`, 'POST', { approved: true });
   expect(approved).toMatchObject({ status: 'approved', decided_by: profile.id });
   expect(approved.decided_at).toEqual(expect.any(String));
+  expect((await call('dashboard')).publication.published).toBe(true);
   const audited = await call(`audit-logs?actor_user_id=${profile.id}&entity=exams&action=clear`);
   expect(audited.total).toBe(1);
   const detail = await call(`audit-logs/${audited.data[0].id}`);
@@ -137,7 +138,7 @@ export async function verifyWorkflowUI(page, request, token) {
     const reload = status < 300 ? page.waitForResponse((r) => r.request().method() === 'GET' && new URL(r.url()).pathname === '/api/v1/dashboard') : null;
     await action();
     const value = await response;
-    expect(value.status(), await value.text()).toBe(status);
+    expect(value.status(), status === 204 ? path : await value.text()).toBe(status);
     if (reload) { expect((await reload).status()).toBe(200); await expect(page.locator('.workflow > p[role="status"]').first()).toHaveText('Overview updated.'); }
     return status === 204 ? null : value.json();
   };
@@ -189,6 +190,11 @@ export async function verifyWorkflowUI(page, request, token) {
   await expect(page.getByRole('cell', { name: 'No', exact: true })).toHaveCount(1);
   await widths(page);
   await navigate(page, 'Audit log');
+  await page.getByLabel('Per page', { exact: true }).selectOption('10');
+  await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+  await expect(page.getByRole('row')).toHaveCount(11);
+  await page.getByRole('button', { name: 'Next page', exact: true }).click();
+  await expect(page.locator('.pagination')).toContainText('Page 2 of');
   await page.getByLabel('Entity', { exact: true }).fill('exams');
   await page.getByLabel('Action', { exact: true }).fill('clear');
   await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
@@ -226,8 +232,9 @@ export async function verifyWorkflowUI(page, request, token) {
     await expect(card(id).getByRole('button', { name: 'Edit', exact: true })).toBeDisabled();
     await expect(card(id).getByRole('button', { name: 'Approve', exact: true })).toHaveCount(0);
   }
-  // Approval hides publication; leave the isolated fixture ready for later login checks.
+  // A valid decision preserves published content; conflicting approval cannot commit.
   await navigate(page, 'Dashboard');
-  await dashboardAction('schedule/publication', 'PUT', () => page.getByRole('button', { name: 'Publish timetable', exact: true }).click());
+  await expect(page.getByRole('heading', { name: 'Timetable published', exact: true })).toBeVisible();
+  await publicCount(3);
   await page.setViewportSize({ width: 1280, height: 720 });
 }
