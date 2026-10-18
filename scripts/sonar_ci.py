@@ -55,7 +55,7 @@ def run():
             time.sleep(2)
         else:
             raise RuntimeError("Disposable SonarQube did not become ready")
-        replacement = secrets.token_urlsafe(40)
+        replacement = "Aa1!" + secrets.token_urlsafe(40)
         api("/api/users/change_password", {"login": "admin", "previousPassword": password, "password": replacement})
         password = replacement
         api("/api/projects/create", {"project": PROJECT, "name": "Faculty Exam Management", "visibility": "private"})
