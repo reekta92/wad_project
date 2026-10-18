@@ -67,10 +67,13 @@ func requireAdministrator(c *fiber.Ctx) error {
 }
 
 func profile(c *fiber.Ctx) error {
+	if err := representation(c, false); err != nil {
+		return err
+	}
 	value := currentActor(c)
 	permissions := []string{}
 	if value.Invigilator {
 		permissions = append(permissions, "invigilator")
 	}
-	return c.JSON(fiber.Map{"id": value.User.ID, "username": value.Username, "role": value.Role, "permissions": permissions, "personnel_id": value.User.PersonnelID})
+	return sendValue(c, fiber.Map{"id": value.User.ID, "username": value.Username, "role": value.Role, "permissions": permissions, "personnel_id": value.User.PersonnelID})
 }

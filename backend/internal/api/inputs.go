@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"mime"
-	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -14,44 +13,7 @@ import (
 	"github.com/reekta92/wad_project/backend/internal/store"
 )
 
-func requireJSON(c *fiber.Ctx) error {
-	c.Vary("Accept")
-	header := c.Get("Accept")
-	if header == "" {
-		return nil
-	}
-	quality, specificity := 0.0, -1
-	for _, entry := range strings.Split(header, ",") {
-		media, params, err := mime.ParseMediaType(strings.TrimSpace(entry))
-		if err != nil {
-			continue
-		}
-		level := -1
-		switch media {
-		case "*/*":
-			level = 0
-		case "application/*":
-			level = 1
-		case "application/json":
-			level = 2
-		}
-		if level < 0 || level <= specificity {
-			continue
-		}
-		q := 1.0
-		if value, ok := params["q"]; ok {
-			q, err = strconv.ParseFloat(value, 64)
-			if err != nil || !(q >= 0 && q <= 1) {
-				continue
-			}
-		}
-		quality, specificity = q, level
-	}
-	if quality <= 0 {
-		return fiber.NewError(406, "This endpoint currently supports application/json.")
-	}
-	return nil
-}
+func requireJSON(c *fiber.Ctx) error { return chooseRepresentation(c, []string{jsonMedia}) }
 
 func decodeInput(c *fiber.Ctx, target any, required ...string) error {
 	media, params, err := mime.ParseMediaType(c.Get("Content-Type"))

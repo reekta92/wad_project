@@ -63,7 +63,7 @@ func (h resourceHandler) get(ctx context.Context, c *fiber.Ctx, id int64) (json.
 }
 
 func (h resourceHandler) read(c *fiber.Ctx) error {
-	if err := requireJSON(c); err != nil {
+	if err := representation(c, c.Params("id") == ""); err != nil {
 		return err
 	}
 	ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
@@ -90,8 +90,7 @@ func (h resourceHandler) read(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	c.Type("json")
-	return c.Send(body)
+	return sendRepresentation(c, body)
 }
 
 func (h resourceHandler) write(c *fiber.Ctx) error {
@@ -104,7 +103,7 @@ func (h resourceHandler) write(c *fiber.Ctx) error {
 		}
 	}
 	if c.Method() != "DELETE" {
-		if err := requireJSON(c); err != nil {
+		if err := representation(c, false); err != nil {
 			return err
 		}
 	}
@@ -268,6 +267,5 @@ func (h resourceHandler) write(c *fiber.Ctx) error {
 		c.Set("Location", "/api/v1/"+h.resource+"/"+strconv.FormatInt(id, 10))
 		c.Status(201)
 	}
-	c.Type("json")
-	return c.Send(body)
+	return sendRepresentation(c, body)
 }

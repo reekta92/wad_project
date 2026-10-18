@@ -38,9 +38,17 @@ func New(cfg config.Config, databases *store.Databases) *fiber.App {
 		c.Set("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; connect-src 'self' "+identityOrigin+"; frame-src 'self' "+identityOrigin+"; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
 		return c.Next()
 	})
-	app.Get("/api/v1/health/live", func(c *fiber.Ctx) error { return c.JSON(fiber.Map{"status": "ok"}) })
+	app.Get("/api/v1/health/live", func(c *fiber.Ctx) error {
+		if err := requireJSON(c); err != nil {
+			return err
+		}
+		return c.JSON(fiber.Map{"status": "ok"})
+	})
 	client := &http.Client{Timeout: 3 * time.Second, CheckRedirect: func(_ *http.Request, _ []*http.Request) error { return http.ErrUseLastResponse }}
 	app.Get("/api/v1/health/ready", func(c *fiber.Ctx) error {
+		if err := requireJSON(c); err != nil {
+			return err
+		}
 		ctx, cancel := context.WithTimeout(c.UserContext(), 4*time.Second)
 		defer cancel()
 		checks := fiber.Map{"database": "unavailable", "identity": "unavailable"}
@@ -61,7 +69,7 @@ func New(cfg config.Config, databases *store.Databases) *fiber.App {
 		if err != nil {
 			return fiber.NewError(400, err.Error())
 		}
-		if err := requireJSON(c); err != nil {
+		if err := representation(c, true); err != nil {
 			return err
 		}
 		ctx, cancel := context.WithTimeout(c.UserContext(), 5*time.Second)
@@ -70,11 +78,12 @@ func New(cfg config.Config, databases *store.Databases) *fiber.App {
 		if err != nil {
 			return fiber.NewError(503, "Schedule data is temporarily unavailable.")
 		}
-		c.Set("Vary", "Accept")
-		c.Type("json")
-		return c.Send(body)
+		return sendRepresentation(c, body)
 	})
 	app.Get("/api/v1/auth/config", func(c *fiber.Ctx) error {
+		if err := requireJSON(c); err != nil {
+			return err
+		}
 		index := strings.LastIndex(cfg.Issuer, "/realms/")
 		if index < 0 {
 			return fiber.NewError(503, "Sign-in is temporarily unavailable.")

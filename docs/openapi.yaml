@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Faculty Exams API
-  version: 0.4.0
+  version: 0.5.0
   description: 'Faculty exam management: authenticated CRUD, atomic planning/staffing, request decisions, publication, joined
     dashboards/reports, and owner-scoped duties. JSON representations are implemented; exports, backup, and XML/text/Atom
     follow in the next milestone.'
@@ -53,6 +53,10 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
@@ -85,6 +89,14 @@ paths:
                     - integer
                     - 'null'
                     format: int64
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
         '401':
           description: Missing, invalid, expired, wrong-audience, or otherwise untrusted access token.
           headers:
@@ -204,11 +216,23 @@ paths:
             Vary:
               schema:
                 type: string
-                const: Accept
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SchedulePage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
         '400':
           $ref: '#/components/responses/BadRequest'
         '406':
@@ -270,6 +294,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Department'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Location:
               description: URI of the created resource.
@@ -279,6 +311,10 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -317,11 +353,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DepartmentPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -382,11 +434,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Department'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -417,11 +481,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Department'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -490,6 +566,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Location:
               description: URI of the created resource.
@@ -499,6 +583,10 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -537,11 +625,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CoursePage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -621,11 +725,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -656,11 +772,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -729,6 +857,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Classroom'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Location:
               description: URI of the created resource.
@@ -738,6 +874,10 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -776,11 +916,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClassroomPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -851,11 +1007,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Classroom'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -886,11 +1054,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Classroom'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -959,6 +1139,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Session'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Location:
               description: URI of the created resource.
@@ -968,6 +1156,10 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1006,11 +1198,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SessionPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1075,11 +1283,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Session'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1110,11 +1330,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Session'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1183,6 +1415,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Personnel'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Location:
               description: URI of the created resource.
@@ -1192,6 +1432,10 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1230,11 +1474,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PersonnelPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1301,11 +1561,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Personnel'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1336,11 +1608,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Personnel'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1410,6 +1694,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnavailabilityRequest'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Location:
               description: URI of the created resource.
@@ -1419,6 +1711,10 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1458,11 +1754,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnavailabilityRequestPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1550,11 +1862,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnavailabilityRequest'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1586,11 +1910,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnavailabilityRequest'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1660,6 +1996,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Exam'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Location:
               description: URI of the created resource.
@@ -1669,6 +2013,10 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1707,11 +2055,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExamPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1800,11 +2164,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Exam'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1835,11 +2211,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Exam'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1908,6 +2296,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvigilatorAssignment'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Location:
               description: URI of the created resource.
@@ -1917,6 +2313,10 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1955,11 +2355,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvigilatorAssignmentPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2032,11 +2448,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvigilatorAssignment'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2067,11 +2495,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvigilatorAssignment'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
           headers:
             Cache-Control:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2141,10 +2581,22 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Dashboard'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2178,10 +2630,26 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DutyPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2252,10 +2720,22 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Workload'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2300,10 +2780,26 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/WorkloadPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2375,10 +2871,26 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AvailabilityPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2455,10 +2967,26 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditPage'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
+            application/atom+xml:
+              schema:
+                type: string
+                description: Atom feed with JSON row content and urn:wad:pagination metadata.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2535,10 +3063,22 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Audit'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2580,10 +3120,22 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnavailabilityRequest'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2634,10 +3186,22 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BatchResult'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2680,10 +3244,22 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BatchResult'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2725,10 +3301,22 @@ paths:
               schema:
                 type: string
                 const: no-store
+            Vary:
+              schema:
+                type: string
+              description: Accept
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Publication'
+            application/xml:
+              schema:
+                type: string
+              example: <response type="object"><field name="id" type="number">1</field></response>
+            text/plain:
+              schema:
+                type: string
+                description: Indented JSON preserving all authorized fields and types.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2801,7 +3389,8 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
     NotAcceptable:
-      description: The requested representation excludes JSON; negotiation happens before a write.
+      description: The Accept header excludes every supported representation; negotiation happens before a write. Errors remain
+        JSON.
       content:
         application/json:
           schema:

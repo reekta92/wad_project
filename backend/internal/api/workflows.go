@@ -40,7 +40,7 @@ type workflowHandler struct{ databases *store.Databases }
 
 func (h workflowHandler) read(path string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		if err := requireJSON(c); err != nil {
+		if err := representation(c, path == "reports/workload" || path == "reports/availability" || path == "me/duties"); err != nil {
 			return err
 		}
 		ctx, cancel := context.WithTimeout(c.UserContext(), 10*time.Second)
@@ -74,15 +74,14 @@ func (h workflowHandler) read(path string) fiber.Handler {
 		if err != nil {
 			return err
 		}
-		c.Type("json")
-		return c.Send(body)
+		return sendRepresentation(c, body)
 	}
 }
 
 func (h workflowHandler) write(action string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		if action != "clear" {
-			if err := requireJSON(c); err != nil {
+			if err := representation(c, false); err != nil {
 				return err
 			}
 		}
@@ -113,7 +112,7 @@ func (h workflowHandler) write(action string) fiber.Handler {
 			if err != nil {
 				return err
 			}
-			return c.JSON(result)
+			return sendValue(c, result)
 		case "staff":
 			var input struct {
 				Scope        string `json:"scope"`
@@ -132,7 +131,7 @@ func (h workflowHandler) write(action string) fiber.Handler {
 			if err != nil {
 				return err
 			}
-			return c.JSON(result)
+			return sendValue(c, result)
 		case "decide":
 			id, err := positiveID(c.Params("id"))
 			if err != nil {
@@ -151,8 +150,7 @@ func (h workflowHandler) write(action string) fiber.Handler {
 			if err != nil {
 				return err
 			}
-			c.Type("json")
-			return c.Send(body)
+			return sendRepresentation(c, body)
 		case "publish":
 			var input struct {
 				Published bool `json:"published"`
@@ -167,8 +165,7 @@ func (h workflowHandler) write(action string) fiber.Handler {
 			if err != nil {
 				return err
 			}
-			c.Type("json")
-			return c.Send(body)
+			return sendRepresentation(c, body)
 		}
 		return fiber.ErrNotFound
 	}

@@ -2014,6 +2014,116 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Response representations",
+      "description": "Public fixture requests. XML/text/Atom encode the same authorized schedule data; see docs/representations.md.",
+      "item": [
+        {
+          "name": "Published schedule: application/xml",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/schedule?page=1&page_size=20",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/xml"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response media', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/xml'));",
+                  "pm.test('Negotiated response', () => pm.expect(pm.response.headers.get('Vary')).to.include('Accept'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Published schedule: text/plain;q=1,application/json;q=.5",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/schedule?page=1&page_size=20",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/plain;q=1,application/json;q=.5"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response media', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('text/plain'));",
+                  "pm.test('Negotiated response', () => pm.expect(pm.response.headers.get('Vary')).to.include('Accept'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Published schedule: application/atom+xml",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/schedule?page=1&page_size=20",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/atom+xml"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response media', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/atom+xml'));",
+                  "pm.test('Negotiated response', () => pm.expect(pm.response.headers.get('Vary')).to.include('Accept'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Published schedule: text/html",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/schedule?page=1&page_size=20",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/html"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 406', () => pm.response.to.have.status(406));",
+                  "pm.test('Response media', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+                  "pm.test('Negotiated response', () => pm.expect(pm.response.headers.get('Vary')).to.include('Accept'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
