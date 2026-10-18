@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
+import { verifyCollection } from './collection.js';
 import { otp, byName, submitOTP, passwordSteps, startLogin, captureAccess, assertProfile, signOut } from './authentication.js';
 import { verifyBusinessAPI, verifyMemberAPI, verifyBusinessUI, verifyOwnedRequestUI } from './business.js';
 import { verifyRepresentations, verifyMemberDownloads, verifyAdministratorDownloads } from './downloads.js';
@@ -40,7 +41,7 @@ for (const [name, label, role, personnel] of [
     await verifyMemberDownloads(page, request, access.token);
     await verifyMemberAPI(request, access.token, Boolean(personnel));
     await verifyWorkflowPermissions(request, access.token, Boolean(personnel));
-    if (personnel) { await verifyOwnedRequestUI(page); await verifyOwnWorkflowUI(page); }
+    if (personnel) { await verifyOwnedRequestUI(page); await verifyOwnWorkflowUI(page); await verifyCollection(request, access.token, false); }
     expect(response.headers()['cache-control']).toBe('no-store');
     const persisted = await page.evaluate(() => [...Object.values(localStorage), ...Object.values(sessionStorage)]);
     expect(persisted.some((value) => value.includes(access.token))).toBe(false);
@@ -71,6 +72,7 @@ test('administrator requires TOTP, refreshes, rejects disabled accounts, and end
   await verifyWorkflowUI(page, request, access.token);
   await verifyRepresentations(page, request, access.token, true);
   await verifyAdministratorDownloads(page, request, access.token);
+  await verifyCollection(request, access.token, true);
   const claims = JSON.parse(Buffer.from(access.token.split('.')[1], 'base64url'));
   expect(claims.amr).toEqual(expect.arrayContaining(['pwd', 'otp']));
 

@@ -1602,7 +1602,7 @@
     },
     {
       "name": "Workflow operations (administrator)",
-      "description": "Run individual requests deliberately against a disposable demo database with a verified administrator token. Clear schedule removes all exams/allocations/duties. For a decision, set decision_request_id to a pending request first; conflicts return 409 and reviewed requests become immutable. List audit logs before requesting its detail.",
+      "description": "Run against a disposable demo database with a verified administrator token. Set decision_request_id to a pending request that does not conflict with existing duties. The ordered workflow reads reports/audit, decides that request, clears the schedule, plans all courses, staffs rooms, and republishes. Clear removes every exam/allocation/duty. Audit list saves the detail ID. Conflicts return 409 and reviewed requests become immutable.",
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -1795,6 +1795,32 @@
           ]
         },
         {
+          "name": "DELETE /schedule",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/schedule",
+            "description": "Administrator with verified MFA. Clears exams, owned room allocations, and assignments atomically, and unpublishes. Master data, requests, and audit history remain. The client must present a clear destructive-action confirmation."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
+                  "pm.test('No response body', () => pm.expect(pm.response.text()).to.eql(''));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "POST /schedule/automatic-planning",
           "request": {
             "method": "POST",
@@ -1871,32 +1897,6 @@
                   "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
                   "pm.test('Private response', () => pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'));",
                   "pm.test('Batch result matches committed IDs', () => { const value = pm.response.json(); pm.expect(value.count).to.eql(value.ids.length); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "DELETE /schedule",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": "{{base_url}}/api/v1/schedule",
-            "description": "Administrator with verified MFA. Clears exams, owned room allocations, and assignments atomically, and unpublishes. Master data, requests, and audit history remain. The client must present a clear destructive-action confirmation."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
-                  "pm.test('No response body', () => pm.expect(pm.response.text()).to.eql(''));"
                 ]
               }
             }

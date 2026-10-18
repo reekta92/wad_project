@@ -13,7 +13,10 @@ ROOT = Path(__file__).resolve().parents[1]
 def prepare():
     if os.environ.get("CI") != "true":
         raise ValueError("HTTPS demo preparation is restricted to isolated CI checkouts.")
-    directory = ROOT / ".local/https-demo/tls"
+    private = ROOT / ".local"
+    private.mkdir(mode=0o700, exist_ok=True)
+    private.chmod(0o700)
+    directory = private / "https-demo/tls"
     directory.mkdir(parents=True, mode=0o700, exist_ok=True)
     if (directory / "ca.key").exists():
         raise ValueError("Existing HTTPS demo certificates were preserved; use a fresh CI checkout.")

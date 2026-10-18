@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --host localhost",
     "test": "node --test src/*.test.js",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "lint": "eslint src/"
   },
   "dependencies": {
     "keycloak-js": "26.2.4",
@@ -17,8 +20,12 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@eslint/js": "9.39.1",
     "@playwright/test": "1.64.1",
     "@tailwindcss/vite": "4.3.3",
+    "eslint": "9.39.1",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "newman": "6.2.1",
     "tailwindcss": "4.3.3",
     "vite": "8.3.4"
   }

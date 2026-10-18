@@ -2,6 +2,7 @@
 """Run a private, disposable SonarQube analysis in isolated CI and save safe evidence."""
 
 import base64
+import zlib
 import json
 import os
 from pathlib import Path
@@ -32,9 +33,13 @@ def run():
         if authenticated:
             credential = base64.b64encode(f"admin:{password}".encode()).decode()
             request.add_header("Authorization", "Basic " + credential)
-        with urllib.request.urlopen(request, timeout=20) as response:
-            body = response.read()
-            return json.loads(body) if body else {}
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                body = response.read()
+                return json.loads(body) if body else {}
+        except urllib.error.HTTPError as error:
+            detail = error.read().decode(errors="replace") if path != "/api/users/change_password" else "credential change failed"
+            raise RuntimeError(f"Sonar API {path.split('?')[0]} returned {error.code}: {detail}") from None
 
     def command(args, **kwargs):
         return subprocess.run(args, cwd=ROOT, check=True, **kwargs)
@@ -68,9 +73,10 @@ def run():
             "quality_gate": api("/api/qualitygates/project_status?analysisId=" + urllib.parse.quote(analysis)),
             "measures": api("/api/measures/component?component=" + PROJECT + "&metricKeys=bugs,vulnerabilities,code_smells,security_hotspots,coverage,duplicated_lines_density,ncloc"),
             "issues": api("/api/issues/search?componentKeys=" + PROJECT + "&ps=500"),
-            "hotspots": api("/api/hotspots/search?projectKey=" + PROJECT + "&ps=500"),
+            "hotspots": api("/api/hotspots/search?projectKey=" + PROJECT + "&ps=100"),
         }
         (evidence / "analysis.json").write_text(json.dumps(report, indent=2) + "\n")
+        print("WAD_SONAR_REVIEW:" + base64.b64encode(zlib.compress(json.dumps(report).encode())).decode())
         for image in (SERVER_IMAGE, SCANNER_IMAGE):
             command(["docker", "image", "inspect", image, "--format", "{{json .RepoDigests}}"])
         print("SonarQube analysis completed; safe evidence saved.")

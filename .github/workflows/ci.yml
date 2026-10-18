@@ -121,6 +121,14 @@ jobs:
           name: public-layout-previews
           path: frontend/test-results/**/guest-*.jpg
           retention-days: 7
+      - name: Save token-free collection evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: collection-evidence
+          path: .local/collection-evidence/summary.json
+          include-hidden-files: true
+          retention-days: 30
       - name: Stop browser test services
         if: always() && hashFiles('.env') != ''
         run: docker compose down
@@ -135,20 +143,6 @@ jobs:
           node-version: '24.21.0'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - name: Resolve verification tool lock (bootstrap)
-        working-directory: frontend
-        run: |
-          npm install --save-dev --save-exact --package-lock-only --ignore-scripts eslint@9.39.1 @eslint/js@9.39.1 eslint-plugin-jsx-a11y@6.10.2 newman@6.2.1
-          npm pkg set 'scripts.lint=eslint src/'
-          python3 -c "import base64,zlib; from pathlib import Path; [print('WAD_METADATA_' + name + ':' + base64.b64encode(zlib.compress(Path(name).read_bytes())).decode()) for name in ('package.json','package-lock.json')]"
-      - name: Save resolved verification tool metadata
-        uses: actions/upload-artifact@v4
-        with:
-          name: verification-tool-lock
-          path: |
-            frontend/package.json
-            frontend/package-lock.json
-          retention-days: 1
       - name: Install pinned dependencies
         working-directory: frontend
         run: npm ci --no-audit --no-fund
@@ -194,6 +188,7 @@ jobs:
         with:
           name: sonar-analysis
           path: .local/sonar-evidence/*.json
+          include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 30
 
@@ -260,6 +255,7 @@ jobs:
         with:
           name: production-https-evidence
           path: .local/production-evidence/result.json
+          include-hidden-files: true
           retention-days: 30
       - name: Stop isolated HTTPS services
         if: always() && hashFiles('.env') != ''
