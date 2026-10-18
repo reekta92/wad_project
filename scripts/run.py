@@ -9,6 +9,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 COMMANDS = {
+    "serve": ("backend", [str(ROOT / ".local/bin/exam-server")]),
     "server": ("backend", ["go", "run", "./cmd/server"]),
     "migrate": ("backend", ["go", "run", "./cmd/migrate"]),
     "seed": ("backend", ["go", "run", "./cmd/seed"]),

@@ -140,6 +140,7 @@ jobs:
         run: |
           npm install --save-dev --save-exact --package-lock-only --ignore-scripts eslint@9.39.1 @eslint/js@9.39.1 eslint-plugin-jsx-a11y@6.10.2 newman@6.2.1
           npm pkg set 'scripts.lint=eslint src/'
+          python3 -c "import base64,zlib; from pathlib import Path; [print('WAD_METADATA_' + name + ':' + base64.b64encode(zlib.compress(Path(name).read_bytes())).decode()) for name in ('package.json','package-lock.json')]"
       - name: Save resolved verification tool metadata
         uses: actions/upload-artifact@v4
         with:
@@ -195,3 +196,71 @@ jobs:
           path: .local/sonar-evidence/*.json
           if-no-files-found: ignore
           retention-days: 30
+
+  production-demo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      COMPOSE_PROJECT_NAME: wad-https-demo
+      COMPOSE_FILE: compose.yaml:compose.https-demo.yaml
+      POSTGRES_PORT: '5444'
+      KEYCLOAK_PORT: '8445'
+      API_ADDRESS: 127.0.0.1:8443
+      OIDC_ISSUER: https://localhost:8444/realms/exams
+      APP_ENV: development
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: backend/go.sum
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.21.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build the standalone server and production frontend
+        run: |
+          mkdir -p .local/bin
+          cd backend
+          CGO_ENABLED=0 go build -trimpath -ldflags='-s -w' -o ../.local/bin/exam-server ./cmd/server
+          cd ../frontend
+          npm ci --no-audit --no-fund
+          npm run build
+          npx --no-install playwright install --with-deps chromium
+      - name: Prepare and trust isolated HTTPS certificates
+        run: |
+          python3 scripts/setup.py
+          python3 scripts/prepare_https_demo.py
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libnss3-tools
+          sudo cp .local/https-demo/tls/ca.crt /usr/local/share/ca-certificates/wad-https-demo.crt
+          sudo update-ca-certificates
+          mkdir -p "$HOME/.pki/nssdb"
+          if [ ! -f "$HOME/.pki/nssdb/cert9.db" ]; then certutil -N -d "sql:$HOME/.pki/nssdb" --empty-password; fi
+          certutil -A -d "sql:$HOME/.pki/nssdb" -n wad-https-demo -t 'C,,' -i .local/https-demo/tls/ca.crt
+          echo "SSL_CERT_FILE=$PWD/.local/https-demo/tls/ca.crt" >> "$GITHUB_ENV"
+          echo "NODE_EXTRA_CA_CERTS=$PWD/.local/https-demo/tls/ca.crt" >> "$GITHUB_ENV"
+          echo "TLS_CERT=$PWD/.local/https-demo/tls/server.crt" >> "$GITHUB_ENV"
+          echo "TLS_KEY=$PWD/.local/https-demo/tls/server.key" >> "$GITHUB_ENV"
+      - name: Bootstrap the isolated HTTPS identity and application databases
+        run: |
+          docker compose up -d --wait --wait-timeout 240
+          python3 scripts/run.py migrate
+          python3 scripts/run.py seed
+          python3 scripts/run.py provision
+      - name: Verify the compiled production process over trusted HTTPS
+        working-directory: frontend
+        env:
+          APP_ENV: production
+        run: npx --no-install playwright test -c playwright.production.config.js
+      - name: Save public production verification metadata
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-https-evidence
+          path: .local/production-evidence/result.json
+          retention-days: 30
+      - name: Stop isolated HTTPS services
+        if: always() && hashFiles('.env') != ''
+        run: docker compose down

@@ -1,0 +1,15 @@
+# Isolated verification overlay; use only with the documented wad-https-demo project.
+services:
+  keycloak:
+    command: [start, --import-realm]
+    environment:
+      KC_HOSTNAME: https://localhost:8444
+      KC_HTTP_ENABLED: "false"
+      KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/conf/tls/server.crt
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/conf/tls/keycloak.key
+      KC_HTTP_MANAGEMENT_SCHEME: http
+    ports:
+      - "127.0.0.1:8444:8443"
+    volumes:
+      - ./.local/https-demo/tls/server.crt:/opt/keycloak/conf/tls/server.crt:ro
+      - ./.local/https-demo/tls/keycloak.key:/opt/keycloak/conf/tls/keycloak.key:ro

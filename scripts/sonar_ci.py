@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 HOST = "http://127.0.0.1:9000"
 PROJECT = "wad_project"
 SERVER_IMAGE = "sonarqube@sha256:0b3408443fb6a311253de27941b10977c9b977fd53be2265947bfe14161308b8"
-SCANNER_IMAGE = "sonarsource/sonar-scanner-cli:latest"
+SCANNER_IMAGE = "sonarsource/sonar-scanner-cli@sha256:a3f4215076706c95a17a68c19322ee916e40a3acd081a8c1a1e839e0194afa57"
 
 
 def run():
@@ -57,7 +57,7 @@ def run():
         token = api("/api/user_tokens/generate", {"name": "isolated-ci-analysis", "type": "PROJECT_ANALYSIS_TOKEN", "projectKey": PROJECT})["token"]
         environment = {**os.environ, "SONAR_TOKEN": token}
         # The analysis token is passed by environment, never as a command argument or artifact.
-        scan = subprocess.run(["docker", "run", "--rm", "--network", "host", "--user", f"{os.getuid()}:{os.getgid()}", "--volume", f"{ROOT}:/usr/src", "--env", "SONAR_TOKEN", "--env", "SONAR_USER_HOME=/usr/src/.local/sonar-cache", "--env", "SONAR_HOST_URL=" + HOST, SCANNER_IMAGE, "-Dsonar.qualitygate.wait=true", "-Dsonar.qualitygate.timeout=300"], env=environment, cwd=ROOT, check=False)
+        scan = subprocess.run(["docker", "run", "--rm", "--network", "host", "--user", f"{os.getuid()}:{os.getgid()}", "--volume", f"{ROOT}:/usr/src", "--env", "SONAR_TOKEN", "--env", "SONAR_USER_HOME=/usr/src/.local/sonar-cache", "--env", "SONAR_HOST_URL=" + HOST, SCANNER_IMAGE, "-Dsonar.working.directory=/usr/src/.scannerwork", "-Dsonar.qualitygate.wait=true", "-Dsonar.qualitygate.timeout=300"], env=environment, cwd=ROOT, check=False)
         task = dict(line.split("=", 1) for line in (ROOT / ".scannerwork/report-task.txt").read_text().splitlines() if "=" in line)
         completed = api("/api/ce/task?id=" + urllib.parse.quote(task["ceTaskId"]))["task"]
         analysis = completed["analysisId"]

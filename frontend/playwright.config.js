@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
+  testIgnore: '**/production.spec.js',
   fullyParallel: false,
   workers: 1,
   maxFailures: 1,
