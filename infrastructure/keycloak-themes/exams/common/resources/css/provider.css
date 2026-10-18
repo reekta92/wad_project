@@ -40,6 +40,10 @@ img { max-width: 100%; height: auto; }
   --pf-v5-c-button--m-primary--Color: var(--on-primary);
   --pf-v5-c-button--m-primary--hover--BackgroundColor: var(--primary);
   --pf-v5-c-button--m-primary--hover--Color: var(--on-primary);
+  --pf-v5-c-button--m-primary--focus--BackgroundColor: var(--primary);
+  --pf-v5-c-button--m-primary--focus--Color: var(--on-primary);
+  --pf-v5-c-button--m-primary--active--BackgroundColor: var(--primary);
+  --pf-v5-c-button--m-primary--active--Color: var(--on-primary);
   --pf-v5-c-button--m-secondary--Color: var(--blue-text);
   --pf-v5-c-button--m-secondary--hover--Color: var(--blue-text);
   min-height: 48px;
