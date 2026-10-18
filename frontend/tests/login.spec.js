@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { verifyIdentityTheme, verifyConsoleTheme } from './provider-theme.js';
 import { verifyCollection } from './collection.js';
 import { otp, byName, submitOTP, passwordSteps, startLogin, captureAccess, assertProfile, signOut } from './authentication.js';
 import { verifyBusinessAPI, verifyMemberAPI, verifyBusinessUI, verifyOwnedRequestUI } from './business.js';
@@ -8,6 +10,38 @@ import { verifyRepresentations, verifyMemberDownloads, verifyAdministratorDownlo
 import { verifyWorkflowAPI, verifyWorkflowPermissions, verifyOwnWorkflowUI, verifyWorkflowUI } from './workflows.js';
 
 const root = resolve('..');
+
+test('identity, MFA, error, account and operator pages use the shared workspace theme', async ({ page }) => {
+  const account = byName('student.demo');
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+  await expect(page.locator('#username')).toBeVisible();
+  await verifyIdentityTheme(page);
+  await page.locator('#username').fill(account.username);
+  await page.locator('#kc-login').click();
+  await expect(page.locator('#password')).toBeVisible();
+  await verifyIdentityTheme(page);
+  await page.locator('#password').fill(account.password);
+  await page.locator('#kc-login').click();
+  await expect(page.locator('#otp')).toBeVisible();
+  await verifyIdentityTheme(page);
+  await submitOTP(page, account);
+  await assertProfile(page, account, 'Student member');
+  await page.goto('http://localhost:8081/realms/exams/account/');
+  await verifyConsoleTheme(page, 'account');
+  await page.goto('http://localhost:8081/realms/exams/protocol/openid-connect/auth?client_id=missing-client');
+  await expect(page.locator('#kc-error-message')).toBeVisible();
+  await verifyIdentityTheme(page);
+
+  await page.goto('http://localhost:8081/admin/master/console/');
+  await expect(page.locator('#username')).toBeVisible();
+  await verifyIdentityTheme(page);
+  const password = readFileSync(resolve(root, '.env'), 'utf8').split('\n').find((line) => line.startsWith('KEYCLOAK_ADMIN_PASSWORD=')).slice('KEYCLOAK_ADMIN_PASSWORD='.length);
+  await page.locator('#username').fill('local-admin');
+  await page.locator('#password').fill(password);
+  await page.locator('#kc-login').click();
+  await verifyConsoleTheme(page, 'admin');
+});
 
 test('TOTP matches the RFC 6238 SHA-1 vector', () => {
   expect(otp('GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 1)).toBe('287082');
@@ -109,6 +143,7 @@ test('administrator enrolls and signs in with a user-verified passkey', async ({
   await passwordSteps(page, account);
   await submitOTP(page, account);
   await page.locator('#registerWebAuthn').waitFor();
+  await verifyIdentityTheme(page);
   page.on('dialog', (dialog) => dialog.accept('CI passkey'));
   await page.locator('#registerWebAuthn').click();
   await assertProfile(page, account, 'Administrator');
@@ -119,9 +154,11 @@ test('administrator enrolls and signs in with a user-verified passkey', async ({
   await expect(page.locator('#authenticateWebAuthnButton').or(page.locator('#password'))).toBeVisible();
   if (await page.locator('#password').isVisible()) {
     await page.getByRole('link', { name: /try another way/i }).click();
+    await verifyIdentityTheme(page);
     await page.getByRole('button', { name: /passkey|security key|webauthn/i }).click();
   }
   await expect(page.locator('#authenticateWebAuthnButton')).toBeVisible();
+  await verifyIdentityTheme(page);
   await page.locator('#authenticateWebAuthnButton').click();
   await assertProfile(page, account, 'Administrator');
   const claims = JSON.parse(Buffer.from(access.token.split('.')[1], 'base64url'));

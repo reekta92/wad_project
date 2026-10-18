@@ -141,3 +141,24 @@ func TestInitialOwnershipToleratesProviderEmailNormalization(t *testing.T) {
 		t.Fatalf("provider-normalized ownership marker rejected: %v", err)
 	}
 }
+
+func TestThemeUpgradeOnlyChangesThemeFieldsInOperatorRealm(t *testing.T) {
+	var operatorUpdate map[string]any
+	p := &provider{base: "https://identity.example", realm: "exams", client: &http.Client{Transport: transport(func(r *http.Request) (*http.Response, error) {
+		body := `[]`
+		if r.Method == "PUT" && r.URL.Path == "/admin/realms/master" {
+			if err := json.NewDecoder(r.Body).Decode(&operatorUpdate); err != nil {
+				t.Fatal(err)
+			}
+		}
+		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: http.Header{}}, nil
+	})}}
+	template := []byte(`{"realm":"exams","loginTheme":"exams","accountTheme":"exams","adminTheme":"exams","authenticationFlows":[{"alias":"browser"}],"registrationAllowed":false,"roles":{"realm":[{"name":"member"}]}}`)
+	if err := p.configure(context.Background(), template); err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]any{"loginTheme": "exams", "accountTheme": "exams", "adminTheme": "exams"}
+	if !reflect.DeepEqual(operatorUpdate, want) || p.realm != "exams" {
+		t.Fatalf("operator update must contain only theme fields; provider must retain application realm: %#v", operatorUpdate)
+	}
+}

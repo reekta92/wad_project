@@ -40,6 +40,10 @@ Verification commands, isolated CI evidence, SonarQube results, and the HTTPS bu
 
 The frontend uses a Google Workspace inspired layout with a desktop sidebar, a compact mobile menu, rounded borderless surfaces, large controls, and Roboto typography. Light and dark themes pair Google-style neutral backgrounds with One Dark blue, green, and purple accents. Choose **Device theme**, **Light**, or **Dark** in the header; the browser remembers the preference independently of authentication. Keyboard focus remains visible, and reduced-motion and high-contrast preferences are respected.
 
+The same palette also styles Keycloak sign-in, password/TOTP, passkey enrollment/selection, recovery/action, error/logout, and account/operator pages. Native provider templates keep their authentication behavior. Sign-in has its own **Color theme** control; its preference is stored on the provider origin and reused by the provider account/operator consoles. Both app and provider follow the device by default. The shared palette lives under `infrastructure/keycloak-themes/exams/common/resources/css/palette.css`.
+
+To apply the provider theme to an existing local setup, rerun `python3 development/start.py`, or run `docker compose up -d --wait --wait-timeout 240` followed by `python3 scripts/run.py provision`. Compose mounts the theme; provisioning applies it to the application and operator realms without resetting accounts or data.
+
 Setup generates distinct local secrets in a private, ignored `.env`. Existing configuration is never overwritten. Migrations are transactional and checksum-checked. Demo seeding runs once, preserves later edits on repeat runs, and refuses to populate an existing non-demo database. None of these commands uses the legacy SQL Server database.
 
 Use **Sign in** in the header at http://localhost:5173. Keycloak verifies the account with Authorization Code + PKCE S256; Go verifies JWT signatures, issuer, audience, token lifetime, role, MFA, and the active local identity link. There is no role-selector login.

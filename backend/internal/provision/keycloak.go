@@ -226,5 +226,13 @@ func (p *provider) configure(ctx context.Context, template []byte) error {
 	for _, key := range []string{"clients", "roles", "authenticationFlows", "authenticatorConfig", "requiredActions"} {
 		delete(realm, key)
 	}
-	return p.request(ctx, "PUT", "", realm, nil)
+	if err := p.request(ctx, "PUT", "", realm, nil); err != nil {
+		return err
+	}
+	// Theme the operator's console/login too, without replacing its realm or identities.
+	operator := *p
+	operator.realm = "master"
+	return operator.request(ctx, "PUT", "", map[string]any{
+		"loginTheme": realm["loginTheme"], "accountTheme": realm["accountTheme"], "adminTheme": realm["adminTheme"],
+	}, nil)
 }

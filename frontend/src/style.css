@@ -1,36 +1,10 @@
 @import "tailwindcss";
+@import "../../infrastructure/keycloak-themes/exams/common/resources/css/palette.css";
 
 @theme {
   --font-sans: "Roboto", Arial, sans-serif;
 }
 
-:root {
-  color-scheme: light dark;
-  font-family: var(--font-sans);
-  font-synthesis: none;
-  --background: light-dark(#f6f8fc, #202124);
-  --surface: light-dark(#ffffff, #292a2d);
-  --container: light-dark(#f1f3f7, #303134);
-  --hover: light-dark(#e7ebf2, #3c4043);
-  --text: light-dark(#202124, #e8eaed);
-  --muted: light-dark(#58616e, #bdc1c6);
-  --accent: light-dark(#245da9, #61afef);
-  --primary: light-dark(#285c99, #61afef);
-  --on-primary: light-dark(#ffffff, #102433);
-  --blue-container: light-dark(#e5efff, #263b50);
-  --blue-text: light-dark(#245da9, #8ac7f6);
-  --green-container: light-dark(#e8f1e4, #303d2c);
-  --green-text: light-dark(#386232, #b5d49e);
-  --purple-container: light-dark(#f2e8f7, #403049);
-  --purple-text: light-dark(#74468c, #d9afe6);
-  --error-container: light-dark(#fbeae8, #472c31);
-  --error-text: light-dark(#a02e2c, #f1a4ad);
-  --focus: light-dark(#245da9, #88c4f3);
-  color: var(--text);
-  background: var(--background);
-}
-:root[data-theme="light"] { color-scheme: light; }
-:root[data-theme="dark"] { color-scheme: dark; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; font-size: 16px; line-height: 1.5; }

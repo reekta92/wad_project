@@ -37,6 +37,7 @@ services:
       - "127.0.0.1:${KEYCLOAK_PORT:-8081}:8080"
     volumes:
       - ./infrastructure/exams-realm.json:/opt/keycloak/data/import/exams-realm.json:ro
+      - ./infrastructure/keycloak-themes/exams:/opt/keycloak/themes/exams:ro
     depends_on:
       postgres:
         condition: service_healthy

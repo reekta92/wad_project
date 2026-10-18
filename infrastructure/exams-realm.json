@@ -277,5 +277,8 @@
   "eventsEnabled": true,
   "eventsExpiration": 604800,
   "adminEventsEnabled": true,
-  "adminEventsDetailsEnabled": false
+  "adminEventsDetailsEnabled": false,
+  "loginTheme": "exams",
+  "accountTheme": "exams",
+  "adminTheme": "exams"
 }

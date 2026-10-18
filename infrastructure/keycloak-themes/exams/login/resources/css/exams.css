@@ -1,0 +1,35 @@
+.login-pf body, body#keycloak-bg { min-height: 100dvh; height: auto; background: var(--background); color: var(--text); }
+.pf-v5-c-login { min-height: 100dvh; padding: 28px 16px; background: transparent; }
+.pf-v5-c-login__container { width: min(100%, 560px); margin: auto; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.pf-v5-c-login__header { display: grid; justify-items: center; gap: 20px; padding: 0; }
+#kc-header-wrapper { padding: 0; font-size: 24px; line-height: 1.3; font-weight: 500; letter-spacing: -.5px; text-transform: none; color: var(--text) !important; }
+div.kc-logo-text { width: auto; height: auto; background: none; }
+div.kc-logo-text span { display: inline; }
+.pf-v5-c-login__main { min-width: 0; overflow-wrap: anywhere; border: 0; border-radius: 32px; background: var(--surface); color: var(--text); box-shadow: none; animation: exams-appear 180ms ease-out; }
+.pf-v5-c-login__main-header { padding: 28px 24px 16px; border: 0; }
+.pf-v5-c-login__main-body { padding: 12px 24px 28px; }
+.pf-v5-c-login__main-footer { padding-inline: 0; background: transparent; }
+.pf-v5-c-login__main-footer:empty { display: none; }
+.pf-v5-c-login__main-footer-band { margin: 0; padding: 20px 0 0; background: transparent; color: var(--muted); }
+#kc-page-title { color: var(--text); font-size: clamp(26px, 4vw, 32px); line-height: 1.3; font-weight: 400; letter-spacing: -.7px; }
+.pf-v5-c-form { gap: 24px; }
+.pf-v5-c-form__group-label { padding: 0 12px 8px; }
+.pf-v5-c-input-group { gap: 8px; align-items: stretch; }
+.pf-v5-c-input-group__item { min-width: 0; }
+.pf-v5-c-input-group .pf-v5-c-button { min-width: 48px; height: 56px; padding: 12px; border-radius: 18px; }
+.pf-v5-c-input-group .pf-v5-c-form-control { border-radius: 18px; }
+.pf-v5-c-login__main-body :is(p, li) { line-height: 1.7; }
+.pf-v5-c-tile, .pf-v5-c-panel { border: 0; border-radius: 20px; background: var(--container); color: var(--text); box-shadow: none; }
+.pf-v5-c-tile::after { border: 0; }
+.pf-v5-c-tile.pf-m-selected { background: var(--blue-container); color: var(--blue-text); }
+.kc-login-divider::before, .kc-login-divider::after { border: 0; }
+.kc-login-tooltip .kc-tooltip-text { z-index: 2; border-radius: 12px; padding: 12px; background: var(--text); color: var(--surface); }
+.kc-qr-code img { background: white; border: 0; border-radius: 20px; box-shadow: none; }
+#kc-recovery-codes-list { overflow-wrap: anywhere; }
+@keyframes exams-appear { from { opacity: .6; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (min-width: 640px) {
+  .pf-v5-c-login { padding: 48px 24px; }
+  .pf-v5-c-login__main-header { padding: 40px 40px 16px; }
+  .pf-v5-c-login__main-body { padding: 12px 40px 40px; }
+}
+@media (max-width: 374px) { #kc-recovery-codes-list { columns: 1; } }

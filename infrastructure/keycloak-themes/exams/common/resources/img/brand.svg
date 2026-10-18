@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="48" viewBox="0 0 220 48" role="img" aria-label="Faculty Exams">
+  <rect x="2" y="2" width="44" height="44" rx="16" fill="#61afef"/>
+  <path d="M14 16h20v18H14zM18 12v8m12-8v8M14 23h20" fill="none" stroke="#102433" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="58" y="31" font-family="Roboto,Arial,sans-serif" font-size="21" fill="#61afef">Faculty Exams</text>
+</svg>
