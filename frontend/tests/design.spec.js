@@ -29,7 +29,7 @@ test('rounded workspace fits phone, tablet and desktop in both themes', async ({
   await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeEnabled();
   for (const theme of ['light', 'dark']) {
     await page.getByLabel('Color theme').selectOption(theme);
-    for (const width of [320, 390, 640, 768, 1024, 1440]) {
+    for (const width of [320, 375, 390, 639, 640, 768, 1023, 1024, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       const menu = page.getByRole('button', { name: 'Open menu', exact: true });

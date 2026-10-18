@@ -1,6 +1,6 @@
 import { afterEach, mock, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchProfile, fetchSchedule, requestJSON, requestResource } from './api.js';
+import { fetchProfile, fetchSchedule, requestDownload, requestJSON, requestResource } from './api.js';
 
 afterEach(() => mock.restoreAll());
 
@@ -100,4 +100,24 @@ test('workflow transport preserves denied-session errors and rejects HTML and nu
   mock.restoreAll();
   mock.method(globalThis, 'fetch', async () => new Response('null'));
   await assert.rejects(requestJSON('dashboard', 'token'), /incomplete information/);
+});
+
+
+test('downloads keep bearer credentials in the request header and reject HTML masquerading as files', async () => {
+  mock.method(globalThis, 'fetch', async (url, options) => {
+    assert.equal(url, '/api/v1/backups');
+    assert.equal(options.method, 'POST');
+    assert.equal(options.headers.Accept, 'application/octet-stream');
+    assert.equal(options.headers.Authorization, 'Bearer transient-token');
+    assert.equal(options.cache, 'no-store');
+    assert.equal(options.body, undefined);
+    return new Response('PGDMPcomplete', { headers: { 'Content-Type': 'application/octet-stream' } });
+  });
+  assert.equal(await (await requestDownload('backups', 'transient-token', { method: 'POST' })).text(), 'PGDMPcomplete');
+  mock.restoreAll();
+  mock.method(globalThis, 'fetch', async () => new Response('<html>Fallback</html>', { headers: { 'Content-Type': 'text/html' } }));
+  await assert.rejects(requestDownload('schedule/export', 'token'), /did not return the requested file/);
+  mock.restoreAll();
+  mock.method(globalThis, 'fetch', async () => new Response(JSON.stringify({ error: { message: 'Administrator required.' } }), { status: 403 }));
+  await assert.rejects(requestDownload('backups', 'token', { method: 'POST' }), (error) => error.status === 403);
 });

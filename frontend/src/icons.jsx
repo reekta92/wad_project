@@ -1,5 +1,6 @@
 export function Icon({ name, ...props }) {
   const paths = {
+    download: <><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" /></>,
     calendar: <><rect x="3" y="5" width="18" height="16" rx="4" /><path d="M7 3v4m10-4v4M3 11h18m-13 5h2m4 0h2" /></>,
     search: <><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4 4" /></>,
     account: <><circle cx="12" cy="8" r="4" /><path d="M4 21v-2a8 8 0 0 1 16 0v2" /></>,

@@ -53,23 +53,35 @@ export async function fetchProfile(token, signal) {
   return body;
 }
 
-export async function requestJSON(path, token, { method = 'GET', body, signal } = {}) {
+async function requestResponse(path, token, { method = 'GET', body, signal } = {}, accept = 'application/json') {
   const response = await fetch(`/api/v1/${path}`, {
     method, signal, cache: 'no-store',
-    headers: { Accept: 'application/json', Authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
+    headers: { Accept: accept, Authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
-  if (response.ok && response.status === 204) return null;
-  let value;
-  try { value = await response.json(); } catch {
-    throw new Error('The service returned an unreadable response. Please try again.');
-  }
   if (!response.ok) {
+    let value;
+    try { value = await response.json(); } catch { throw new Error('The service returned an unreadable response. Please try again.'); }
     const error = new Error(value?.error?.message || `This action could not be completed (${response.status}).`);
     error.status = response.status;
     error.fields = value?.error?.fields || {};
     throw error;
   }
+  return response;
+}
+
+export async function requestDownload(path, token, options) {
+  const media = path === 'backups' ? 'application/octet-stream' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const response = await requestResponse(path, token, options, media);
+  if (response.headers.get('Content-Type')?.split(';')[0] !== media) throw new Error('The service did not return the requested file. Please try again.');
+  return response.blob();
+}
+
+export async function requestJSON(path, token, options) {
+  const response = await requestResponse(path, token, options);
+  if (response.status === 204) return null;
+  let value;
+  try { value = await response.json(); } catch { throw new Error('The service returned an unreadable response. Please try again.'); }
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('The service returned incomplete information. Please try again.');
   return value;
 }

@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { verifyBusinessAPI, verifyMemberAPI, verifyBusinessUI, verifyOwnedRequestUI } from './business.js';
+import { verifyRepresentations, verifyMemberDownloads, verifyAdministratorDownloads } from './downloads.js';
 import { verifyWorkflowAPI, verifyWorkflowPermissions, verifyOwnWorkflowUI, verifyWorkflowUI } from './workflows.js';
 
 const root = resolve('..');
@@ -100,6 +101,8 @@ for (const [name, label, role, personnel] of [
     expect(profile.role).toBe(role);
     expect(profile.personnel_id).toBe(personnel);
     expect(profile.permissions).toEqual(personnel ? ['invigilator'] : []);
+    await verifyRepresentations(page, request, access.token, false);
+    await verifyMemberDownloads(page, request, access.token);
     await verifyMemberAPI(request, access.token, Boolean(personnel));
     await verifyWorkflowPermissions(request, access.token, Boolean(personnel));
     if (personnel) { await verifyOwnedRequestUI(page); await verifyOwnWorkflowUI(page); }
@@ -131,6 +134,8 @@ test('administrator requires TOTP, refreshes, rejects disabled accounts, and end
   await verifyBusinessUI(page, request, access.token);
   await verifyWorkflowAPI(request, access.token);
   await verifyWorkflowUI(page, request, access.token);
+  await verifyRepresentations(page, request, access.token, true);
+  await verifyAdministratorDownloads(page, request, access.token);
   const claims = JSON.parse(Buffer.from(access.token.split('.')[1], 'base64url'));
   expect(claims.amr).toEqual(expect.arrayContaining(['pwd', 'otp']));
 

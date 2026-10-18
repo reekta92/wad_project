@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Icon } from './icons.jsx';
+import { DownloadButton } from './downloads.jsx';
 import { ReferenceSelect } from './management.jsx';
 
 const dates = [{ name: 'date_from', label: 'From date', type: 'date' }, { name: 'date_to', label: 'To date', type: 'date' }];
@@ -147,6 +148,7 @@ export function Workflow({ page, account, navigate }) {
         ['pending_requests', 'Pending requests', 'unavailability-requests', (r) => `${r.personnel} · ${r.date} · ${r.type}`],
         ['unstaffed_rooms', 'Unstaffed rooms', 'exams', (r) => `${r.course_code} · ${r.classroom} · allocation #${r.id}`],
       ].map(([key, label, target, describe]) => <article key={key} className="record-card"><h3>{label} ({result.totals[key]})</h3><p className="record-meta">First five records</p>{result.previews[key].length ? <ul>{result.previews[key].map((row) => <li key={row.id}>{describe(row)}</li>)}</ul> : <p className="management-note">Nothing waiting.</p>}<button className="button" onClick={() => navigate(target)}>Open {label.toLowerCase()}</button></article>)}</div>
+      <section className="record-card download-panel" aria-labelledby="downloads-title"><h3 id="downloads-title">Downloads</h3><p>Export the current timetable, or keep a private copy of the application database.</p><div className="record-actions"><DownloadButton account={account} /><DownloadButton account={account} backup /></div></section>
       <div className="record-card clear-panel"><h3>Clear schedule</h3><p>Remove every exam, room allocation, and duty. Courses, sessions, rooms, personnel, requests, and audit history are kept.</p><button className="button destructive" disabled={disabled} onClick={(event) => { opener.current = event.currentTarget; setModalError(''); setModal('clear'); }}>Clear schedule…</button></div>
     </>}
     {!loading && !error && result && summary && <article className="record-card"><h3>{name(result)}</h3><p className="record-meta">{result.department}</p><dl className="record-details"><div><dt>Assigned duties</dt><dd>{result.duties}</dd></div></dl></article>}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { authentication } from './auth.js';
-import { fetchProfile, requestJSON, requestResource } from './api.js';
+import { fetchProfile, requestDownload, requestJSON, requestResource } from './api.js';
 import { Icon } from './icons.jsx';
 
 export function useAccount() {
@@ -86,9 +86,11 @@ export function useAccount() {
   const request = useCallback((path, options) => send(requestResource, path, options), [send]);
   const call = useCallback((path, options) => send(requestJSON, path, options), [send]);
 
+  const download = useCallback((path, options) => send(requestDownload, path, options), [send]);
+
   const redirectUri = `${window.location.origin}/`;
   return {
-    profile, busy, error, request, call, available: Boolean(client), authenticated: Boolean(client?.authenticated),
+    profile, busy, error, request, call, download, available: Boolean(client), authenticated: Boolean(client?.authenticated),
     retry: () => setAttempt((value) => value + 1),
     signIn: () => act(() => client.login({ redirectUri, prompt: 'login' })),
     registerPasskey: () => act(() => client.login({ redirectUri, prompt: 'login', action: 'webauthn-register-passwordless' })),

@@ -5,6 +5,7 @@ import { AccountPanel, useAccount } from './account.jsx';
 import { Icon } from './icons.jsx';
 import { Management } from './management.jsx';
 import { resources } from './resources.js';
+import { DownloadButton } from './downloads.jsx';
 import { Workflow, workflowPages } from './workflows.jsx';
 
 const pages = { ...resources, ...workflowPages };
@@ -174,7 +175,7 @@ function App() {
           <button className="button primary apply-button" type="submit" disabled={loading}><Icon name="search" />Apply filters</button>
         </form>
 
-        <div className="results-toolbar"><p role="status" aria-live="polite">{loading ? 'Loading published exams…' : error ? 'Schedule unavailable' : `${result?.total ?? 0} exam${result?.total === 1 ? '' : 's'} found`}</p><div className="view-switch" role="group" aria-label="Schedule display"><button aria-pressed={view === 'list'} onClick={() => setView('list')}><Icon name="list" />List</button><button aria-pressed={view === 'calendar'} onClick={() => setView('calendar')}><Icon name="calendar" />Calendar</button></div></div>
+        <div className="results-toolbar"><p role="status" aria-live="polite">{loading ? 'Loading published exams…' : error ? 'Schedule unavailable' : `${result?.total ?? 0} exam${result?.total === 1 ? '' : 's'} found`}</p>{account.profile && <DownloadButton account={account} query={query} />}<div className="view-switch" role="group" aria-label="Schedule display"><button aria-pressed={view === 'list'} onClick={() => setView('list')}><Icon name="list" />List</button><button aria-pressed={view === 'calendar'} onClick={() => setView('calendar')}><Icon name="calendar" />Calendar</button></div></div>
         {error && <div className="message error" role="alert"><h3>Could not load the schedule</h3><p>{error}</p><button className="button" onClick={() => setRetry(retry + 1)}>Try again</button></div>}
         {!loading && !error && result?.data.length === 0 && <div className="message"><img src="/campus.svg" alt="" width="160" height="120" /><h3>No published exams match these filters</h3><p>Try a different course or date range.</p></div>}
         {!loading && !error && result?.data.length > 0 && (view === 'calendar' ? <Calendar exams={result.data} /> : <div className="exam-grid">{result.data.map((exam) => <Exam key={exam.id} exam={exam} />)}</div>)}

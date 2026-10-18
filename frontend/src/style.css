@@ -193,6 +193,9 @@ dialog::backdrop { background: #10121599; }
 .record-details div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 20px; padding: 10px 0; }
 .record-details dd { max-width: none; white-space: pre-wrap; }
 .success-message { color: var(--green-text); background: var(--green-container); padding: 16px 20px; margin-bottom: 20px; border-radius: 18px; }
+.download-control { display: flex; flex-direction: column; gap: 8px; min-width: 0; max-width: 100%; }
+.download-panel { margin: 24px 0; }
+.download-control .record-meta, .download-control .field-error { max-width: 320px; }
 .workflow > .management-note { margin-top: 24px; }
 .publication-panel { display: flex; align-items: center; flex-wrap: wrap; gap: 24px; }
 .publication-panel > div { flex: 1; min-width: min(100%, 240px); }
