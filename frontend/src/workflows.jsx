@@ -49,7 +49,7 @@ export function Workflow({ page, account, navigate }) {
   const [modal, setModal] = useState(null);
   const [modalError, setModalError] = useState('');
   const dialog = useRef(null);
-  const clearButton = useRef(null);
+  const opener = useRef(null);
   const summary = page === 'me/workload';
   const dashboard = page === 'dashboard';
   const refresh = () => setRevision((value) => value + 1);
@@ -89,13 +89,13 @@ export function Workflow({ page, account, navigate }) {
       if (modal) close();
       setNotice(typeof message === 'function' ? message(value) : message);
       refresh();
-      if (path === 'schedule') clearButton.current?.focus();
     } catch (failure) {
       if (modal) setModalError(failure.message); else setActionError(failure.message);
     } finally { setBusy(false); }
   }
 
-  async function audit(record) {
+  async function audit(record, button) {
+    opener.current = button;
     setBusy(true);
     setActionError('');
     try { setModal(await account.request(`audit-logs/${record.id}`)); }
@@ -118,7 +118,7 @@ export function Workflow({ page, account, navigate }) {
 
   const disabled = busy || loading || Boolean(error);
   return <section className="workflow" aria-labelledby="workflow-title">
-    <div className="section-heading"><h2 id="workflow-title">{dashboard ? 'Schedule overview' : definition.title}</h2><button className="button" disabled={busy || loading} onClick={refresh}><Icon name="refresh" />Refresh</button></div>
+    <div className="section-heading"><h2 id="workflow-title" tabIndex="-1">{dashboard ? 'Schedule overview' : definition.title}</h2><button className="button" disabled={busy || loading} onClick={refresh}><Icon name="refresh" />Refresh</button></div>
     {definition.filters && <form className="resource-filters" onSubmit={filter}>
       {definition.filters.map((field) => <div key={field.name}><label htmlFor={`report-${field.name}`}>{field.label}</label><input id={`report-${field.name}`} name={field.name} type={field.type || 'text'} min={field.type === 'number' ? 1 : undefined} max={field.type === 'number' ? Number.MAX_SAFE_INTEGER : undefined} maxLength="100" /></div>)}
       {!summary && <div><label htmlFor="report-page-size">Per page</label><select id="report-page-size" name="page_size" defaultValue="20"><option value="10">10 records</option><option value="20">20 records</option><option value="50">50 records</option><option value="100">100 records</option></select></div>}
@@ -147,14 +147,14 @@ export function Workflow({ page, account, navigate }) {
         ['pending_requests', 'Pending requests', 'unavailability-requests', (r) => `${r.personnel} · ${r.date} · ${r.type}`],
         ['unstaffed_rooms', 'Unstaffed rooms', 'exams', (r) => `${r.course_code} · ${r.classroom} · allocation #${r.id}`],
       ].map(([key, label, target, describe]) => <article key={key} className="record-card"><h3>{label} ({result.totals[key]})</h3><p className="record-meta">First five records</p>{result.previews[key].length ? <ul>{result.previews[key].map((row) => <li key={row.id}>{describe(row)}</li>)}</ul> : <p className="management-note">Nothing waiting.</p>}<button className="button" onClick={() => navigate(target)}>Open {label.toLowerCase()}</button></article>)}</div>
-      <div className="record-card clear-panel"><h3>Clear schedule</h3><p>Remove every exam, room allocation, and duty. Courses, sessions, rooms, personnel, requests, and audit history are kept.</p><button ref={clearButton} className="button destructive" disabled={disabled} onClick={() => { setModalError(''); setModal('clear'); }}>Clear schedule…</button></div>
+      <div className="record-card clear-panel"><h3>Clear schedule</h3><p>Remove every exam, room allocation, and duty. Courses, sessions, rooms, personnel, requests, and audit history are kept.</p><button className="button destructive" disabled={disabled} onClick={(event) => { opener.current = event.currentTarget; setModalError(''); setModal('clear'); }}>Clear schedule…</button></div>
     </>}
     {!loading && !error && result && summary && <article className="record-card"><h3>{name(result)}</h3><p className="record-meta">{result.department}</p><dl className="record-details"><div><dt>Assigned duties</dt><dd>{result.duties}</dd></div></dl></article>}
     {!loading && !error && result && definition.columns && (result.data.length ? <div className="report-scroll" role="region" aria-label={`${definition.title} results; scroll horizontally for more columns`} tabIndex="0"><table className="report-table"><caption className="sr-only">{definition.title} results</caption><thead><tr>{definition.columns.map(([label]) => <th key={label} scope="col">{label}</th>)}{page === 'audit-logs' && <th scope="col">Details</th>}</tr></thead><tbody>{result.data.map((row) => <tr key={row.id ?? `${row.personnel_id}/${row.session_id}`}>
-      {definition.columns.map(([label, render]) => <td key={label}>{render(row)}</td>)}{page === 'audit-logs' && <td><button className="button" disabled={busy} onClick={() => audit(row)}>View change #{row.id}</button></td>}
+      {definition.columns.map(([label, render]) => <td key={label}>{render(row)}</td>)}{page === 'audit-logs' && <td><button className="button" disabled={busy} onClick={(event) => audit(row, event.currentTarget)}>View change #{row.id}</button></td>}
     </tr>)}</tbody></table></div> : <div className="message"><h3>No matching records</h3><p>Try a different date range or filter.</p></div>)}
     {!loading && !error && result && definition.columns && <nav className="pagination" aria-label="Report results pages"><button className="button" aria-label="Previous page" disabled={busy || result.page <= 1} onClick={() => turnPage(result.page - 1)}><Icon name="previous" /><span className="page-label">Previous</span></button><span>Page {result.page} of {Math.max(1, Math.ceil(result.total / result.page_size))}</span><button className="button" aria-label="Next page" disabled={busy || result.page >= Math.ceil(result.total / result.page_size)} onClick={() => turnPage(result.page + 1)}><span className="page-label">Next</span><Icon name="next" /></button></nav>}
-    <dialog ref={dialog} className="resource-dialog" aria-labelledby="workflow-dialog-title" onClose={() => setModal(null)} onCancel={(event) => { if (busy) event.preventDefault(); else setModal(null); }}>
+    <dialog ref={dialog} className="resource-dialog" aria-labelledby="workflow-dialog-title" onClose={() => { setModal(null); setModalError(''); if (opener.current?.isConnected && !opener.current.disabled) opener.current.focus(); else document.getElementById('workflow-title')?.focus(); }} onCancel={(event) => { if (busy) event.preventDefault(); else setModal(null); }}>
       {modal && <div className="dialog-content"><h2 id="workflow-dialog-title">{modal === 'clear' ? 'Clear the entire schedule?' : `Audit change #${modal.id}`}</h2>
         {modal === 'clear' ? <><p>All exams, room allocations, and duties will be permanently removed, and the timetable will be unpublished. Master data, requests, and audit history are kept.</p><p>You will need to plan and staff exams again before publishing.</p></> : <><dl className="record-details"><div><dt>Time (UTC)</dt><dd>{timestamp(modal.created_at)}</dd></div><div><dt>Actor user ID</dt><dd>{modal.actor_user_id ?? 'System'}</dd></div><div><dt>Change</dt><dd>{modal.entity} · {modal.action}</dd></div></dl><h3>Before</h3><pre className="audit-json" tabIndex="0" aria-label="Before values">{JSON.stringify(modal.old_value, null, 2)}</pre><h3>After</h3><pre className="audit-json" tabIndex="0" aria-label="After values">{JSON.stringify(modal.new_value, null, 2)}</pre></>}
         {modalError && <p className="field-error" role="alert">{modalError}</p>}
