@@ -20,9 +20,11 @@ async function initialize() {
   }
   const client = new Keycloak({ url: config.url, realm: config.realm, clientId: config.client_id });
   // Keycloak schedules the initial expiry timer only when this callback already exists.
-  client.onTokenExpired = () => client.updateToken(30).catch(() => {
-    if (client.authenticated) client.clearToken();
-  });
+  client.onTokenExpired = () => {
+    void client.updateToken(30).catch(() => {
+      if (client.authenticated) client.clearToken();
+    });
+  };
   await client.init({ pkceMethod: 'S256', checkLoginIframe: false, responseMode: 'fragment', flow: 'standard', scope: 'openid' });
   return client;
 }

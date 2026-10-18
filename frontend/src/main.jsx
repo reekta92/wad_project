@@ -28,8 +28,8 @@ function Exam({ exam }) {
 }
 
 function Calendar({ exams }) {
-  const dates = [...new Set(exams.map((exam) => exam.date))].sort();
-  const times = [...new Set(exams.map((exam) => `${exam.start_time}/${exam.end_time}`))].sort();
+  const dates = [...new Set(exams.map((exam) => exam.date))].sort((a, b) => a.localeCompare(b));
+  const times = [...new Set(exams.map((exam) => `${exam.start_time}/${exam.end_time}`))].sort((a, b) => a.localeCompare(b));
   return <div className="calendar-scroll" role="region" aria-label="Calendar; scroll horizontally for more dates" tabIndex="0">
     <table className="calendar-table">
       <caption className="sr-only">Published exams on the current results page</caption>

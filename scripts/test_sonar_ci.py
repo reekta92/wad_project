@@ -15,6 +15,18 @@ class SonarGuardTest(unittest.TestCase):
                 sonar.run()
             command.assert_not_called()
 
+    def test_overall_defects_fail_even_when_first_analysis_gate_passes(self):
+        report = {"quality_gate": {"projectStatus": {"status": "OK"}}, "measures": {"component": {"measures": [{"metric": key, "value": "0"} for key in ("bugs", "vulnerabilities", "security_hotspots")]}}}
+        sonar.verify_report(report)
+        for metric in report["measures"]["component"]["measures"]:
+            metric["value"] = "1"
+            with self.assertRaisesRegex(RuntimeError, "defects"):
+                sonar.verify_report(report)
+            metric["value"] = "0"
+        report["quality_gate"]["projectStatus"]["status"] = "ERROR"
+        with self.assertRaisesRegex(RuntimeError, "quality gate"):
+            sonar.verify_report(report)
+
 
 if __name__ == "__main__":
     unittest.main()

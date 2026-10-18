@@ -146,8 +146,8 @@ jobs:
       - name: Resolve current verification tool versions (bootstrap)
         working-directory: frontend
         run: |
-          npm install --save-dev --save-exact --package-lock-only --ignore-scripts eslint@9 @eslint/js@9 eslint-plugin-jsx-a11y@latest newman@latest
-          npm pkg set 'scripts.lint=eslint src/'
+          for package in newman postman-runtime postman-collection postman-sandbox node-forge; do npm view "$package" version dependencies --json; done
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
           python3 -c "import base64,zlib; from pathlib import Path; [print('WAD_METADATA_' + name + ':' + base64.b64encode(zlib.compress(Path(name).read_bytes())).decode()) for name in ('package.json','package-lock.json')]"
           npm audit --json > /tmp/wad-verification-audit.json || true
           python3 -c "import json; c=json.load(open('/tmp/wad-verification-audit.json')); print(json.dumps({'metadata': c.get('metadata'), 'vulnerabilities': c.get('vulnerabilities')}, indent=2))"

@@ -20,6 +20,14 @@ SERVER_IMAGE = "sonarqube@sha256:0b3408443fb6a311253de27941b10977c9b977fd53be226
 SCANNER_IMAGE = "sonarsource/sonar-scanner-cli@sha256:a3f4215076706c95a17a68c19322ee916e40a3acd081a8c1a1e839e0194afa57"
 
 
+def verify_report(report):
+    measures = {item["metric"]: item["value"] for item in report["measures"]["component"]["measures"]}
+    # A fresh disposable project can have no new-code baseline, so check overall defects too.
+    if report["quality_gate"]["projectStatus"]["status"] != "OK" or any(float(measures[key]) != 0 for key in ("bugs", "vulnerabilities", "security_hotspots")):
+        raise RuntimeError("SonarQube found defects or an unsuccessful quality gate; inspect the saved analysis evidence.")
+    print("SonarQube overall measures: " + json.dumps(measures, sort_keys=True))
+
+
 def run():
     if os.environ.get("CI") != "true":
         raise ValueError("This disposable SonarQube runner is restricted to isolated CI.")
@@ -82,6 +90,7 @@ def run():
         print("SonarQube analysis completed; safe evidence saved.")
         if scan.returncode != 0:
             raise RuntimeError("SonarQube quality gate failed; inspect the saved analysis evidence.")
+        verify_report(report)
     finally:
         subprocess.run(["docker", "rm", "--force", "wad-sonar"], cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
