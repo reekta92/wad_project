@@ -146,7 +146,7 @@ jobs:
       - name: Resolve current verification tool versions (bootstrap)
         working-directory: frontend
         run: |
-          for package in newman postman-runtime postman-collection postman-sandbox node-forge; do npm view "$package" version dependencies --json; done
+          npm pkg set 'overrides.handlebars=4.7.10' 'overrides.lodash=4.18.1' 'overrides.flatted=3.4.2' 'overrides.qs=6.16.0' 'overrides.underscore=1.13.8' 'overrides.jose=4.15.9' 'overrides.node-forge=1.4.0'
           npm install --package-lock-only --ignore-scripts --no-audit --no-fund
           python3 -c "import base64,zlib; from pathlib import Path; [print('WAD_METADATA_' + name + ':' + base64.b64encode(zlib.compress(Path(name).read_bytes())).decode()) for name in ('package.json','package-lock.json')]"
           npm audit --json > /tmp/wad-verification-audit.json || true
