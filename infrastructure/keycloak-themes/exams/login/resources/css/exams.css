@@ -23,7 +23,9 @@ div.kc-logo-text span { display: inline; }
 .pf-v5-c-tile::after { border: 0; }
 .pf-v5-c-tile.pf-m-selected { background: var(--blue-container); color: var(--blue-text); }
 .kc-login-divider::before, .kc-login-divider::after { border: 0; }
-.kc-login-tooltip .kc-tooltip-text { z-index: 2; border-radius: 12px; padding: 12px; background: var(--text); color: var(--surface); }
+.kc-login-tooltip .kc-tooltip-text { z-index: 2; top: calc(100% + 8px); left: auto; right: 0; width: max-content; min-width: 0; max-width: min(260px, calc(100vw - 80px)); border-radius: 12px; padding: 12px; background: var(--text); color: var(--surface); }
+.kc-login-tooltip .kc-tooltip-text::after { display: none; }
+.kc-login-tooltip:focus-visible .kc-tooltip-text { visibility: visible; opacity: 1; }
 .kc-qr-code img { background: white; border: 0; border-radius: 20px; box-shadow: none; }
 #kc-recovery-codes-list { overflow-wrap: anywhere; }
 @keyframes exams-appear { from { opacity: .6; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }

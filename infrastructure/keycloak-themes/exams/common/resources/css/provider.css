@@ -64,7 +64,7 @@ img { max-width: 100%; height: auto; }
   color: var(--text);
 }
 .pf-v5-c-form-control::before, .pf-v5-c-form-control::after { border: 0; }
-.pf-v5-c-form-control > :is(input, select, textarea) { min-height: 56px; padding: 14px 16px; color: var(--text); background: transparent; }
+.pf-v5-c-form-control > :is(input, select, textarea) { width: 100%; min-width: 0; min-height: 56px; padding: 14px 16px; color: var(--text); background: transparent; }
 .pf-v5-c-form-control:focus-within { outline: 3px solid var(--focus); outline-offset: 3px; }
 .pf-v5-c-form-control.pf-m-error, .pf-v5-c-form-control:has([aria-invalid="true"]) { outline: 2px solid var(--error-text); outline-offset: 3px; }
 .pf-v5-c-form__label, .pf-v5-c-form__label-text { color: var(--muted); font-weight: 500; }

@@ -12,7 +12,14 @@ export async function verifyIdentityTheme(page) {
     await expect(card).toHaveCSS('border-top-width', '0px');
     for (const width of [320, 639, 640, 1024]) {
       await page.setViewportSize({ width, height: 900 });
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      const layout = await page.evaluate(() => ({
+        width: innerWidth, scroll: document.documentElement.scrollWidth,
+        outside: [...document.querySelectorAll('body *')].filter((element) => {
+          const box = element.getBoundingClientRect();
+          return box.width > 0 && (box.right > innerWidth + 1 || box.left < -1);
+        }).map((element) => ({ tag: element.tagName, id: element.id, class: element.className, width: element.getBoundingClientRect().width })),
+      }));
+      expect(layout.scroll, JSON.stringify(layout)).toBeLessThanOrEqual(layout.width);
       for (const control of await page.locator('input:visible:not([type="hidden"]), button:visible, select:visible').all()) {
         expect((await control.boundingBox()).height).toBeGreaterThanOrEqual(44);
       }
