@@ -143,17 +143,25 @@ jobs:
           node-version: '24.21.0'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - name: Resolve current verification tool versions (bootstrap)
-        working-directory: frontend
-        run: |
-          npm pkg set 'overrides.handlebars=4.7.10' 'overrides.lodash=4.18.1' 'overrides.flatted=3.4.2' 'overrides.qs=6.16.0' 'overrides.underscore=1.13.8' 'overrides.jose=4.15.9' 'overrides.node-forge=1.4.0'
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-          python3 -c "import base64,zlib; from pathlib import Path; [print('WAD_METADATA_' + name + ':' + base64.b64encode(zlib.compress(Path(name).read_bytes())).decode()) for name in ('package.json','package-lock.json')]"
-          npm audit --json > /tmp/wad-verification-audit.json || true
-          python3 -c "import json; c=json.load(open('/tmp/wad-verification-audit.json')); print(json.dumps({'metadata': c.get('metadata'), 'vulnerabilities': c.get('vulnerabilities')}, indent=2))"
       - name: Install pinned dependencies
         working-directory: frontend
         run: npm ci --no-audit --no-fund
+      - name: Audit production and verification dependencies
+        working-directory: frontend
+        run: |
+          npm audit --omit=dev --audit-level=moderate
+          mkdir -p ../.local/dependency-evidence
+          npm audit --json > ../.local/dependency-evidence/audit.json || test "$?" = 1
+          node -e "const a=JSON.parse(require('node:fs').readFileSync('../.local/dependency-evidence/audit.json')); if(a.error || !a.metadata) throw new Error('Dependency audit did not complete'); console.log(a.metadata.vulnerabilities)"
+      - name: Save dependency audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit
+          path: .local/dependency-evidence/audit.json
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30
       - name: Test API client and build application
         working-directory: frontend
         run: |

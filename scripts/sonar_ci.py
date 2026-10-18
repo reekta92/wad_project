@@ -2,7 +2,6 @@
 """Run a private, disposable SonarQube analysis in isolated CI and save safe evidence."""
 
 import base64
-import zlib
 import json
 import os
 from pathlib import Path
@@ -84,7 +83,6 @@ def run():
             "hotspots": api("/api/hotspots/search?project=" + PROJECT + "&ps=100"),
         }
         (evidence / "analysis.json").write_text(json.dumps(report, indent=2) + "\n")
-        print("WAD_SONAR_REVIEW:" + base64.b64encode(zlib.compress(json.dumps(report).encode())).decode())
         for image in (SERVER_IMAGE, SCANNER_IMAGE):
             command(["docker", "image", "inspect", image, "--format", "{{json .RepoDigests}}"])
         print("SonarQube analysis completed; safe evidence saved.")

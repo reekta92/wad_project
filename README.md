@@ -36,7 +36,7 @@ python3 scripts/run.py web
 
 Open http://localhost:5173. Vite proxies API requests to Go. The demo schedule contains three exams on 2 November 2026; course-name/code search, date filtering, pagination, list view, and calendar view query the PostgreSQL-backed API.
 
-Targeted UI requirement evidence and accessibility limits are mapped in [docs/ui-evidence.md](docs/ui-evidence.md).
+Verification commands, isolated CI evidence, SonarQube results, and the HTTPS build demonstration are documented in [docs/verification.md](docs/verification.md). Targeted UI requirement evidence and accessibility limits are mapped in [docs/ui-evidence.md](docs/ui-evidence.md).
 
 The frontend uses a Google Workspace inspired layout with a desktop sidebar, a compact mobile menu, rounded borderless surfaces, large controls, and Roboto typography. Light and dark themes pair Google-style neutral backgrounds with One Dark blue, green, and purple accents. Choose **Device theme**, **Light**, or **Dark** in the header; the browser remembers the preference independently of authentication. Keyboard focus remains visible, and reduced-motion and high-contrast preferences are respected.
 
@@ -96,12 +96,16 @@ The implemented contract is in [docs/openapi.yaml](docs/openapi.yaml). Import [d
 
 The scheduling service under `backend/internal/store/` enforces cohort spacing, room capacity/reservations, staff availability and duty limits. Its writes acquire one transaction-scoped advisory lock before rule reads, validate the final state, and commit audit records and publication invalidation atomically. Every business CRUD write uses the appropriate transaction-owning service; pending member requests share the lock and commit their audit atomically without gaining schedule administration rights.
 
-The Postman **Business CRUD (administrator)** folder creates related test fixtures, retrieves/replaces/lists them, and deletes them in dependency order. Run all three phases against a disposable demo database with an administrator token in the private environment's `access_token` value. Only generated test IDs are stored as collection variables; exported files contain no tokens or account credentials. The **Workflow operations (administrator)** folder contains individual dashboard/report, decision, planning/staffing, publication, and clear requests. Run these deliberately against a disposable database: clear removes the schedule, a decision needs a pending `decision_request_id`, and audit detail needs the `audit_id` saved by the list request. The **Own reports (invigilator)** folder requires an invigilator token in place of the administrator token. The request inventory is checked against OpenAPI in CI.
+The Postman **Business CRUD (administrator)** folder creates related test fixtures, retrieves/replaces/lists them, and deletes them in dependency order. Run all three phases against a disposable demo database with an administrator token in the private environment's `access_token` value. Only generated test IDs are stored as collection variables; exported files contain no tokens or account credentials. The **Workflow operations (administrator)** folder runs dashboard/reports, a request decision, audit reads, schedule clearing, automatic planning/staffing, and publication in order. Use a disposable database: clear removes the schedule, a decision needs a pending `decision_request_id`, and audit detail uses the `audit_id` saved by the list request. The **Own reports (invigilator)** folder requires an invigilator token in place of the administrator token. CI also runs the actual collection through Newman using tokens obtained from real browser PKCE/password/TOTP sign-in. It checks all 59 OpenAPI operations and 186 assertions, saving only operation names and counts; tokens and full Newman summaries are never retained. The invigilator folder runs before the administrator workflow clears and rebuilds the timetable.
 
 ```sh
 python3 -m unittest discover -s scripts -p 'test_*.py'
 python3 scripts/run.py test
-node frontend/src/api.test.js
+cd frontend
+npm ci
+npm run lint
+npm test
+npm run build
 ```
 
 After building the frontend and running migrate, seed, and provision against isolated local services, browser tests start Go and verify real Keycloak password/TOTP login, administrator MFA, user-verified passkey enrollment/login with a Chromium virtual authenticator, token refresh/revocation, and local account disabling:
@@ -124,17 +128,19 @@ RUN_DATABASE_TESTS=1 python3 scripts/run.py test
 
 The lifecycle integration test edits and unpublishes its demo fixture; never point the suite at a database you use for demonstrations or real work. Scheduling integration tests create disposable schemas and verify final-state validation, rollback after cascading changes or audit failure, and actual advisory-lock contention between competing writers. CI starts its own isolated PostgreSQL and Keycloak services, verifies migrations/seeds, grants, publication filtering, pagination, and readiness, and builds both applications.
 
-To serve the production frontend build from Go:
+To build and serve both applications from a standalone Go executable:
 
 ```sh
 cd frontend
 npm ci
 npm run build
 cd ..
-python3 scripts/run.py server
+mkdir -p .local/bin
+(cd backend && CGO_ENABLED=0 go build -trimpath -ldflags='-s -w' -o ../.local/bin/exam-server ./cmd/server)
+python3 scripts/run.py serve
 ```
 
-Go serves `frontend/dist` at http://localhost:8080 in local development. Unknown `/api` paths remain JSON 404 responses rather than falling through to the SPA. External fonts have a system-font fallback when offline.
+Go serves `frontend/dist` at http://localhost:8080 in local development. Unknown `/api` paths remain JSON 404 responses rather than falling through to the SPA. External fonts have a system-font fallback when offline. The `production-demo` CI job verifies this compiled executable with `APP_ENV=production`, same-origin assets, and trusted HTTPS for both Go and Keycloak. This is an isolated demonstration, not a publicly hosted deployment. See the [verification evidence and limits](docs/verification.md).
 
 ## Downloads and restore
 
