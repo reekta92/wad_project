@@ -51,6 +51,7 @@ img { max-width: 100%; height: auto; }
   transition: background 150ms ease, filter 150ms ease;
 }
 .pf-v5-c-button::after { border: 0; }
+.pf-v5-c-button.pf-m-plain { min-width: 48px; padding: 12px; }
 .pf-v5-c-button.pf-m-secondary { background: var(--blue-container); color: var(--blue-text); }
 .pf-v5-c-button.pf-m-tertiary, .pf-v5-c-button.pf-m-control { background: var(--container); color: var(--text); }
 .pf-v5-c-button:hover:not(:disabled) { filter: brightness(.95); }

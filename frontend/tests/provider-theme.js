@@ -44,7 +44,19 @@ export async function verifyConsoleTheme(page, kind) {
     await expect(page.locator('.pf-v5-c-page__main-section').first()).toHaveCSS('border-radius', '28px');
     for (const width of [375, 768, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      let layout;
+      await expect.poll(async () => {
+        layout = await page.evaluate(() => ({
+          width: innerWidth, scroll: document.documentElement.scrollWidth,
+          outside: [...document.querySelectorAll('body *')].filter((element) => {
+            const box = element.getBoundingClientRect();
+            return box.width > 0 && (box.right > innerWidth + 1 || box.left < -1);
+          }).map((element) => ({ tag: element.tagName, id: element.id, class: element.className, width: element.getBoundingClientRect().width })),
+        }));
+        return layout.scroll <= layout.width;
+      }, { message: `${kind} console must fit ${width}px after its responsive sidebar settles` }).toBe(true).catch((error) => {
+        throw new Error(`${error.message}\n${JSON.stringify(layout)}`);
+      });
     }
   }
 }

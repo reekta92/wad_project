@@ -1,6 +1,7 @@
 .pf-v5-c-page { background: var(--background); color: var(--text); }
 .pf-v5-c-masthead { background: var(--background); color: var(--text); border: 0; padding: 12px 24px; }
-.pf-v5-c-masthead__brand { max-width: 220px; }
+.pf-v5-c-masthead__brand { min-width: 0; max-width: 220px; }
+.pf-v5-c-masthead__brand img { width: 100%; height: auto; }
 .pf-v5-c-masthead .pf-v5-c-button { color: var(--text); }
 .pf-v5-c-masthead .pf-v5-c-toolbar, .pf-v5-c-toolbar { background: transparent; }
 .pf-v5-c-page__sidebar, .pf-v5-c-page__sidebar-body { background: var(--background); color: var(--text); }
@@ -9,7 +10,7 @@
 .pf-v5-c-nav__link:hover { color: var(--text); background: var(--hover); }
 .pf-v5-c-nav__link.pf-m-current, .pf-v5-c-nav__item.pf-m-current > .pf-v5-c-nav__link { color: var(--blue-text); background: var(--blue-container); }
 .pf-v5-c-nav__link::after, .pf-v5-c-nav__link::before { border: 0; }
-.pf-v5-c-page__main { padding: 12px; gap: 12px; }
+.pf-v5-c-page__main { min-width: 0; padding: 12px; gap: 12px; }
 .pf-v5-c-page__main-section { background: var(--surface); color: var(--text); border-radius: 28px; border: 0; }
 .pf-v5-c-card { border: 0; border-radius: 24px; box-shadow: none; background: var(--container); color: var(--text); }
 .pf-v5-c-card::after { border: 0; }
@@ -23,3 +24,7 @@
 .pf-v5-c-tabs__link::after, .pf-v5-c-tabs__link::before { border: 0; }
 .pf-v5-c-label { border: 0; border-radius: 999px; background: var(--purple-container); color: var(--purple-text); }
 @media (min-width: 1024px) { .pf-v5-c-page__main { padding: 16px 24px; } }
+@media (max-width: 639px) {
+  .pf-v5-c-masthead { padding: 12px; column-gap: 8px; }
+  .pf-v5-c-masthead__brand { max-width: 40vw; }
+}
