@@ -20,8 +20,13 @@ export async function verifyIdentityTheme(page) {
         }).map((element) => ({ tag: element.tagName, id: element.id, class: element.className, width: element.getBoundingClientRect().width })),
       }));
       expect(layout.scroll, JSON.stringify(layout)).toBeLessThanOrEqual(layout.width);
-      for (const control of await page.locator('input:visible:not([type="hidden"]), button:visible, select:visible').all()) {
+      for (const control of await page.locator('input:visible:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), button:visible, select:visible').all()) {
         expect((await control.boundingBox()).height).toBeGreaterThanOrEqual(44);
+      }
+      for (const control of await page.locator('input[type="checkbox"]:visible, input[type="radio"]:visible').all()) {
+        const label = page.locator(`label[for="${await control.getAttribute('id')}"]`);
+        await expect(label).toBeVisible();
+        expect((await label.boundingBox()).height).toBeGreaterThanOrEqual(44);
       }
     }
     const submit = page.locator('#kc-login:visible, #registerWebAuthn:visible, #authenticateWebAuthnButton:visible').first();

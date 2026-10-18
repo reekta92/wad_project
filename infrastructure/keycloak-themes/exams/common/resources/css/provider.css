@@ -74,8 +74,9 @@ img { max-width: 100%; height: auto; }
 .pf-v5-c-alert.pf-m-danger { background: var(--error-container); color: var(--error-text); }
 .pf-v5-c-alert.pf-m-success { background: var(--green-container); color: var(--green-text); }
 .pf-v5-c-alert__title, .pf-v5-c-alert__icon { color: inherit; }
-.pf-v5-c-check__input { width: 22px; height: 22px; accent-color: var(--primary); }
-.pf-v5-c-check__label { color: var(--text); }
+.pf-v5-c-check, .pf-v5-c-radio { min-height: 48px; grid-template-columns: 22px minmax(0, 1fr); align-items: center; }
+.pf-v5-c-check__input, .pf-v5-c-radio__input { width: 22px; height: 22px; accent-color: var(--primary); }
+.pf-v5-c-check__label, .pf-v5-c-radio__label { padding-block: 12px; color: var(--text); }
 .pf-v5-c-modal-box { border: 0; border-radius: 28px; background: var(--surface); color: var(--text); }
 .pf-v5-c-menu, .pf-v5-c-dropdown__menu, .pf-v5-c-select__menu { border: 0; border-radius: 18px; background: var(--surface); color: var(--text); }
 .keycloak__loading-container { background: var(--background) !important; color: var(--text) !important; }
