@@ -137,3 +137,33 @@ test('filters, paging, calendar, empty state and retry survive the redesign', as
   await page.getByRole('button', { name: 'Try again', exact: true }).click();
   await expect(page.getByRole('table')).toContainText('Calculus I');
 });
+
+test('schedule remains usable at a 200 percent desktop zoom equivalent and with long errors', async ({ page }) => {
+  // A 1440px screen at 200% browser zoom has a 720px CSS layout viewport.
+  await page.setViewportSize({ width: 720, height: 450 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const areas = await page.evaluate(() => ['.site-header', '.content-surface', '.site-footer'].map((selector) => getComputedStyle(document.querySelector(selector)).backgroundColor));
+  expect(new Set(areas).size).toBe(3);
+  await expect(page.getByRole('status')).toHaveText('12 exams found');
+  await expect(page.locator('.exam-card').first()).toHaveCSS('animation-name', 'none');
+  await page.getByRole('button', { name: 'Open menu', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  await page.getByRole('button', { name: 'Schedule information', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('button', { name: 'Got it', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  expect(await dialog.evaluate((element) => element.contains(document.activeElement))).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  const input = page.getByLabel('Course name or code', { exact: true });
+  await input.fill('A'.repeat(100));
+  await expect(input).toHaveAttribute('maxLength', '100');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.route('**/api/v1/schedule?*', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: { message: 'Temporarily unavailable. '.repeat(30) } }) }));
+  await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Temporarily unavailable.');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

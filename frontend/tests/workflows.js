@@ -224,6 +224,7 @@ export async function verifyWorkflowUI(page, request, token) {
   await expect(dialog).toContainText('UI decision conflict');
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
   await expect(card(conflicting.id)).toContainText('pending');
+  await expect(card(conflicting.id).getByRole('button', { name: 'Approve', exact: true })).toBeFocused();
   for (const [id, verb, status] of [[conflicting.id, 'Reject', 'rejected'], [allowed.id, 'Approve', 'approved']]) {
     await card(id).getByRole('button', { name: verb, exact: true }).click();
     await dialog.getByRole('button', { name: `${verb} request`, exact: true }).click();

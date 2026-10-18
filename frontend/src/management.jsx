@@ -89,6 +89,7 @@ export function Management({ resource, account }) {
   const [notice, setNotice] = useState('');
   const dialog = useRef(null);
   const addButton = useRef(null);
+  const opener = useRef(null);
   const fields = resourceFields(resource, administrator, editor?.mode !== 'create');
 
   useEffect(() => {
@@ -117,6 +118,7 @@ export function Management({ resource, account }) {
   }
 
   async function open(mode, record) {
+    opener.current = document.activeElement;
     setNotice('');
     setFormError(null);
     if (mode === 'create') {
@@ -188,7 +190,7 @@ export function Management({ resource, account }) {
       <div className="record-actions">{administrator && resource === 'unavailability-requests' && mutable(record) && <><button className="button primary" disabled={busy} onClick={() => open('approve', record)}>Approve</button><button className="button" disabled={busy} onClick={() => open('reject', record)}>Reject</button></>}<button className="button" disabled={busy} onClick={() => open('detail', record)}>Details</button><button className="button tonal" disabled={busy || !mutable(record)} onClick={() => open('edit', record)}><Icon name="edit" />Edit</button><button className="icon-button delete-button" aria-label={`Delete ${definition.singular} #${record.id}`} disabled={busy || !mutable(record)} onClick={() => open('delete', record)}><Icon name="delete" /></button></div>
     </article>)}</div>}
     {!loading && !error && result && <nav className="pagination" aria-label="Resource results pages"><button className="button" aria-label="Previous page" disabled={result.page <= 1 || busy} onClick={() => page(result.page - 1)}><Icon name="previous" /><span className="page-label">Previous</span></button><span>Page {result.page} of {Math.max(1, Math.ceil(result.total / result.page_size))}</span><button className="button" aria-label="Next page" disabled={result.page >= Math.ceil(result.total / result.page_size) || busy} onClick={() => page(result.page + 1)}><span className="page-label">Next</span><Icon name="next" /></button></nav>}
-    <dialog ref={dialog} className="resource-dialog" aria-labelledby="record-dialog-title" onClose={() => setEditor(null)} onCancel={(event) => { if (busy) event.preventDefault(); else setEditor(null); }}>
+    <dialog ref={dialog} className="resource-dialog" aria-labelledby="record-dialog-title" onClose={() => { setEditor(null); if (opener.current?.isConnected && !opener.current.disabled) opener.current.focus(); else addButton.current?.focus(); }} onCancel={(event) => { if (busy) event.preventDefault(); else setEditor(null); }}>
       {editor && <div className="dialog-content"><p className="eyebrow">{definition.title}{editor.record ? ` / #${editor.record.id}` : ''}</p><h2 id="record-dialog-title">{editor.mode === 'create' ? `Add ${definition.singular}` : editor.mode === 'edit' ? `Edit ${definition.singular}` : editor.mode === 'delete' ? `Delete ${definition.singular}?` : editor.mode === 'approve' ? 'Approve request?' : editor.mode === 'reject' ? 'Reject request?' : 'Record details'}</h2>
         {editor.mode === 'detail' ? <><RecordDetails record={editor.record} fields={fields} /><div className="dialog-actions"><button className="button" onClick={close}>Close</button>{mutable(editor.record) && <button className="button primary" onClick={() => setEditor({ ...editor, mode: 'edit' })}>Edit</button>}</div></>
           : <form className="resource-form" onSubmit={submit} aria-busy={busy}>
