@@ -73,7 +73,7 @@ def run():
             "quality_gate": api("/api/qualitygates/project_status?analysisId=" + urllib.parse.quote(analysis)),
             "measures": api("/api/measures/component?component=" + PROJECT + "&metricKeys=bugs,vulnerabilities,code_smells,security_hotspots,coverage,duplicated_lines_density,ncloc"),
             "issues": api("/api/issues/search?componentKeys=" + PROJECT + "&ps=500"),
-            "hotspots": api("/api/hotspots/search?projectKey=" + PROJECT + "&ps=100"),
+            "hotspots": api("/api/hotspots/search?project=" + PROJECT + "&ps=100"),
         }
         (evidence / "analysis.json").write_text(json.dumps(report, indent=2) + "\n")
         print("WAD_SONAR_REVIEW:" + base64.b64encode(zlib.compress(json.dumps(report).encode())).decode())
