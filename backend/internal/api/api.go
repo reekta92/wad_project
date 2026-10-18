@@ -23,7 +23,7 @@ import (
 func New(cfg config.Config, databases *store.Databases) *fiber.App {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true, BodyLimit: 1024 * 1024,
-		ReadTimeout: 10 * time.Second, WriteTimeout: 15 * time.Second,
+		ReadTimeout: 10 * time.Second, WriteTimeout: 120 * time.Second,
 		ErrorHandler: respondError,
 	})
 	app.Use(recover.New(), requestid.New())
@@ -92,6 +92,7 @@ func New(cfg config.Config, databases *store.Databases) *fiber.App {
 	})
 	verify := authenticate(databases, auth.NewVerifier(cfg.Issuer))
 	app.Get("/api/v1/me", verify, profile)
+	downloadRoutes(app, cfg, databases, verify)
 	workflowRoutes(app, databases, verify)
 	businessRoutes(app, databases, verify)
 	app.Use("/api", func(c *fiber.Ctx) error { return fiber.NewError(404, "API resource not found.") })

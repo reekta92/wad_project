@@ -51,6 +51,9 @@ func (d *Databases) Ready(ctx context.Context) error {
 	if _, err := d.Reader.Exec(ctx, `SELECT 1 FROM published_schedule LIMIT 0`); err != nil {
 		return err
 	}
+	if _, err := d.Administrator.Exec(ctx, `SELECT 1 FROM current_schedule LIMIT 0`); err != nil {
+		return err
+	}
 	_, err := d.Invigilator.Exec(ctx, `SELECT 1 FROM own_duties LIMIT 0`)
 	return err
 }

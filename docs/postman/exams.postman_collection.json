@@ -2124,6 +2124,74 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Downloads (administrator)",
+      "description": "Use a verified administrator token. Send and Download to save files. Export accepts schedule filters without page/page_size; members may call export for published data. Backup is sensitive application data; keep private. Install PostgreSQL 18 client on the API host first.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "GET /schedule/export",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/schedule/export",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Binary response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'));",
+                  "pm.test('Private attachment', () => { pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'); pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /backups",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/backups",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/octet-stream"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Binary response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/octet-stream'));",
+                  "pm.test('Private attachment', () => { pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'); pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment'); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

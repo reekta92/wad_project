@@ -3339,6 +3339,147 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PublicationInput'
+  /schedule/export:
+    get:
+      operationId: exportSchedule
+      tags:
+      - downloads
+      summary: Download a filtered two-sheet schedule workbook
+      description: Authenticated members get published schedule only; administrators get the current schedule, including unpublished
+        exams. Same schedule filters; page/page_size are rejected. A single SQL snapshot supplies Calendar and List sheets,
+        without pagination truncation. Maximum 10,000 exams, 32 MiB source JSON, and 32,767 UTF-16 code units per cell; exceeding
+        a limit returns 413. Values are literal inline strings, including formula-looking names.
+      security:
+      - OAuth2:
+        - openid
+      parameters:
+      - name: date_from
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: date_to
+        in: query
+        schema:
+          type: string
+          format: date
+      - name: course_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: department_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: term
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 8
+      - name: q
+        in: query
+        description: Case-insensitive literal substring of course code/name, up to 100 UTF-8 bytes.
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+      responses:
+        '200':
+          description: Completed XLSX workbook. Dates/times use Europe/Istanbul.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Content-Disposition:
+              schema:
+                type: string
+            Vary:
+              schema:
+                type: string
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '413':
+          description: Narrow the export filters to fit resource limits.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /backups:
+    post:
+      operationId: downloadBackup
+      tags:
+      - downloads
+      summary: Download a completed application database archive
+      description: Administrator with verified MFA. No request body, query, path, or command arguments. Server uses its configured
+        application database and a host PostgreSQL 18 client, never the Docker socket. A custom pg_dump archive must finish
+        within 45 seconds and 256 MiB before delivery. One backup/download at a time; temporary files are private and cleaned
+        on completion/disconnect. Includes all application data, migration/seed markers and database grants, but no cluster
+        passwords or Keycloak database/credentials. This is a sensitive private download; restore only through the documented
+        isolated operator procedure.
+      security:
+      - OAuth2:
+        - openid
+      responses:
+        '200':
+          description: Completed PostgreSQL custom archive, application.dump.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+            Content-Disposition:
+              schema:
+                type: string
+            Vary:
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '429':
+          description: 'Another backup stream is active. Retry-After: 5.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Missing/incompatible PostgreSQL client, invalid backup configuration, timeout, size limit, or dump
+            failure. No partial archive is delivered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     OAuth2:

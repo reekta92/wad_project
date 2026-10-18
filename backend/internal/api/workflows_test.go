@@ -10,7 +10,7 @@ import (
 func TestWorkflowOperationsRequireAuthentication(t *testing.T) {
 	app := New(config.Config{Issuer: "https://identity.example/realms/exams", StaticDir: t.TempDir()}, nil)
 	for _, operation := range []struct{ method, path string }{
-		{"GET", "dashboard"}, {"GET", "reports/workload"}, {"GET", "reports/availability"}, {"GET", "me/duties"}, {"GET", "me/workload"},
+		{"GET", "schedule/export"}, {"POST", "backups"}, {"GET", "dashboard"}, {"GET", "reports/workload"}, {"GET", "reports/availability"}, {"GET", "me/duties"}, {"GET", "me/workload"},
 		{"GET", "audit-logs"}, {"GET", "audit-logs/1"}, {"POST", "unavailability-requests/1/decision"},
 		{"POST", "schedule/automatic-planning"}, {"POST", "invigilator-assignments/automatic"}, {"DELETE", "schedule"}, {"PUT", "schedule/publication"},
 	} {

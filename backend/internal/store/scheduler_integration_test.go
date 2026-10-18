@@ -79,6 +79,9 @@ func isolatedScheduler(t *testing.T) schedulerFixture {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if _, err := tx.Exec(ctx, `CREATE TABLE schema_migrations (name text PRIMARY KEY, checksum text NOT NULL, applied_at timestamptz NOT NULL DEFAULT now())`); err != nil {
+		t.Fatal(err)
+	}
 	for _, name := range files {
 		body, err := migrations.Files.ReadFile(name)
 		if err != nil {
