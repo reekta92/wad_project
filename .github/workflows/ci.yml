@@ -135,12 +135,26 @@ jobs:
           node-version: '24.21.0'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+      - name: Resolve verification tool lock (bootstrap)
+        working-directory: frontend
+        run: |
+          npm install --save-dev --save-exact --package-lock-only --ignore-scripts eslint@9.39.1 @eslint/js@9.39.1 eslint-plugin-jsx-a11y@6.10.2 newman@6.2.1
+          npm pkg set 'scripts.lint=eslint src/'
+      - name: Save resolved verification tool metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-tool-lock
+          path: |
+            frontend/package.json
+            frontend/package-lock.json
+          retention-days: 1
       - name: Install pinned dependencies
         working-directory: frontend
         run: npm ci --no-audit --no-fund
       - name: Test API client and build application
         working-directory: frontend
         run: |
+          npm run lint
           npm test
           npm run build
 

@@ -15,7 +15,7 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[1]
 HOST = "http://127.0.0.1:9000"
 PROJECT = "wad_project"
-SERVER_IMAGE = "sonarqube:community"
+SERVER_IMAGE = "sonarqube@sha256:0b3408443fb6a311253de27941b10977c9b977fd53be2265947bfe14161308b8"
 SCANNER_IMAGE = "sonarsource/sonar-scanner-cli:latest"
 
 
@@ -45,7 +45,7 @@ def run():
             try:
                 if api("/api/system/status", authenticated=False).get("status") == "UP":
                     break
-            except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+            except (OSError, json.JSONDecodeError):
                 pass
             time.sleep(2)
         else:

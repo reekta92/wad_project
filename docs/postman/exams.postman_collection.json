@@ -147,7 +147,7 @@
         "header": [
           {
             "key": "Accept",
-            "value": "application/xml"
+            "value": "text/html"
           }
         ],
         "url": "{{base_url}}/api/v1/schedule"
