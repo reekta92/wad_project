@@ -72,6 +72,7 @@ func (s *Service) Create(ctx context.Context) (_ *Archive, failure error) {
 	query := uri.Query()
 	query.Del("password")
 	query.Del("passfile")
+	query.Del("sslpassword")
 	uri.RawQuery = query.Encode()
 	directory, err := os.MkdirTemp("", "wad-backup-")
 	if err != nil {
@@ -102,9 +103,10 @@ func (s *Service) Create(ctx context.Context) (_ *Archive, failure error) {
 			file.Close()
 		}
 	}()
-	// No shell, URL/password arguments, caller paths, or inherited application/provider secrets.
-	command := exec.CommandContext(ctx, "pg_dump", "--format=custom", "--no-password", "--enable-row-security", "--lock-wait-timeout=5000")
-	command.Env = []string{"PATH=" + os.Getenv("PATH"), "LANG=C.UTF-8", "PGDATABASE=" + uri.String(), "PGPASSFILE=" + passfile}
+	// libpq expands URI dbnames passed as arguments; PGDATABASE defaults do not expand them.
+	// Only the credential-free URI is an argument; pgpass and child environment remain private.
+	command := exec.CommandContext(ctx, "pg_dump", "--format=custom", "--no-password", "--enable-row-security", "--lock-wait-timeout=5000", "--dbname="+uri.String())
+	command.Env = []string{"PATH=" + os.Getenv("PATH"), "LANG=C.UTF-8", "PGPASSFILE=" + passfile}
 	command.Stdout = &boundedWriter{target: file, remaining: maxBytes}
 	command.Stderr = io.Discard
 	if err := command.Run(); err != nil {

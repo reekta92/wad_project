@@ -128,7 +128,10 @@ export async function verifyAdministratorDownloads(page, request, token) {
     await dialog.getByRole('button', { name: 'Download private backup', exact: true }).click();
     await expect(dialog.getByRole('alert')).toContainText('temporarily unavailable');
     const backupReady = page.waitForEvent('download');
+    const backupResponse = page.waitForResponse((r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/api/v1/backups');
     await dialog.getByRole('button', { name: 'Download private backup', exact: true }).click();
+    const completed = await backupResponse;
+    expect(completed.status(), completed.ok() ? 'Completed backup' : await completed.text()).toBe(200);
     const download = await backupReady;
     expect(download.suggestedFilename()).toBe('application.dump');
     const archive = join(directory, 'application.dump');

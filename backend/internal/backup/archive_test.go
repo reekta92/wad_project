@@ -24,11 +24,11 @@ func TestArchiveIsCompletedProtectedAndCleanedAfterDelivery(t *testing.T) {
 	client(t, `test -z "${EXAM_OWNER_PASSWORD:-}"
 test -z "${KEYCLOAK_DB_PASSWORD:-}"
 test -z "${PGPASSWORD:-}"
-case "$PGDATABASE" in *private*) exit 11;; esac
+test -z "${PGDATABASE:-}"
 test "$(stat -c %a "$PGPASSFILE")" = 600
 test "$(stat -c %a "$(dirname "$PGPASSFILE")")" = 700
 grep -q 'private' "$PGPASSFILE"
-for arg in "$@"; do case "$arg" in *postgres*|*private*) exit 12;; esac; done
+for arg in "$@"; do case "$arg" in *private*) exit 12;; esac; done
 printf 'PGDMPcompleted archive'
 `)
 	t.Setenv("EXAM_OWNER_PASSWORD", "must-not-reach-child")
