@@ -143,3 +143,41 @@ jobs:
         run: |
           npm test
           npm run build
+
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: backend/go.sum
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.21.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Collect actual unit coverage for analysis
+        run: |
+          mkdir -p .local/coverage
+          cd backend
+          go test -coverprofile=../.local/coverage/go.out ./...
+          cd ../frontend
+          npm ci --no-audit --no-fund
+          cd ..
+          node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=.local/coverage/lcov.info frontend/src/*.test.js
+      - name: Run disposable private SonarQube analysis
+        run: |
+          sudo sysctl -w vm.max_map_count=1048576
+          python3 scripts/sonar_ci.py
+      - name: Save safe quality evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonar-analysis
+          path: .local/sonar-evidence/*.json
+          if-no-files-found: ignore
+          retention-days: 30
