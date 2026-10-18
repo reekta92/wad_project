@@ -38,7 +38,7 @@ type Archive struct {
 
 func (a *Archive) Close() error {
 	err := a.File.Close()
-	os.RemoveAll(a.directory)
+	err = errors.Join(err, os.RemoveAll(a.directory))
 	if a.release != nil {
 		a.release()
 		a.release = nil

@@ -25,6 +25,7 @@ func TestArchiveIsCompletedProtectedAndCleanedAfterDelivery(t *testing.T) {
 test -z "${KEYCLOAK_DB_PASSWORD:-}"
 test -z "${PGPASSWORD:-}"
 test -z "${PGDATABASE:-}"
+printf '%s\n' "$@" | grep -Fxq -- '--dbname=postgres://exam_admin@localhost:5433/exams?sslmode=disable'
 test "$(stat -c %a "$PGPASSFILE")" = 600
 test "$(stat -c %a "$(dirname "$PGPASSFILE")")" = 700
 grep -q 'private' "$PGPASSFILE"
@@ -69,6 +70,8 @@ printf 'PGDMPcompleted archive'
 func TestFailedAndTimedOutDumpsReleaseTheirSlot(t *testing.T) {
 	for _, program := range []string{"printf 'PGDMPpartial'; exit 1", "printf 'not an archive'", "exec sleep 10"} {
 		client(t, program)
+		temporary := t.TempDir()
+		t.Setenv("TMPDIR", temporary)
 		service := New("postgres://exam_admin:private@localhost/exams?sslmode=disable")
 		for range 2 {
 			ctx, cancel := context.WithTimeout(context.Background(), 25*time.Millisecond)
@@ -76,6 +79,10 @@ func TestFailedAndTimedOutDumpsReleaseTheirSlot(t *testing.T) {
 			cancel()
 			if err != ErrUnavailable || archive != nil {
 				t.Fatalf("failed dump was delivered: %v %v", archive, err)
+			}
+			files, err := os.ReadDir(temporary)
+			if err != nil || len(files) != 0 {
+				t.Fatal("failed dump retained temporary files")
 			}
 		}
 	}

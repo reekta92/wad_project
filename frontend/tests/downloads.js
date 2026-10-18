@@ -67,7 +67,7 @@ export async function verifyRepresentations(page, request, token, administrator)
 }
 
 async function verifyWorkbook(file, expected) {
-  execFileSync('python3', [proof, 'xlsx', file], { input: JSON.stringify(expected), stdio: ['pipe', 'pipe', 'pipe'] });
+  process.stdout.write(execFileSync('python3', [proof, 'xlsx', file], { input: JSON.stringify(expected), stdio: ['pipe', 'pipe', 'pipe'] }));
 }
 
 export async function verifyMemberDownloads(page, request, token) {
@@ -137,6 +137,6 @@ export async function verifyAdministratorDownloads(page, request, token) {
     const archive = join(directory, 'application.dump');
     await download.saveAs(archive);
     await expect(dialog).toBeHidden();
-    if (process.env.CI) execFileSync('python3', [proof, 'backup', archive], { stdio: 'pipe' });
+    if (process.env.CI) process.stdout.write(execFileSync('python3', [proof, 'backup', archive], { stdio: 'pipe' }));
   } finally { rmSync(directory, { recursive: true, force: true }); }
 }
