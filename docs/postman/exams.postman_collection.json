@@ -2,7 +2,8 @@
   "info": {
     "name": "Faculty Exams — implemented API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Public/identity, 40 business CRUD, and scheduling/report workflows. Use interactive Authorization Code + PKCE and private access_token values. Run administrator and invigilator folders separately with the appropriate token. Workflow writes and schedule clearing must use a disposable demo database; no credentials are exported."
+    "description": "Public/identity, 40 business CRUD, and scheduling/report workflows. Use interactive Authorization Code + PKCE and private access_token values. Run administrator and invigilator folders separately with the appropriate token. Workflow writes and schedule clearing must use a disposable demo database; no credentials are exported.",
+    "_postman_id": "9dcd49e5-a1ed-474b-a40f-c59656d39664"
   },
   "item": [
     {
@@ -29,7 +30,8 @@
             ]
           }
         }
-      ]
+      ],
+      "id": "cee48e52-0825-4c3e-af0b-c370a94c7f85"
     },
     {
       "name": "Dependency readiness",
@@ -55,7 +57,8 @@
             ]
           }
         }
-      ]
+      ],
+      "id": "ea27bd26-cb42-4219-ac86-ea774628a85f"
     },
     {
       "name": "Published schedule",
@@ -83,7 +86,8 @@
             ]
           }
         }
-      ]
+      ],
+      "id": "0d469c6e-7220-478e-afff-926ff2f02e67"
     },
     {
       "name": "Filter and paginate schedule",
@@ -112,7 +116,8 @@
             ]
           }
         }
-      ]
+      ],
+      "id": "b99a68f0-a4b4-4a95-9b28-0fdbc096026f"
     },
     {
       "name": "Reject invalid page size",
@@ -138,7 +143,8 @@
             ]
           }
         }
-      ]
+      ],
+      "id": "8d9b2e1b-6e7b-48d6-984c-3ab476c6c3d6"
     },
     {
       "name": "Reject unsupported representation",
@@ -163,7 +169,8 @@
             ]
           }
         }
-      ]
+      ],
+      "id": "e24d4428-6307-4ef5-b984-f0784a23252a"
     },
     {
       "name": "Unknown API does not return the SPA",
@@ -189,7 +196,8 @@
             ]
           }
         }
-      ]
+      ],
+      "id": "a3f9160e-95ed-4904-84bc-b37432072ec5"
     },
     {
       "name": "Browser sign-in configuration",
@@ -214,7 +222,8 @@
             ]
           }
         }
-      ]
+      ],
+      "id": "3a3ac14b-08ae-4bce-abd4-f7edc4bc6f27"
     },
     {
       "name": "Verified current profile",
@@ -290,7 +299,8 @@
             ]
           }
         }
-      ]
+      ],
+      "id": "8d222594-8e54-4dca-86f5-eb1fd0f9d29a"
     },
     {
       "name": "Reject submitted roles without verified identity",
@@ -325,7 +335,8 @@
             ]
           }
         }
-      ]
+      ],
+      "id": "4cd2436b-a253-41a1-87f8-5ffe703bd1b1"
     },
     {
       "name": "Business CRUD (administrator)",
@@ -381,7 +392,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "eb522cc0-c2ee-4101-8522-6b1646825037"
             },
             {
               "name": "POST courses",
@@ -421,7 +433,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "05cf9106-ca55-40cb-b743-c66c8e1ceb38"
             },
             {
               "name": "POST classrooms",
@@ -461,7 +474,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "5d9e515d-405f-4887-95a3-ceebc5418cc1"
             },
             {
               "name": "POST sessions",
@@ -501,7 +515,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "17a253b2-4baf-46e9-bd80-b8d9008dd026"
             },
             {
               "name": "POST personnel",
@@ -541,7 +556,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "6b617436-f6b3-4e1d-9710-101ebaebeb03"
             },
             {
               "name": "POST unavailability-requests",
@@ -581,7 +597,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "81acada6-d8b4-49e0-8f7d-53d17f29c2b7"
             },
             {
               "name": "POST exams",
@@ -622,7 +639,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "0ebf070b-b39f-4722-90cd-ee63027a7786"
             },
             {
               "name": "POST invigilator-assignments",
@@ -662,9 +680,11 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "95233c8b-34f5-4044-b2a1-d43bfa70c552"
             }
-          ]
+          ],
+          "id": "b1a30c85-5038-41eb-9bdc-10ad35d6b412"
         },
         {
           "name": "2. Retrieve replace and list",
@@ -692,7 +712,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "4aabb46b-654d-4eac-8428-6334620ece36"
             },
             {
               "name": "PUT departments",
@@ -730,7 +751,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "c0d65a9a-7547-4d7a-89c5-7382eb7c044b"
             },
             {
               "name": "GET departments list",
@@ -756,7 +778,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "5c5c0833-f302-4437-be5c-93c9f4ba88ae"
             },
             {
               "name": "GET courses",
@@ -781,7 +804,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "713bb287-438c-4c10-ad56-e3b6e58d633b"
             },
             {
               "name": "PUT courses",
@@ -819,7 +843,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "eb4b45c3-c3f7-44e3-b669-ed0c52fb4932"
             },
             {
               "name": "GET courses list",
@@ -845,7 +870,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "a0e1fb53-c330-4df5-91bc-72d783c75706"
             },
             {
               "name": "GET classrooms",
@@ -870,7 +896,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "107d5c57-3210-4c54-a72c-e6f0dcfa1fdc"
             },
             {
               "name": "PUT classrooms",
@@ -908,7 +935,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "aba3bc64-83f2-42d3-8376-f86f112b4cf6"
             },
             {
               "name": "GET classrooms list",
@@ -934,7 +962,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "ff34dbe1-cc17-4887-83fd-522e3644d847"
             },
             {
               "name": "GET sessions",
@@ -959,7 +988,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "7ddb36b5-4f46-4f33-a0f0-31fc3c37023e"
             },
             {
               "name": "PUT sessions",
@@ -997,7 +1027,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "be78ed43-38c8-488d-afd9-b4c069bb51e4"
             },
             {
               "name": "GET sessions list",
@@ -1023,7 +1054,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "c2333e82-7c6a-4733-8803-2025a18a3035"
             },
             {
               "name": "GET personnel",
@@ -1048,7 +1080,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "2005296f-f5b8-4534-8e4b-7f8839b62626"
             },
             {
               "name": "PUT personnel",
@@ -1086,7 +1119,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "cde40af3-026d-461f-a035-7a3a2e479cde"
             },
             {
               "name": "GET personnel list",
@@ -1112,7 +1146,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "ba214678-37ac-4d5e-9deb-fefcbc7368f8"
             },
             {
               "name": "GET unavailability-requests",
@@ -1137,7 +1172,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "b7e1e238-5c62-4e5f-93a4-843592b22336"
             },
             {
               "name": "PUT unavailability-requests",
@@ -1175,7 +1211,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "fc635a59-6638-4ef1-a7a5-623d934cd8fc"
             },
             {
               "name": "GET unavailability-requests list",
@@ -1201,7 +1238,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "b912108a-0036-42b6-b7af-a06c81c222c2"
             },
             {
               "name": "GET exams",
@@ -1226,7 +1264,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "151e3da2-400c-4811-a0cc-dedaaddf1e60"
             },
             {
               "name": "PUT exams",
@@ -1264,7 +1303,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "1ed0ff13-cdb2-4d31-ab84-d57579ec7767"
             },
             {
               "name": "GET exams list",
@@ -1290,7 +1330,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "666fbb40-229a-4ff5-ab83-b193d9dc05bc"
             },
             {
               "name": "GET invigilator-assignments",
@@ -1315,7 +1356,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "f6dab7bf-3993-407f-aba9-37e0fdffbd7a"
             },
             {
               "name": "PUT invigilator-assignments",
@@ -1353,7 +1395,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "73496915-b422-4f0c-8cf9-294008cccce3"
             },
             {
               "name": "GET invigilator-assignments list",
@@ -1379,9 +1422,11 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "6cc0272e-3aaa-4892-9216-5ab58b08f834"
             }
-          ]
+          ],
+          "id": "84eeb532-a6b8-4e9a-8783-bcb517866886"
         },
         {
           "name": "3. Delete test resources",
@@ -1409,7 +1454,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "1e99ab81-5e84-41f7-af47-36faf8633eae"
             },
             {
               "name": "DELETE exams",
@@ -1434,7 +1480,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "191fb91a-31e2-4964-966a-0b1288b41b81"
             },
             {
               "name": "DELETE unavailability-requests",
@@ -1459,7 +1506,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "6bb41bcc-da98-4a01-bcd9-b32ce5836992"
             },
             {
               "name": "DELETE personnel",
@@ -1484,7 +1532,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "f8348bfa-626b-41b6-8b2d-2e293e0735d6"
             },
             {
               "name": "DELETE sessions",
@@ -1509,7 +1558,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "2e8b55f7-3cc7-4334-a658-5fe59668ea80"
             },
             {
               "name": "DELETE classrooms",
@@ -1534,7 +1584,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "67299b86-7244-462b-ba5b-a84d7dbd0fa7"
             },
             {
               "name": "DELETE courses",
@@ -1559,7 +1610,8 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "877ecdda-26f8-42a8-9626-fe1196f2b7ab"
             },
             {
               "name": "DELETE departments",
@@ -1584,9 +1636,11 @@
                     ]
                   }
                 }
-              ]
+              ],
+              "id": "2e66b29b-4424-44c7-8d25-12e27f620ef4"
             }
-          ]
+          ],
+          "id": "fa9424b9-62de-40f3-9f09-a380c54c3d06"
         }
       ],
       "auth": {
@@ -1598,7 +1652,8 @@
             "type": "string"
           }
         ]
-      }
+      },
+      "id": "ab714e9b-67b3-490d-8d03-7407a6269403"
     },
     {
       "name": "Workflow operations (administrator)",
@@ -1640,7 +1695,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "6963f088-8c6a-4983-b2be-1c2fb2ccb674"
         },
         {
           "name": "GET /reports/workload",
@@ -1668,7 +1724,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "659d823a-62b9-4bf6-ac4b-76eccd1540e4"
         },
         {
           "name": "GET /reports/availability",
@@ -1696,7 +1753,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "14b18dc0-0fd1-4299-b66b-de8fa3c8f5d7"
         },
         {
           "name": "GET /audit-logs",
@@ -1725,7 +1783,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "adbac516-fd30-4386-b2b4-f5eae389b738"
         },
         {
           "name": "GET /audit-logs/{id}",
@@ -1752,7 +1811,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "fae2e868-336e-4b54-a977-d02105eafe3b"
         },
         {
           "name": "POST /unavailability-requests/{id}/decision",
@@ -1792,7 +1852,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "99cc536d-9683-4fe4-a7a4-7b995757ee5e"
         },
         {
           "name": "DELETE /schedule",
@@ -1818,7 +1879,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "0bb1a874-4539-4dd1-b0b4-3691c79a7f07"
         },
         {
           "name": "POST /schedule/automatic-planning",
@@ -1859,7 +1921,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "5bc9fdea-8029-4eb1-82b8-3edaf0978e18"
         },
         {
           "name": "POST /invigilator-assignments/automatic",
@@ -1900,7 +1963,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "5291c08c-eec0-4a17-a0e9-bf6aa6409f2d"
         },
         {
           "name": "PUT /schedule/publication",
@@ -1940,9 +2004,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "d1851470-6b61-4a18-88c9-a2756143fc0b"
         }
-      ]
+      ],
+      "id": "b05f211a-0c45-43c3-9088-1c56b4618664"
     },
     {
       "name": "Own reports (invigilator)",
@@ -1984,7 +2050,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "639c577a-52a5-4b3c-ab7a-223975bb41b4"
         },
         {
           "name": "GET /me/workload",
@@ -2011,9 +2078,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "0dcbfcc7-625d-41d3-8f0d-901b47098f1d"
         }
-      ]
+      ],
+      "id": "5c21d499-1344-48ee-a8fb-145dfedb0cfc"
     },
     {
       "name": "Response representations",
@@ -2043,7 +2112,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "6381f8c6-a750-48a6-8e60-953afcfa5a7a"
         },
         {
           "name": "Published schedule: text/plain;q=1,application/json;q=.5",
@@ -2069,7 +2139,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "59290369-21bc-423f-9a83-3e36d5f5935e"
         },
         {
           "name": "Published schedule: application/atom+xml",
@@ -2095,7 +2166,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "792a7802-32fa-4328-81b9-6e984e1917d4"
         },
         {
           "name": "Published schedule: text/html",
@@ -2121,9 +2193,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "0acf6725-cd31-4323-9b26-5f1b537057b3"
         }
-      ]
+      ],
+      "id": "fd1736d7-1885-4c2e-acc7-85b62c8a9399"
     },
     {
       "name": "Downloads (administrator)",
@@ -2163,7 +2237,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "21fb67a7-e125-4774-803b-e75b6e336ab8"
         },
         {
           "name": "POST /backups",
@@ -2189,9 +2264,11 @@
                 ]
               }
             }
-          ]
+          ],
+          "id": "d71163b0-fbf0-42f0-937c-fd6ace723366"
         }
-      ]
+      ],
+      "id": "852e056f-154a-4e97-8ebe-58007de781df"
     }
   ]
 }

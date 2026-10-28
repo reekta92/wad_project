@@ -21,3 +21,7 @@ legacy/
 /.local/
 
 .scannerwork/
+
+# Generated Postman CLI skills; keep workspace bindings versioned.
+/.postman/skills.json
+/postman/skills/

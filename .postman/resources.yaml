@@ -1,0 +1,18 @@
+cloudResources:
+  collections:
+    ../docs/postman/exams.postman_collection.json: 58123148-591e0fdf-ed1c-47dc-a51e-273f5d556e3e
+  environments:
+    ../docs/postman/local.postman_environment.json: 58123148-ad7b9d3a-db51-4054-843d-639f8f59ea0d
+  globals:
+    ../postman/globals/workspace.globals.yaml: eb52187d-2433-4be1-86d4-d302461c6efc
+  specs:
+    ../docs/openapi.yaml: 43d2fe46-70b7-4ead-825d-798799d2d592
+localResources:
+  collections:
+    - ../docs/postman/exams.postman_collection.json
+  environments:
+    - ../docs/postman/local.postman_environment.json
+  specs:
+    - ../docs/openapi.yaml
+workspace:
+  id: 9c10d52b-1741-4ec2-87e3-ccd3a436c22b
