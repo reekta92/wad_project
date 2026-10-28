@@ -10,8 +10,6 @@ The original SQL Server application remains unchanged under the local `legacy/` 
 
 Repository: https://github.com/reekta92/wad_project
 
-This managed workspace makes `.git/` read-only. Its local Git metadata is stored in `.git-store/`; use `git --git-dir=.git-store --work-tree=.` here. A normal clone from GitHub uses standard Git commands.
-
 ## Run locally
 
 Prerequisites: Go 1.25 or newer, Node.js 22.12 or newer (CI uses Go 1.27.1 and Node 24.21.0), Python 3, Docker, Docker Compose, and a PostgreSQL 18 client (`pg_dump` on the API host PATH; CI uses `postgresql-client-18`). Ports 5433, 8080, 8081, and 5173 must be available.
