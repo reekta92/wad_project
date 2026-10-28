@@ -14,7 +14,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 HOST = "http://127.0.0.1:9000"
-PROJECT = "wad_project"
+PROJECT = "reekta92_wad_project"
 SERVER_IMAGE = "sonarqube@sha256:0b3408443fb6a311253de27941b10977c9b977fd53be2265947bfe14161308b8"
 SCANNER_IMAGE = "sonarsource/sonar-scanner-cli@sha256:a3f4215076706c95a17a68c19322ee916e40a3acd081a8c1a1e839e0194afa57"
 
