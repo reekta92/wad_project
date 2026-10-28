@@ -1,0 +1,4 @@
+$kind: collection
+id: fd1736d7-1885-4c2e-acc7-85b62c8a9399
+description: Public fixture requests. XML/text/Atom encode the same authorized schedule data; see docs/representations.md.
+order: 14000

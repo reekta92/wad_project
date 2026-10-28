@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{base_url}}/api/v1/unavailability-requests"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "personnel_id": {{test_personnel_id}},
+      "date": "2026-11-07",
+      "session_id": null,
+      "type": "leave",
+      "reason": "Postman test request"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('HTTP 201', () => pm.response.to.have.status(201));
+      pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));
+      pm.collectionVariables.set('test_unavailability_requests_id', pm.response.json().id);
+      pm.test('Created resource location', () => pm.expect(pm.response.headers.get('Location')).to.include('/' + pm.response.json().id));
+    language: text/javascript
+order: 6000

@@ -1,0 +1,13 @@
+$kind: http-request
+id: 2e8b55f7-3cc7-4334-a658-5fe59668ea80
+url: "{{base_url}}/api/v1/sessions/{{test_sessions_id}}"
+method: DELETE
+headers:
+  Accept: application/json
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('HTTP 204', () => pm.response.to.have.status(204));
+      pm.test('Empty deletion response', () => pm.expect(pm.response.text()).to.eql(''));
+    language: text/javascript
+order: 5000

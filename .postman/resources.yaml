@@ -1,17 +1,24 @@
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
 cloudResources:
   collections:
-    ../docs/postman/exams.postman_collection.json: 58123148-591e0fdf-ed1c-47dc-a51e-273f5d556e3e
+    ../postman/collections/exams: 58123148-591e0fdf-ed1c-47dc-a51e-273f5d556e3e
+    ../postman/collections/Faculty Exams — implemented API: dbc6705c-c292-4fbd-8aa7-46f642389db9
   environments:
-    ../docs/postman/local.postman_environment.json: 58123148-ad7b9d3a-db51-4054-843d-639f8f59ea0d
+    ../postman/environments/local.environment.yaml: 58123148-ad7b9d3a-db51-4054-843d-639f8f59ea0d
   globals:
     ../postman/globals/workspace.globals.yaml: eb52187d-2433-4be1-86d4-d302461c6efc
   specs:
     ../docs/openapi.yaml: 43d2fe46-70b7-4ead-825d-798799d2d592
+
 localResources:
   collections:
-    - ../docs/postman/exams.postman_collection.json
+    - ../postman/collections/exams
   environments:
-    - ../docs/postman/local.postman_environment.json
+    - ../postman/environments/local.environment.yaml
   specs:
     - ../docs/openapi.yaml
 workspace:

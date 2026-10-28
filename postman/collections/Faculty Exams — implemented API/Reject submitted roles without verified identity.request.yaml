@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{base_url}}/api/v1/me?role=administrator&personnel_id=1"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  role: administrator
+  personnel_id: "1"
+auth:
+  type: bearer
+  credentials:
+    token: invalid-token
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('HTTP 401', () => pm.response.to.have.status(401));
+      pm.test('{{bearer_token_19at}} instead of role login', () => pm.expect(pm.response.headers.get('WWW-Authenticate')).to.include('Bearer'));
+    language: text/javascript
+order: 15000

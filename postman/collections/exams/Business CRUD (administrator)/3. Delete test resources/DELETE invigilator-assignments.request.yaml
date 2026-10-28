@@ -1,0 +1,13 @@
+$kind: http-request
+id: 1e99ab81-5e84-41f7-af47-36faf8633eae
+url: "{{base_url}}/api/v1/invigilator-assignments/{{test_invigilator_assignments_id}}"
+method: DELETE
+headers:
+  Accept: application/json
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('HTTP 204', () => pm.response.to.have.status(204));
+      pm.test('Empty deletion response', () => pm.expect(pm.response.text()).to.eql(''));
+    language: text/javascript
+order: 1000

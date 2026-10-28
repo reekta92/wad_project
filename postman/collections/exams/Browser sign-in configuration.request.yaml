@@ -1,0 +1,13 @@
+$kind: http-request
+id: 3a3ac14b-08ae-4bce-abd4-f7edc4bc6f27
+url: "{{base_url}}/api/v1/auth/config"
+method: GET
+headers:
+  Accept: application/json
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('Public client configuration', () => { const config = pm.response.json(); pm.expect(config.client_id).to.eql('exam-web'); pm.expect(config.issuer).to.include('/realms/'); pm.expect(config).not.to.have.property('client_secret'); });
+    language: text/javascript
+order: 8000

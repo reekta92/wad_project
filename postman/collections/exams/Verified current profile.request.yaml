@@ -1,0 +1,26 @@
+$kind: http-request
+id: 8d222594-8e54-4dca-86f5-eb1fd0f9d29a
+url: "{{base_url}}/api/v1/me"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: oauth2
+  credentials:
+    clientId: exam-postman
+    accessTokenUrl: "{{issuer}}/protocol/openid-connect/token"
+    authUrl: "{{issuer}}/protocol/openid-connect/auth"
+    addTokenTo: header
+    challengeAlgorithm: S256
+    scope: openid
+    redirect_uri: https://oauth.pstmn.io/v1/callback
+    grant_type: authorization_code_with_pkce
+    accessToken: "{{access_token}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('Verified identity and permissions', () => { const profile = pm.response.json(); pm.expect(profile.id).to.be.above(0); pm.expect(profile.role).to.be.oneOf(['member', 'administrator']); pm.expect(profile.permissions).to.be.an('array'); });
+      pm.test('Profile is not cached', () => pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'));
+    language: text/javascript
+order: 9000

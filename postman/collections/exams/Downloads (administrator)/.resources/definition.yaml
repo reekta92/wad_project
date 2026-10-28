@@ -1,0 +1,10 @@
+$kind: collection
+id: 852e056f-154a-4e97-8ebe-58007de781df
+description: Use a verified administrator token. Send and Download to save files. Export accepts schedule filters without page/page_size; members may call export for published data. Backup is sensitive application data; keep private. Install PostgreSQL 18 client on the API host first.
+auth:
+  - id: dce7c816-be9a-43d7-8eb4-9a0bb851ddeb
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{access_token}}"
+order: 15000

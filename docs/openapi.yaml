@@ -2,9 +2,10 @@ openapi: 3.1.0
 info:
   title: Faculty Exams API
   version: 0.5.0
-  description: 'Faculty exam management: authenticated CRUD, atomic planning/staffing, request decisions, publication, joined
-    dashboards/reports, and owner-scoped duties. JSON representations are implemented; exports, backup, and XML/text/Atom
-    follow in the next milestone.'
+  description: 'Completed faculty exam management system: authenticated CRUD, atomic planning/staffing, request decisions,
+    publication, joined dashboards/reports, owner-scoped duties, XLSX exports, and private application database backups.
+    Resource and workflow responses support JSON/XML/text, with Atom for collection reads. Health and browser sign-in
+    configuration are JSON-only; downloads use their documented binary media types.'
 servers:
 - url: http://localhost:8080/api/v1
 security: []

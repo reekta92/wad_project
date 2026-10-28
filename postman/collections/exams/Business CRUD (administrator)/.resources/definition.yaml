@@ -1,0 +1,10 @@
+$kind: collection
+id: ab714e9b-67b3-490d-8d03-7407a6269403
+description: Run all three phases in order with a verified administrator access token. This creates only test records, then deletes those records. Use an isolated demo database. Other folders may require different tokens or intentionally return errors.
+auth:
+  - id: 253c95d8-3d06-419d-8289-96bde76e02fb
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{access_token}}"
+order: 11000

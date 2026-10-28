@@ -1,25 +1,42 @@
 # Test the API with Postman
 
-The maintained [collection](exams.postman_collection.json) covers all 59 operations in
+The v3 YAML [collection](../../postman/collections/exams) covers all 59 operations in
 [the OpenAPI contract](../openapi.yaml). Reuse it rather than generating another
 collection. Postman CLI 1.76.0 is configured through
 [`../../.postman/resources.yaml`](../../.postman/resources.yaml) for the
 [existing workspace](https://go.postman.co/workspace/9c10d52b-1741-4ec2-87e3-ccd3a436c22b/overview).
-The workspace binding does not upload files automatically.
+The workspace binding does not upload files automatically. Local Mode uses v3
+YAML collections and environments; JSON files are no longer supported there.
+Open the repository in Postman Local Mode to use the configured YAML resources.
+
+The [v2.1 JSON collection](exams.postman_collection.json) remains the compatibility
+input for the existing Newman browser tests. When changing requests, edit that
+file and regenerate the v3 collection from the repository root:
+
+```sh
+postman collection migrate docs/postman/exams.postman_collection.json \
+  --output postman/collections/exams
+postman collection lint postman/collections/exams
+```
+
+Keep the [YAML environment](../../postman/environments/local.environment.yaml)
+and [JSON compatibility environment](local.postman_environment.json) aligned;
+leave exported access tokens blank.
 
 ## Local API and public checks
 
 Start the API and its dependencies using the [local setup](../../README.md#run-locally).
 Postman targets `http://localhost:8080`; the frontend is not required for public
-checks. Import the collection and [local environment](local.postman_environment.json)
-into the Postman desktop app, then select **Faculty Exams — local**. A web client
+checks. Open this repository in Postman Local Mode, then select
+**Faculty Exams — local**. For cloud workspaces, the JSON compatibility files
+can still be imported. A web client
 needs the Postman Desktop Agent to reach localhost.
 
 For a read-only command-line run, execute this from the repository root:
 
 ```sh
-postman collection run docs/postman/exams.postman_collection.json \
-  -e docs/postman/local.postman_environment.json \
+postman collection run postman/collections/exams \
+  -e postman/environments/local.environment.yaml \
   -i "Process liveness" \
   -i "Dependency readiness" \
   -i "Published schedule" \
@@ -47,7 +64,7 @@ Its administrator workflows clear and rebuild the schedule.
 Postman account sign-in authenticates the CLI to the workspace. It does not
 authenticate requests to this application's API.
 
-1. In the imported collection, open **Verified current profile**, then
+1. In the collection, open **Verified current profile**, then
    **Authorization** and **Get New Access Token**. The request already configures
    Authorization Code with PKCE S256, client `exam-postman`, scope `openid`,
    callback `https://oauth.pstmn.io/v1/callback`, and authorization/token endpoints
@@ -107,19 +124,18 @@ binding; do not create a duplicate workspace or use `force-sync`, which can
 delete unrelated workspace entities. Keep access tokens and credentials out of
 all published files.
 
-With CLI 1.76.0, `workspace diff` can report collection changes immediately after
-a successful v2.1 upload because its comparison sanitizes request names and adds
-query-parameter metadata. Cloud readback was checked separately: all 68 saved
-requests, authentication, payloads, scripts, and ordering within folders were
-preserved. Treat this comparison output as a review signal rather than a reason
-to repeatedly push or overwrite local files. Specification content comparison
-is not supported by this CLI.
+The v3 migration preserves all 68 saved requests, authentication, payloads,
+scripts, and ordering within folders. The existing cloud resource IDs remain
+bound to the YAML paths. Specification content comparison is not supported by
+CLI 1.76.0.
 
 For a local inventory check that needs no running API:
 
 ```sh
 python3 -m unittest discover -s scripts -p 'test_contract.py'
 postman workspace lint --meta
+postman collection lint postman/collections/exams
+postman environment lint postman/environments/local.environment.yaml
 ```
 
 The inventory check verifies that every OpenAPI operation has a saved request;

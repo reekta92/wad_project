@@ -1,0 +1,15 @@
+$kind: http-request
+id: d71163b0-fbf0-42f0-937c-fd6ace723366
+name: POST /backups
+url: "{{base_url}}/api/v1/backups"
+method: POST
+headers:
+  Accept: application/octet-stream
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('HTTP 200', () => pm.response.to.have.status(200));
+      pm.test('Binary response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/octet-stream'));
+      pm.test('Private attachment', () => { pm.expect(pm.response.headers.get('Cache-Control')).to.eql('no-store'); pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment'); });
+    language: text/javascript
+order: 2000
