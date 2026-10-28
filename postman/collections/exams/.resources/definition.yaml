@@ -1,4 +1,0 @@
-$kind: collection
-id: 9dcd49e5-a1ed-474b-a40f-c59656d39664
-name: Faculty Exams — implemented API
-description: Public/identity, 40 business CRUD, and scheduling/report workflows. Use interactive Authorization Code + PKCE and private access_token values. Run administrator and invigilator folders separately with the appropriate token. Workflow writes and schedule clearing must use a disposable demo database; no credentials are exported.

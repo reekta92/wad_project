@@ -1,3 +1,0 @@
-$kind: collection
-description: Public fixture requests. XML/text/Atom encode the same authorized schedule data; see docs/representations.md.
-order: 4000

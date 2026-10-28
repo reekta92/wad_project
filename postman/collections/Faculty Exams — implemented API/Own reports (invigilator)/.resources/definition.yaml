@@ -1,9 +1,0 @@
-$kind: collection
-description: Use an invigilator access token; do not supply personnel identity. These are private current duties and may include unpublished assignments.
-auth:
-  - id: 5791d189-6f63-41de-8453-60c92676f3ee
-    type: bearer
-    name: bearer auth
-    credentials:
-      token: "{{access_token}}"
-order: 3000

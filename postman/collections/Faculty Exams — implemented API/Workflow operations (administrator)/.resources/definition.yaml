@@ -1,9 +1,0 @@
-$kind: collection
-description: Run against a disposable demo database with a verified administrator token. Set decision_request_id to a pending request that does not conflict with existing duties. The ordered workflow reads reports/audit, decides that request, clears the schedule, plans all courses, staffs rooms, and republishes. Clear removes every exam/allocation/duty. Audit list saves the detail ID. Conflicts return 409 and reviewed requests become immutable.
-auth:
-  - id: 2681e5e0-1b3c-4c30-925b-4d37547ff7fd
-    type: bearer
-    name: bearer auth
-    credentials:
-      token: "{{access_token}}"
-order: 2000

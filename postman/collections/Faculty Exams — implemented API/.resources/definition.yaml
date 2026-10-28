@@ -1,6 +1,0 @@
-$kind: collection
-description: Public/identity, 40 business CRUD, and scheduling/report workflows. Use interactive Authorization Code + PKCE and private access_token values. Run administrator and invigilator folders separately with the appropriate token. Workflow writes and schedule clearing must use a disposable demo database; no credentials are exported.
-variables:
-  - key: bearer_token_19at
-    secret: true
-    disabled: false
